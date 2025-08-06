@@ -1,0 +1,45 @@
+<!-- Hero Section -->
+<div class="hero min-h-[80vh] bg-base-100 mb-12" style="background-image: url(https://via.placeholder.com/1200x400?text=Embroidery+Shop);">
+  <div class="hero-overlay bg-opacity-60"></div>
+  <div class="hero-content text-center text-neutral-content">
+    <div class="max-w-md">
+      <h1 class="mb-5 text-5xl font-bold">Unique Embroidery Designs</h1>
+      <p class="mb-5">Explore our collection of high-quality embroidery files and patterns for your creative projects.</p>
+      <%= link_to "Shop Now", products_path, class: "btn btn-primary btn-lg" %>
+    </div>
+  </div>
+</div>
+
+<!-- Featured Products Section -->
+<div class="mb-12">
+  <h2 class="text-3xl font-bold text-center mb-8">Featured Products</h2>
+  <% if @featured_products.empty? %>
+    <div class="alert alert-warning shadow-lg text-center">
+      <span>No featured products available at the moment. Check back soon!</span>
+    </div>
+  <% else %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @featured_products.each do |product| %>
+        <div class="card w-full bg-base-100 shadow-xl">
+          <figure class="px-10 pt-10">
+            <% if product.images.attached? %>
+              <%= image_tag product.images.first, class: "rounded-xl h-48 w-full object-cover" %>
+            <% else %>
+              <img src="https://via.placeholder.com/300x200?text=No+Image" alt="No Image" class="rounded-xl h-48 w-full object-cover" />
+            <% end %>
+          </figure>
+          <div class="card-body items-center text-center">
+            <h2 class="card-title"><%= product.title %></h2>
+            <p class="text-lg font-semibold">$<%= product.price %></p>
+            <div class="card-actions mt-4">
+              <%= link_to "View Details", product_path(product), class: "btn btn-primary btn-sm" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="text-center mt-8">
+      <%= link_to "View All Products", products_path, class: "btn btn-outline btn-primary" %>
+    </div>
+  <% end %>
+</div>
