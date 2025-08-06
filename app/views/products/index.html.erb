@@ -1,0 +1,28 @@
+<h1 class="text-4xl font-bold text-center mb-8">Our Products</h1>
+
+<% if @products.empty? %>
+  <div class="alert alert-warning shadow-lg">
+    <span>No products available at the moment. Please check back later!</span>
+  </div>
+<% else %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @products.each do |product| %>
+      <div class="card w-full bg-base-100 shadow-xl">
+        <figure class="px-10 pt-10">
+          <% if product.images.attached? %>
+            <%= image_tag product.images.first, class: "rounded-xl h-48 w-full object-cover" %>
+          <% else %>
+            <img src="https://via.placeholder.com/300x200?text=No+Image" alt="No Image" class="rounded-xl h-48 w-full object-cover" />
+          <% end %>
+        </figure>
+        <div class="card-body items-center text-center">
+          <h2 class="card-title"><%= product.title %></h2>
+          <p class="text-lg font-semibold">$<%= product.price %></p>
+          <div class="card-actions mt-4">
+            <%= link_to "View Details", product_path(product), class: "btn btn-primary btn-sm" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

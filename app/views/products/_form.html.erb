@@ -1,0 +1,95 @@
+<%= form_with(model: product, class: "space-y-6 max-w-4xl mx-auto") do |form| %>
+  <% if product.errors.any? %>
+    <div class="alert alert-error shadow-lg mb-4">
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span><%= pluralize(product.errors.count, "error") %> prevented this product from being saved:</span>
+      </div>
+      <ul class="list-disc ml-6">
+        <% product.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card bg-base-100 shadow-xl p-6">
+    <h2 class="card-title text-2xl mb-4">Product Details</h2>
+    
+    <div class="form-control mb-4">
+      <%= form.label :title, class: "label" %>
+      <%= form.text_field :title, class: "input input-bordered w-full", placeholder: "Enter product title" %>
+      <div class="label-text-alt mt-2 text-gray-500">A catchy name for your embroidery design</div>
+    </div>
+
+    <div class="form-control mb-4">
+      <%= form.label :price, class: "label" %>
+      <%= form.number_field :price, class: "input input-bordered w-full", placeholder: "Enter price in dollars", min: 0 %>
+      <div class="label-text-alt mt-2 text-gray-500">Price for this product (whole dollars)</div>
+    </div>
+
+    <div class="form-control mb-4">
+      <%= form.label :description, class: "label" %>
+      <%= form.text_area :description, class: "textarea textarea-bordered w-full h-24", placeholder: "Describe the product in detail" %>
+      <div class="label-text-alt mt-2 text-gray-500">Optional: Provide details about the design or usage</div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div class="form-control">
+        <%= form.label :category, class: "label" %>
+        <%= form.text_field :category, class: "input input-bordered w-full", placeholder: "e.g., Floral, Animals" %>
+        <div class="label-text-alt mt-2 text-gray-500">Optional: Category for organization</div>
+      </div>
+
+      <div class="form-control">
+        <%= form.label :file_format, class: "label" %>
+        <%= form.text_field :file_format, class: "input input-bordered w-full", placeholder: "e.g., PES, DST" %>
+        <div class="label-text-alt mt-2 text-gray-500">Optional: Format of embroidery file</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div class="form-control">
+        <%= form.label :dimensions, class: "label" %>
+        <%= form.text_field :dimensions, class: "input input-bordered w-full", placeholder: "e.g., 4x4 inches" %>
+        <div class="label-text-alt mt-2 text-gray-500">Optional: Dimensions or hoop size</div>
+      </div>
+
+      <div class="form-control flex items-center">
+        <%= form.label :is_available, class: "label" %>
+        <div class="flex items-center space-x-2 mt-2">
+          <%= form.check_box :is_available, class: "checkbox checkbox-primary" %>
+          <span class="label-text">Available for purchase</span>
+        </div>
+        <div class="label-text-alt mt-2 text-gray-500">Check if ready to sell</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl p-6">
+    <h2 class="card-title text-2xl mb-4">Media Uploads</h2>
+    
+    <div class="form-control mb-4">
+      <%= form.label :embroidery_file, class: "label" %>
+      <%= form.file_field :embroidery_file, class: "file-input file-input-bordered file-input-primary w-full", accept: ".pes,.dst,.jef" %>
+      <div class="label-text-alt mt-2 text-gray-500">Optional: Upload the embroidery file for download after purchase</div>
+      <% if product.embroidery_file.attached? %>
+        <div class="mt-2 text-sm text-success">File attached: <%= product.embroidery_file.filename %></div>
+      <% end %>
+    </div>
+
+    <div class="form-control mb-4">
+      <%= form.label :images, class: "label" %>
+      <%= form.file_field :images, multiple: true, class: "file-input file-input-bordered file-input-secondary w-full", accept: "image/*" %>
+      <div class="label-text-alt mt-2 text-gray-500">Optional: Upload images to showcase the product</div>
+      <% if product.images.attached? %>
+        <div class="mt-2 text-sm text-success"><%= pluralize(product.images.count, "image") %> attached</div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card-actions justify-between mt-6">
+    <%= link_to "Cancel", products_path, class: "btn btn-outline btn-secondary" %>
+    <%= form.submit product.new_record? ? "Create Product" : "Update Product", class: "btn btn-primary" %>
+  </div>
+<% end %>

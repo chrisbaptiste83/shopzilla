@@ -1,0 +1,17 @@
+
+<div class="card bg-base-100 shadow-xl p-8">
+  <div class="flex items-center gap-6">
+    <% if current_user.avatar.attached? %>
+      <%= image_tag current_user.avatar.variant(resize_to_fill: [100, 100]), class: "rounded-full w-24 h-24" %>
+    <% else %>
+      <img src="https://via.placeholder.com/100" class="rounded-full w-24 h-24" alt="Avatar" />
+    <% end %>
+    <div>
+      <h2 class="text-xl font-bold"><%= current_user.email %></h2>
+      <%= link_to "Edit Profile", edit_profile_path, class: "btn btn-sm btn-outline mt-2" %>
+    </div>
+  </div>
+  <div class="mt-6 prose max-w-none">
+    <%= current_user.bio&.body || "No bio provided." %>
+  </div>
+</div>

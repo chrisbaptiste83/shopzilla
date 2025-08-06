@@ -65,3 +65,13 @@ group :test do
 end
 
 gem "stripe", "~> 15.2"
+
+gem "devise", "~> 4.9"
+
+gem "importmap-rails", "~> 2.2"
+
+gem "activeadmin", "~> 3.3"
+
+gem "sassc-rails", "~> 2.1"
+
+gem "sprockets-rails", "~> 3.5"
