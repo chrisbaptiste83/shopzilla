@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 ActiveAdmin.register_page "Dashboard" do
   menu priority: 1, label: proc { I18n.t("active_admin.dashboard") }
 
@@ -9,7 +10,7 @@ ActiveAdmin.register_page "Dashboard" do
           div class: "dashboard-stats" do
             div class: "stat-item" do
               h3 "Total Revenue"
-              h2 number_to_currency(Payment.where(status: 'completed').sum(:amount))
+              h2 number_to_currency(Payment.where(status: "completed").sum(:amount))
             end
             div class: "stat-item" do
               h3 "Orders This Month"
@@ -21,7 +22,7 @@ ActiveAdmin.register_page "Dashboard" do
             end
           end
         end
-        
+
         panel "Recent Orders" do
           table_for Order.includes(:user, :payment).limit(10).order(created_at: :desc) do
             column "Order", :id do |order|
@@ -38,7 +39,7 @@ ActiveAdmin.register_page "Dashboard" do
           end
         end
       end
-      
+
       column do
         panel "Payment Status" do
           div do
@@ -47,7 +48,7 @@ ActiveAdmin.register_page "Dashboard" do
             h4 "Failed: #{Payment.where(status: 'failed').count}"
           end
         end
-        
+
         panel "Download Activity" do
           table_for DownloadAccess.includes(:user, :product).limit(10).order(created_at: :desc) do
             column "User", :user
