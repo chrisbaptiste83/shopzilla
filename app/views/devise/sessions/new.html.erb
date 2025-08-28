@@ -10,14 +10,16 @@
         
         <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-4" }) do |f| %>
           <div class="form-control">
-            <%= f.label :email, class: "label" %>
-            <span class="label-text">Email</span>
+            <label class="label">
+              <span class="label-text">Email</span>
+            </label>
             <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered", placeholder: "Enter your email" %>
           </div>
 
           <div class="form-control">
-            <%= f.label :password, class: "label" %>
-            <span class="label-text">Password</span>
+            <label class="label">
+              <span class="label-text">Password</span>
+            </label>
             <%= f.password_field :password, autocomplete: "current-password", class: "input input-bordered", placeholder: "Enter your password" %>
           </div>
 
