@@ -1,9 +1,15 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  title: MyString
-  price: 1
+  title: Beautiful Floral Design
+  price: 15
+  description: A lovely embroidery design
+  category: Floral
+  is_available: true
 
 two:
-  title: MyString
-  price: 1
+  title: Elegant Animal Pattern
+  price: 20
+  description: A stunning animal embroidery pattern
+  category: Animal
+  is_available: true

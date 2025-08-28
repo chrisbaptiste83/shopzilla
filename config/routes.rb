@@ -1,9 +1,6 @@
 Rails.application.routes.draw do
   get "pages/success"
   get "pages/cancel"
-  get "profiles/show"
-  get "profiles/edit"
-  get "profiles/update"
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
   devise_for :users

@@ -3,11 +3,11 @@
 one:
   order: one
   product: one
-  quantity: 1
-  unit_price: 9.99
+  quantity: 2
+  unit_price: 15.00
 
 two:
   order: two
   product: two
   quantity: 1
-  unit_price: 9.99
+  unit_price: 20.00

@@ -2,12 +2,12 @@
 
 one:
   user: one
-  total: 9.99
-  status: MyString
-  shipping_address: MyText
+  total: 25.50
+  status: pending
+  shipping_address: 123 Main St, City, State 12345
 
 two:
   user: two
-  total: 9.99
-  status: MyString
-  shipping_address: MyText
+  total: 35.00
+  status: paid
+  shipping_address: 456 Oak Ave, Town, State 67890
