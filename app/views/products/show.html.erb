@@ -1,33 +1,188 @@
-<div class="card w-full bg-base-100 shadow-xl mb-12">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div>
-      <figure class="px-10 pt-10">
+<!-- Breadcrumb -->
+<div class="text-sm breadcrumbs mb-6">
+  <ul>
+    <li><%= link_to "Home", root_path %></li>
+    <li><%= link_to "Products", products_path %></li>
+    <li><%= @product.category if @product.category.present? %></li>
+    <li class="font-semibold"><%= @product.title %></li>
+  </ul>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+  <!-- Product Images -->
+  <div class="space-y-4">
+    <div class="card bg-base-100 shadow-xl">
+      <figure class="p-6">
         <% if @product.images.attached? %>
-          <%= image_tag @product.images.first, class: "rounded-xl w-full h-96 object-cover" %>
+          <%= image_tag @product.images.first, class: "rounded-xl w-full h-96 object-cover", id: "main-image" %>
         <% else %>
-          <img src="https://via.placeholder.com/500x400?text=No+Image" alt="No Image" class="rounded-xl w-full h-96 object-cover" />
+          <div class="rounded-xl w-full h-96 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+            <span class="text-8xl opacity-50">🎨</span>
+          </div>
         <% end %>
       </figure>
     </div>
-    <div class="card-body">
-      <h1 class="card-title text-3xl"><%= @product.title %></h1>
-      <p class="text-lg font-semibold mt-2">$<%= @product.price %></p>
-      <p class="mt-4"><%= @product.description || "No description available." %></p>
-      <% if @product.embroidery_file.attached? %>
-        <p class="mt-4 text-sm text-gray-600">Embroidery File Available: <%= @product.file_format || "N/A" %></p>
-      <% else %>
-        <p class="mt-4 text-sm text-gray-600">No embroidery file available for this product.</p>
-      <% end %>
-      <div class="card-actions justify-end mt-6">
-        <%= link_to "Add to Cart", "#", class: "btn btn-primary" %>
-        <%= button_to "Buy Now", checkout_index_path(product_id: @product.id), method: :post, class: "btn btn-primary" %>
-        
-        <%= link_to "Back to Products", products_path, class: "btn btn-outline btn-secondary" %>
-        <% if current_user&.admin? %>
-          <%= link_to "Edit Product", edit_product_path(@product), class: "btn btn-accent" %>
+    
+    <!-- Thumbnail Gallery -->
+    <% if @product.images.attached? && @product.images.count > 1 %>
+      <div class="grid grid-cols-4 gap-2">
+        <% @product.images.each_with_index do |image, index| %>
+          <div class="card bg-base-100 shadow cursor-pointer hover:shadow-lg transition-shadow">
+            <figure class="p-2">
+              <%= image_tag image, class: "rounded-lg w-full h-20 object-cover", onclick: "document.getElementById('main-image').src = this.src" %>
+            </figure>
+          </div>
         <% end %>
       </div>
+    <% end %>
+  </div>
+
+  <!-- Product Details -->
+  <div class="space-y-6">
+    <div>
+      <% if @product.category.present? %>
+        <div class="badge badge-primary mb-2"><%= @product.category %></div>
+      <% end %>
+      <h1 class="text-4xl font-bold mb-4"><%= @product.title %></h1>
+      
+      <!-- Rating and Reviews -->
+      <div class="flex items-center gap-4 mb-4">
+        <div class="rating">
+          <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" />
+          <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" />
+          <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" />
+          <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" />
+          <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" checked />
+        </div>
+        <span class="text-sm text-base-content/70">(24 reviews)</span>
+      </div>
+      
+      <div class="text-4xl font-bold text-primary mb-6">$<%= @product.price %></div>
+    </div>
+
+    <!-- Product Description -->
+    <div class="prose max-w-none">
+      <h3 class="text-xl font-semibold mb-3">Description</h3>
+      <p class="text-base-content/80 leading-relaxed">
+        <%= @product.description || "This beautiful embroidery design is perfect for adding a unique touch to your creative projects. Crafted with attention to detail and tested on multiple machine types for optimal results." %>
+      </p>
+    </div>
+
+    <!-- Product Specifications -->
+    <div class="card bg-base-100 shadow-lg">
+      <div class="card-body">
+        <h3 class="card-title text-lg mb-4">Product Details</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span class="font-semibold">Dimensions:</span>
+            <span class="text-base-content/70"><%= @product.dimensions || "4x4 inches" %></span>
+          </div>
+          <div>
+            <span class="font-semibold">Stitch Count:</span>
+            <span class="text-base-content/70">~8,500 stitches</span>
+          </div>
+          <% if @product.file_format.present? %>
+            <div class="col-span-2">
+              <span class="font-semibold">Available Formats:</span>
+              <div class="flex flex-wrap gap-1 mt-1">
+                <% @product.file_format.split(',').each do |format| %>
+                  <div class="badge badge-outline badge-sm"><%= format.strip %></div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          <% if @product.embroidery_file.attached? %>
+            <div class="col-span-2">
+              <span class="font-semibold">Download:</span>
+              <span class="text-success">✓ Instant download after purchase</span>
+            </div>
+          <% end %>
+        </div>
       </div>
     </div>
+
+    <!-- Purchase Actions -->
+    <div class="card bg-base-100 shadow-lg">
+      <div class="card-body">
+        <div class="flex flex-col gap-4">
+          <div class="flex gap-2">
+            <button class="btn btn-outline flex-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              Add to Wishlist
+            </button>
+            <%= link_to "#", class: "btn btn-primary flex-1" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6" />
+              </svg>
+              Add to Cart
+            <% end %>
+          </div>
+          
+          <%= button_to checkout_index_path(product_id: @product.id), method: :post, class: "btn btn-accent btn-lg w-full" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Buy Now - Instant Download
+          <% end %>
+          
+          <div class="flex items-center justify-center gap-4 text-sm text-base-content/70">
+            <div class="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Secure Payment</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              <span>Instant Download</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <% if current_user&.admin? %>
+      <div class="card bg-base-200 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title text-sm">Admin Actions</h3>
+          <div class="flex gap-2">
+            <%= link_to "Edit Product", edit_product_path(@product), class: "btn btn-warning btn-sm" %>
+            <%= link_to "Back to Products", products_path, class: "btn btn-outline btn-sm" %>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-center">
+        <%= link_to "← Back to Products", products_path, class: "btn btn-outline" %>
+      </div>
+    <% end %>
   </div>
 </div>
+
+<!-- Related Products -->
+<section class="mt-16">
+  <h2 class="text-3xl font-bold text-center mb-8">You Might Also Like</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <% 4.times do |i| %>
+      <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+        <figure class="px-4 pt-4">
+          <div class="rounded-lg h-40 w-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+            <span class="text-4xl opacity-50">🎨</span>
+          </div>
+        </figure>
+        <div class="card-body p-4">
+          <h3 class="card-title text-sm">Related Design <%= i + 1 %></h3>
+          <p class="text-primary font-bold">$12.99</p>
+          <div class="card-actions">
+            <button class="btn btn-primary btn-sm w-full">View Details</button>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>

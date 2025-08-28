@@ -1,45 +1,202 @@
 <!-- Hero Section -->
-<div class="hero min-h-[80vh] bg-base-100 mb-12" style="background-image: url(https://via.placeholder.com/1200x400?text=Embroidery+Shop);">
-  <div class="hero-overlay bg-opacity-60"></div>
+<div class="hero min-h-[80vh] bg-gradient-to-r from-primary to-secondary mb-12">
+  <div class="hero-overlay bg-opacity-20"></div>
   <div class="hero-content text-center text-neutral-content">
-    <div class="max-w-md">
-      <h1 class="mb-5 text-5xl font-bold">Unique Embroidery Designs</h1>
-      <p class="mb-5">Explore our collection of high-quality embroidery files and patterns for your creative projects.</p>
-      <%= link_to "Shop Now", products_path, class: "btn btn-primary btn-lg" %>
+    <div class="max-w-2xl">
+      <h1 class="mb-5 text-6xl font-bold leading-tight">
+        Unique <span class="text-accent">Embroidery</span> Designs
+      </h1>
+      <p class="mb-8 text-xl leading-relaxed">
+        Discover our premium collection of high-quality embroidery files and patterns. 
+        Perfect for crafters, professionals, and creative enthusiasts.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <%= link_to "Shop Now", products_path, class: "btn btn-accent btn-lg" %>
+        <%= link_to "Browse Categories", "#categories", class: "btn btn-outline btn-lg text-white border-white hover:bg-white hover:text-primary" %>
+      </div>
+      <div class="mt-8 flex justify-center items-center gap-8 text-sm opacity-90">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">✨</span>
+          <span>Premium Quality</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">⚡</span>
+          <span>Instant Download</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🎯</span>
+          <span>Multiple Formats</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Categories Section -->
+<section id="categories" class="mb-16">
+  <div class="text-center mb-12">
+    <h2 class="text-4xl font-bold mb-4">Shop by Category</h2>
+    <p class="text-lg text-base-content/70 max-w-2xl mx-auto">
+      Find the perfect embroidery design for your next project from our carefully curated categories.
+    </p>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group">
+      <figure class="px-6 pt-6">
+        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+          <span class="text-3xl">🌸</span>
+        </div>
+      </figure>
+      <div class="card-body items-center text-center py-4">
+        <h3 class="card-title text-lg">Floral</h3>
+        <p class="text-sm text-base-content/70">Beautiful flower designs</p>
+      </div>
+    </div>
+    
+    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group">
+      <figure class="px-6 pt-6">
+        <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
+          <span class="text-3xl">🦋</span>
+        </div>
+      </figure>
+      <div class="card-body items-center text-center py-4">
+        <h3 class="card-title text-lg">Animals</h3>
+        <p class="text-sm text-base-content/70">Cute animal patterns</p>
+      </div>
+    </div>
+    
+    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group">
+      <figure class="px-6 pt-6">
+        <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+          <span class="text-3xl">🎄</span>
+        </div>
+      </figure>
+      <div class="card-body items-center text-center py-4">
+        <h3 class="card-title text-lg">Holiday</h3>
+        <p class="text-sm text-base-content/70">Seasonal celebrations</p>
+      </div>
+    </div>
+    
+    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group">
+      <figure class="px-6 pt-6">
+        <div class="w-16 h-16 bg-info/10 rounded-full flex items-center justify-center group-hover:bg-info/20 transition-colors">
+          <span class="text-3xl">✍️</span>
+        </div>
+      </figure>
+      <div class="card-body items-center text-center py-4">
+        <h3 class="card-title text-lg">Monograms</h3>
+        <p class="text-sm text-base-content/70">Personalized letters</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Featured Products Section -->
-<div class="mb-12">
-  <h2 class="text-3xl font-bold text-center mb-8">Featured Products</h2>
+<section class="mb-16">
+  <div class="text-center mb-12">
+    <h2 class="text-4xl font-bold mb-4">Featured Products</h2>
+    <p class="text-lg text-base-content/70 max-w-2xl mx-auto">
+      Discover our most popular embroidery designs, handpicked for their quality and creativity.
+    </p>
+  </div>
+  
   <% if @featured_products.empty? %>
-    <div class="alert alert-warning shadow-lg text-center">
-      <span>No featured products available at the moment. Check back soon!</span>
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body text-center py-16">
+        <div class="text-6xl mb-4">🎨</div>
+        <h3 class="text-2xl font-bold mb-2">Coming Soon!</h3>
+        <p class="text-base-content/70 mb-6">We're preparing amazing embroidery designs for you. Check back soon!</p>
+        <%= link_to "Browse All Products", products_path, class: "btn btn-primary" %>
+      </div>
     </div>
   <% else %>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       <% @featured_products.each do |product| %>
-        <div class="card w-full bg-base-100 shadow-xl">
-          <figure class="px-10 pt-10">
+        <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+          <figure class="px-6 pt-6 relative overflow-hidden">
             <% if product.images.attached? %>
-              <%= image_tag product.images.first, class: "rounded-xl h-48 w-full object-cover" %>
+              <%= image_tag product.images.first, class: "rounded-xl h-56 w-full object-cover group-hover:scale-105 transition-transform duration-300" %>
             <% else %>
-              <img src="https://via.placeholder.com/300x200?text=No+Image" alt="No Image" class="rounded-xl h-48 w-full object-cover" />
+              <div class="rounded-xl h-56 w-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                <span class="text-6xl opacity-50">🎨</span>
+              </div>
             <% end %>
+            <div class="absolute top-8 right-8">
+              <div class="badge badge-primary">Featured</div>
+            </div>
           </figure>
-          <div class="card-body items-center text-center">
-            <h2 class="card-title"><%= product.title %></h2>
-            <p class="text-lg font-semibold">$<%= product.price %></p>
-            <div class="card-actions mt-4">
-              <%= link_to "View Details", product_path(product), class: "btn btn-primary btn-sm" %>
+          <div class="card-body">
+            <h3 class="card-title text-xl mb-2">
+              <%= product.title %>
+              <div class="badge badge-secondary">NEW</div>
+            </h3>
+            <p class="text-base-content/70 text-sm mb-4">
+              <%= truncate(product.description || "Beautiful embroidery design perfect for your creative projects.", length: 80) %>
+            </p>
+            <div class="flex items-center justify-between">
+              <span class="text-2xl font-bold text-primary">$<%= product.price %></span>
+              <div class="rating rating-sm">
+                <input type="radio" name="rating-<%= product.id %>" class="mask mask-star-2 bg-orange-400" />
+                <input type="radio" name="rating-<%= product.id %>" class="mask mask-star-2 bg-orange-400" />
+                <input type="radio" name="rating-<%= product.id %>" class="mask mask-star-2 bg-orange-400" />
+                <input type="radio" name="rating-<%= product.id %>" class="mask mask-star-2 bg-orange-400" />
+                <input type="radio" name="rating-<%= product.id %>" class="mask mask-star-2 bg-orange-400" checked />
+              </div>
+            </div>
+            <div class="card-actions justify-between mt-6">
+              <%= link_to "Quick View", product_path(product), class: "btn btn-outline btn-sm flex-1" %>
+              <%= link_to "Add to Cart", "#", class: "btn btn-primary btn-sm flex-1" %>
             </div>
           </div>
         </div>
       <% end %>
     </div>
-    <div class="text-center mt-8">
-      <%= link_to "View All Products", products_path, class: "btn btn-outline btn-primary" %>
+    <div class="text-center mt-12">
+      <%= link_to "View All Products", products_path, class: "btn btn-primary btn-lg" %>
     </div>
   <% end %>
-</div>
+</section>
+
+<!-- Features Section -->
+<section class="mb-16">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="card bg-base-100 shadow-lg">
+      <div class="card-body text-center">
+        <div class="text-4xl mb-4">⚡</div>
+        <h3 class="card-title justify-center mb-2">Instant Download</h3>
+        <p class="text-base-content/70">Get your designs immediately after purchase. No waiting, start creating right away!</p>
+      </div>
+    </div>
+    
+    <div class="card bg-base-100 shadow-lg">
+      <div class="card-body text-center">
+        <div class="text-4xl mb-4">🎯</div>
+        <h3 class="card-title justify-center mb-2">Multiple Formats</h3>
+        <p class="text-base-content/70">Compatible with all major embroidery machines. PES, DST, JEF, and more formats included.</p>
+      </div>
+    </div>
+    
+    <div class="card bg-base-100 shadow-lg">
+      <div class="card-body text-center">
+        <div class="text-4xl mb-4">💎</div>
+        <h3 class="card-title justify-center mb-2">Premium Quality</h3>
+        <p class="text-base-content/70">Hand-crafted designs tested on real machines. Professional quality guaranteed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="mb-16">
+  <div class="card bg-primary text-primary-content shadow-xl">
+    <div class="card-body text-center py-16">
+      <h2 class="text-4xl font-bold mb-4">Stay Updated</h2>
+      <p class="text-xl mb-8 opacity-90">Get notified about new designs, exclusive offers, and embroidery tips!</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+        <input type="email" placeholder="Enter your email" class="input input-bordered flex-1 text-base-content" />
+        <button class="btn btn-accent">Subscribe</button>
+      </div>
+      <p class="text-sm opacity-75 mt-4">No spam, unsubscribe anytime.</p>
+    </div>
+  </div>
+</section>
