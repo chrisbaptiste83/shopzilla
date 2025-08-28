@@ -25,4 +25,3 @@ class ProfilesController < ApplicationController
     params.require(:user).permit(:email, :avatar, :bio)
   end
 end
-
