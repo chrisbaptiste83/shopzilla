@@ -1,6 +1,6 @@
 ActiveAdmin.register Order do
   permit_params :user_id, :total, :status, :shipping_address
-  
+
   index do
     selectable_column
     id_column
@@ -12,12 +12,12 @@ ActiveAdmin.register Order do
     column :created_at
     actions
   end
-  
+
   filter :user
   filter :status
   filter :total
   filter :created_at
-  
+
   show do
     attributes_table do
       row :user
@@ -29,7 +29,7 @@ ActiveAdmin.register Order do
       row :created_at
       row :updated_at
     end
-    
+
     panel "Order Items" do
       table_for order.order_items do
         column :product
@@ -39,7 +39,7 @@ ActiveAdmin.register Order do
         end
       end
     end
-    
+
     panel "Payment" do
       if order.payment
         attributes_table_for order.payment do
@@ -54,7 +54,7 @@ ActiveAdmin.register Order do
         "No payment record"
       end
     end
-    
+
     active_admin_comments
   end
 end
