@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  post '/webhooks/stripe', to: 'webhooks#stripe'
+  get '/downloads/:token', to: 'downloads#show', as: 'secure_download'
   get "pages/success"
   get "pages/cancel"
   get "profiles/show"
