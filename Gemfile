@@ -75,3 +75,5 @@ gem "activeadmin", "~> 3.3"
 gem "sassc-rails", "~> 2.1"
 
 gem "sprockets-rails", "~> 3.5"
+
+gem "aws-sdk-s3", "~> 1.48"
