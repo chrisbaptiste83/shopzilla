@@ -37,9 +37,9 @@ class CategoryTest < ActiveSupport::TestCase
   test "with_products scope should return categories with products" do
     category_with_products = Category.create!(name: "With Products")
     category_without_products = Category.create!(name: "Without Products")
-    
+
     Product.create!(title: "Test Product", price: 10, category: category_with_products.name)
-    
+
     categories_with_products = Category.with_products
     assert_includes categories_with_products, category_with_products
     assert_not_includes categories_with_products, category_without_products
@@ -48,11 +48,11 @@ class CategoryTest < ActiveSupport::TestCase
   test "alphabetical scope should order by name" do
     # Clear existing categories to avoid fixture interference
     Category.delete_all
-    
+
     zebra_category = Category.create!(name: "Zebra")
     alpha_category = Category.create!(name: "Alpha")
     beta_category = Category.create!(name: "Beta")
-    
+
     alphabetical_categories = Category.alphabetical
     assert_equal alpha_category, alphabetical_categories.first
     assert_equal beta_category, alphabetical_categories.second
@@ -62,10 +62,10 @@ class CategoryTest < ActiveSupport::TestCase
   test "products_count should return number of products" do
     @category.save!
     assert_equal 0, @category.products_count
-    
+
     Product.create!(title: "Product 1", price: 10, category: @category.name)
     Product.create!(title: "Product 2", price: 15, category: @category.name)
-    
+
     assert_equal 2, @category.products_count
   end
 
@@ -78,7 +78,7 @@ class CategoryTest < ActiveSupport::TestCase
     @category.save!
     product1 = Product.create!(title: "Test Product 1", price: 10, category: @category.name)
     product2 = Product.create!(title: "Test Product 2", price: 15, category: "Other Category")
-    
+
     category_products = @category.products
     assert_includes category_products, product1
     assert_not_includes category_products, product2

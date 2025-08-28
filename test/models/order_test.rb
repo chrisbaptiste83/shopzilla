@@ -6,8 +6,8 @@ class OrderTest < ActiveSupport::TestCase
     @order = Order.new(
       user: @user,
       total: 25.50,
-      status: 'pending',
-      shipping_address: '123 Main St, City, State 12345'
+      status: "pending",
+      shipping_address: "123 Main St, City, State 12345"
     )
   end
 
@@ -45,7 +45,7 @@ class OrderTest < ActiveSupport::TestCase
       @order.status = status
       assert @order.valid?, "#{status} should be valid"
     end
-    
+
     @order.status = "invalid_status"
     assert_not @order.valid?
     assert_includes @order.errors[:status], "is not included in the list"
@@ -58,19 +58,19 @@ class OrderTest < ActiveSupport::TestCase
   end
 
   test "by_status scope should filter by status" do
-    pending_order = Order.create!(user: @user, total: 25.00, status: 'pending', shipping_address: '123 Main St')
-    paid_order = Order.create!(user: @user, total: 35.00, status: 'paid', shipping_address: '123 Main St')
-    
-    pending_results = Order.by_status('pending')
+    pending_order = Order.create!(user: @user, total: 25.00, status: "pending", shipping_address: "123 Main St")
+    paid_order = Order.create!(user: @user, total: 35.00, status: "paid", shipping_address: "123 Main St")
+
+    pending_results = Order.by_status("pending")
     assert_includes pending_results, pending_order
     assert_not_includes pending_results, paid_order
   end
 
   test "recent scope should order by created_at desc" do
-    old_order = Order.create!(user: @user, total: 25.00, status: 'pending', shipping_address: '123 Main St')
+    old_order = Order.create!(user: @user, total: 25.00, status: "pending", shipping_address: "123 Main St")
     sleep(0.01) # Ensure different timestamps
-    new_order = Order.create!(user: @user, total: 35.00, status: 'paid', shipping_address: '456 Oak Ave')
-    
+    new_order = Order.create!(user: @user, total: 35.00, status: "paid", shipping_address: "456 Oak Ave")
+
     recent_orders = Order.recent
     assert_equal new_order, recent_orders.first
     assert_equal old_order, recent_orders.second
@@ -80,10 +80,10 @@ class OrderTest < ActiveSupport::TestCase
     @order.save!
     product1 = Product.create!(title: "Test Product 1", price: 10.00)
     product2 = Product.create!(title: "Test Product 2", price: 15.00)
-    
+
     OrderItem.create!(order: @order, product: product1, quantity: 2, unit_price: 10.00)
     OrderItem.create!(order: @order, product: product2, quantity: 1, unit_price: 15.00)
-    
+
     @order.reload
     total = @order.calculate_total
     assert_equal 35.00, total
@@ -96,27 +96,27 @@ class OrderTest < ActiveSupport::TestCase
   end
 
   test "status_badge_class should return correct CSS class" do
-    assert_equal 'badge-warning', @order.status_badge_class # pending
-    
-    @order.status = 'paid'
-    assert_equal 'badge-info', @order.status_badge_class
-    
-    @order.status = 'shipped'
-    assert_equal 'badge-primary', @order.status_badge_class
-    
-    @order.status = 'completed'
-    assert_equal 'badge-success', @order.status_badge_class
-    
-    @order.status = 'cancelled'
-    assert_equal 'badge-error', @order.status_badge_class
+    assert_equal "badge-warning", @order.status_badge_class # pending
+
+    @order.status = "paid"
+    assert_equal "badge-info", @order.status_badge_class
+
+    @order.status = "shipped"
+    assert_equal "badge-primary", @order.status_badge_class
+
+    @order.status = "completed"
+    assert_equal "badge-success", @order.status_badge_class
+
+    @order.status = "cancelled"
+    assert_equal "badge-error", @order.status_badge_class
   end
 
   test "should destroy dependent order_items when order is destroyed" do
     @order.save!
     product = Product.create!(title: "Test Product", price: 10)
     order_item = OrderItem.create!(order: @order, product: product, quantity: 1, unit_price: 10.00)
-    
-    assert_difference 'OrderItem.count', -1 do
+
+    assert_difference "OrderItem.count", -1 do
       @order.reload.destroy
     end
   end

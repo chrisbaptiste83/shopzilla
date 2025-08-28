@@ -4,7 +4,7 @@ class OrderItemTest < ActiveSupport::TestCase
   def setup
     @user = User.create!(email: "test@example.com", password: "password123")
     @product = Product.create!(title: "Test Product", price: 15.00)
-    @order = Order.create!(user: @user, total: 30.00, status: 'pending', shipping_address: '123 Main St')
+    @order = Order.create!(user: @user, total: 30.00, status: "pending", shipping_address: "123 Main St")
     @order_item = OrderItem.new(
       order: @order,
       product: @product,

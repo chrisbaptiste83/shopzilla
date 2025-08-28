@@ -72,7 +72,7 @@ class ProductTest < ActiveSupport::TestCase
   test "available scope should return only available products" do
     available_product = Product.create!(title: "Available", price: 10, is_available: true)
     unavailable_product = Product.create!(title: "Unavailable", price: 10, is_available: false)
-    
+
     assert_includes Product.available, available_product
     assert_not_includes Product.available, unavailable_product
   end
@@ -80,7 +80,7 @@ class ProductTest < ActiveSupport::TestCase
   test "by_category scope should filter by category" do
     floral_product = Product.create!(title: "Floral", price: 10, category: "Floral")
     animal_product = Product.create!(title: "Animal", price: 10, category: "Animal")
-    
+
     floral_results = Product.by_category("Floral")
     assert_includes floral_results, floral_product
     assert_not_includes floral_results, animal_product
@@ -89,7 +89,7 @@ class ProductTest < ActiveSupport::TestCase
   test "by_category scope should return all when category is blank" do
     product1 = Product.create!(title: "Product 1", price: 10, category: "Floral")
     product2 = Product.create!(title: "Product 2", price: 10, category: "Animal")
-    
+
     all_results = Product.by_category("")
     assert_includes all_results, product1
     assert_includes all_results, product2
@@ -108,7 +108,7 @@ class ProductTest < ActiveSupport::TestCase
   test "display_category should return Uncategorized when category is blank" do
     @product.category = ""
     assert_equal "Uncategorized", @product.display_category
-    
+
     @product.category = nil
     assert_equal "Uncategorized", @product.display_category
   end
