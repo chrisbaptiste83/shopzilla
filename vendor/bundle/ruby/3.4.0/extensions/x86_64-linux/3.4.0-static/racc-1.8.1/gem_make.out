@@ -1,0 +1,18 @@
+current directory: /home/ubuntu/repos/shopzilla/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+/usr/local/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/ubuntu/repos/shopzilla/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250828-7065-gpwwpq sitelibdir\=./.gem.20250828-7065-gpwwpq clean
+
+current directory: /home/ubuntu/repos/shopzilla/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250828-7065-gpwwpq sitelibdir\=./.gem.20250828-7065-gpwwpq
+compiling cparse.c
+linking shared-object racc/cparse.so
+
+current directory: /home/ubuntu/repos/shopzilla/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250828-7065-gpwwpq sitelibdir\=./.gem.20250828-7065-gpwwpq install
+/usr/bin/install -c -m 0755 cparse.so ./.gem.20250828-7065-gpwwpq/racc
+
+current directory: /home/ubuntu/repos/shopzilla/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250828-7065-gpwwpq sitelibdir\=./.gem.20250828-7065-gpwwpq clean

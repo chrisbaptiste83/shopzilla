@@ -1,0 +1,18 @@
+current directory: /home/ubuntu/repos/shopzilla/vendor/bundle/ruby/3.4.0/gems/erb-5.0.1/ext/erb/escape
+/usr/local/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/ubuntu/repos/shopzilla/vendor/bundle/ruby/3.4.0/gems/erb-5.0.1/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20250828-7065-bzlufo sitelibdir\=./.gem.20250828-7065-bzlufo clean
+
+current directory: /home/ubuntu/repos/shopzilla/vendor/bundle/ruby/3.4.0/gems/erb-5.0.1/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20250828-7065-bzlufo sitelibdir\=./.gem.20250828-7065-bzlufo
+compiling escape.c
+linking shared-object erb/escape.so
+
+current directory: /home/ubuntu/repos/shopzilla/vendor/bundle/ruby/3.4.0/gems/erb-5.0.1/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20250828-7065-bzlufo sitelibdir\=./.gem.20250828-7065-bzlufo install
+/usr/bin/install -c -m 0755 escape.so ./.gem.20250828-7065-bzlufo/erb
+
+current directory: /home/ubuntu/repos/shopzilla/vendor/bundle/ruby/3.4.0/gems/erb-5.0.1/ext/erb/escape
+make DESTDIR\= sitearchdir\=./.gem.20250828-7065-bzlufo sitelibdir\=./.gem.20250828-7065-bzlufo clean
