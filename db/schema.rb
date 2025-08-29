@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_26_153401) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_28_171126) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -81,6 +81,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_26_153401) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "download_accesses", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "product_id", null: false
+    t.integer "order_id", null: false
+    t.string "access_token"
+    t.datetime "expires_at"
+    t.integer "download_count"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_download_accesses_on_order_id"
+    t.index ["product_id"], name: "index_download_accesses_on_product_id"
+    t.index ["user_id"], name: "index_download_accesses_on_user_id"
+  end
+
   create_table "order_items", force: :cascade do |t|
     t.integer "order_id", null: false
     t.integer "product_id", null: false
@@ -139,6 +153,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_26_153401) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "download_accesses", "orders"
+  add_foreign_key "download_accesses", "products"
+  add_foreign_key "download_accesses", "users"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "users"

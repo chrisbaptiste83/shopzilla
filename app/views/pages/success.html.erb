@@ -6,6 +6,11 @@
       <p class="py-6 text-lg">
         Your purchase was successful. We've emailed you a receipt and your order is being processed.
       </p>
+      <% if params[:session_id] %>
+        <div class="alert alert-info mb-4">
+          <p>Your download links will be available shortly. Check your account for access.</p>
+        </div>
+      <% end %>
       <%= link_to "Back to Shop", products_path, class: "btn btn-success" %>
     </div>
   </div>
