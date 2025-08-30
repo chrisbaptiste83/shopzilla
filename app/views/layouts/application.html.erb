@@ -9,11 +9,16 @@
   <%= javascript_importmap_tags if defined?(javascript_importmap_tags) %>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script>
+    const stripe = Stripe("<%= ENV['STRIPE_PUBLISHABLE_KEY'] %>");
+  </script>
+    <%= javascript_importmap_tags %>
+
 </head>
 <body class="bg-base-200">
   <!-- Promotional Banner -->
   <div class="bg-primary text-primary-content text-center py-2 text-sm">
-    <span>🎉 Free shipping on orders over $50! Use code: FREESHIP50</span>
+    <span>🎉 Free shipping on USB drive orders over $50! Use code: FREESHIP50</span>
   </div>
 
   <!-- Navigation Bar -->
@@ -106,9 +111,11 @@
             <li><%= link_to "Profile", profile_path %></li>
             <li><%= link_to "Orders", "#" %></li>
             <li><%= link_to "Wishlist", "#" %></li>
-            <div class="divider my-1"></div>
-            <li><%= link_to "Logout", destroy_user_session_path, data: { turbo_method: :delete }, class: "text-error" %></li>
-          </ul>
+            <li>
+              <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
+              <%= submit_tag "Logout", class: "btn btn-ghost text-error w-full text-left" %>
+              <% end %>
+            </li>
         </div>
       <% else %>
         <%= link_to "Login", new_user_session_path, class: "btn btn-ghost btn-sm" %>
