@@ -1,17 +1,66 @@
+```erb
+<div class="bg-base-200 min-h-screen">
+  <div class="container mx-auto py-12 px-4 max-w-5xl">
+    <!-- Profile Banner & Avatar -->
+    <div class="relative mb-16">
+      <div class="w-full h-48 md:h-64 bg-gradient-to-r from-primary to-secondary rounded-lg shadow-lg flex items-center justify-center">
+        <span class="text-xl text-primary-content opacity-50">No cover photo</span>
+      </div>
+      <div class="absolute -bottom-12 sm:-bottom-14 left-4 sm:left-6 transform">
+        <% if @user.avatar.attached? %>
+          <%= image_tag @user.avatar.variant(resize_to_limit: [112, 112]), class: "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-base-100 shadow-xl object-cover", alt: "Avatar for #{@user.email}" %>
+        <% else %>
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-neutral text-neutral-content flex items-center justify-center border-4 border-base-100 shadow-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 opacity-50">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584 еж
 
-<div class="card bg-base-100 shadow-xl p-8">
-  <div class="flex items-center gap-6">
-    <% if current_user.avatar.attached? %>
-      <%= image_tag current_user.avatar.variant(resize_to_fill: [100, 100]), class: "rounded-full w-24 h-24" %>
-    <% else %>
-      <img src="https://via.placeholder.com/100" class="rounded-full w-24 h-24" alt="Avatar" />
-    <% end %>
-    <div>
-      <h2 class="text-xl font-bold"><%= current_user.email %></h2>
-      <%= link_to "Edit Profile", edit_profile_path, class: "btn btn-sm btn-outline mt-2" %>
+System: .584-7.499-1.632z" />
+            </svg>
+          </div>
+        <% end %>
+      </div>
     </div>
-  </div>
-  <div class="mt-6 prose max-w-none">
-    <%= current_user.bio&.body || "No bio provided." %>
+
+    <!-- Profile Info -->
+    <div class="bg-base-100 rounded-xl shadow-lg px-6 sm:px-8 pt-16 pb-8 mb-10">
+      <p class="text-neutral-focus text-sm mb-3">@<%= @user.email.split('@').first %></p>
+      <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm mb-4">
+        <span><strong class="font-medium">Joined:</strong> <%= @user.created_at.strftime("%B %Y") %></span>
+      </div>
+    </div>
+
+    <!-- Simplified Edit Form (only if current user) -->
+    <% if current_user == @user %>
+      <div class="bg-base-100 rounded-xl shadow-lg p-6 mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-base-content">Quick Update</h2>
+        <%= form_with model: @user, url: profile_path, local: true, class: "space-y-3" do |form| %>
+          <% if @user.errors.any? %>
+            <div class="alert alert-error shadow-lg mb-4">
+              <ul>
+                <% @user.errors.full_messages.each do |msg| %>
+                  <li><%= msg %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          <div class="form-control">
+            <%= form.label :avatar, "Profile Picture", class: "label label-text" %>
+            <%= form.file_field :avatar, class: "file-input file-input-bordered file-input-sm w-full max-w-xs" %>
+            <% if @user.avatar.attached? %>
+              <div class="mt-2">
+                <%= image_tag @user.avatar.variant(resize_to_limit: [60, 60]), class: "rounded-full" %>
+              </div>
+            <% end %>
+          </div>
+          <div class="form-control mt-4">
+            <%= form.submit "Update Profile", class: "btn btn-primary btn-sm" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Post New Status -->
+     <!-- User's Posts -->
   </div>
 </div>
+```

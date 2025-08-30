@@ -120,9 +120,11 @@
             <%= link_to product.title, product_path(product), class: "hover:text-primary transition-colors" %>
           </h3>
           
-          <p class="text-sm text-base-content/70 mb-3">
-            <%= truncate(product.description || "Beautiful embroidery design perfect for your creative projects.", length: 60) %>
-          </p>
+    
+        <p class="text-sm text-base-content/70 mb-3">
+          <%= truncate(product.description.body.to_html.html_safe, length: 60, escape: false) %>
+        </p>
+
           
           <div class="flex items-center justify-between mb-4">
             <span class="text-xl font-bold text-primary">$<%= product.price %></span>
