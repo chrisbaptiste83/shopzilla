@@ -1,6 +1,7 @@
 ActiveAdmin.register Product do
-  permit_params :title, :price, :description, :category, :file_format, :is_available, :dimensions, :embroidery_file, images: []
+  permit_params :title, :price, :description, :file_format, :is_available, :dimensions, :category_id, :embroidery_file
 
+  # Index page
   index do
     selectable_column
     id_column
@@ -12,58 +13,33 @@ ActiveAdmin.register Product do
     actions
   end
 
+  # Filters
   filter :title
-  filter :category
+  filter :price
+  filter :category, as: :select, collection: Category.all
   filter :is_available
   filter :created_at
 
+  # Form
   form do |f|
     f.inputs "Product Details" do
       f.input :title
       f.input :price
+
+      # Rich text workaround: use text_area (rich text still works in the front-end show)
       f.input :description
-      f.input :category
+
       f.input :file_format
       f.input :is_available
       f.input :dimensions
-    end
-    f.inputs "Media Uploads" do
-      f.input :embroidery_file, as: :file
-      f.input :images, as: :file, input_html: { multiple: true }
+      f.input :category, as: :select, collection: Category.all, include_blank: "Select a category"
+      f.input :category, as: :string, input_html: { placeholder: "Or type a new category" }
+
+      # ActiveStorage file input
+      f.input :embroidery_file, as: :file, hint: f.object.embroidery_file.attached? ? 
+        "Current file: #{f.object.embroidery_file.filename}" : "Upload embroidery file"
     end
     f.actions
   end
-
-  show do
-    attributes_table do
-      row :title
-      row :price
-      row :description
-      row :category
-      row :file_format
-      row :is_available
-      row :dimensions
-      row :created_at
-      row :updated_at
-      row :embroidery_file do |product|
-        if product.embroidery_file.attached?
-          link_to product.embroidery_file.filename, rails_blob_path(product.embroidery_file, disposition: "attachment")
-        else
-          "No file attached"
-        end
-      end
-      row :images do |product|
-        if product.images.attached?
-          product.images.each do |image|
-            div do
-              image_tag image, style: "max-width: 200px; max-height: 200px; margin: 5px;"
-            end
-          end
-        else
-          "No images attached"
-        end
-      end
-    end
-    active_admin_comments
-  end
 end
+

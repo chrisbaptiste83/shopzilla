@@ -1,0 +1,35 @@
+
+<h1 class="text-xl font-bold mb-4">Your Cart</h1>
+
+<% if @products.any? %>
+  <table class="table w-full">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @products.each do |product| %>
+        <tr>
+          <td><%= product.title %></td>
+          <td><%= session[:cart][product.id.to_s] %></td>
+          <td>$<%= product.price * session[:cart][product.id.to_s] %></td>
+          <td>
+            <%= button_to "Remove", remove_cart_path(product_id: product.id), method: :delete, class: "btn btn-sm btn-error" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+ <div class="flex gap-2 mt-4">
+  <%= button_to "Checkout", checkout_path, method: :post, class: "btn btn-primary flex-1", data: { turbo: false } %>
+  <%= button_to "Clear Cart", clear_cart_path, method: :delete, class: "btn btn-secondary flex-1" %>
+</div>
+<% else %>
+  <p>Your cart is empty.</p>
+<% end %>
+

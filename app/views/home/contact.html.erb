@@ -1,0 +1,28 @@
+<div class="max-w-3xl mx-auto py-12 px-6">
+  <h1 class="text-4xl font-bold mb-4">Contact Us</h1>
+  <p class="text-lg text-gray-700 mb-6">
+    Have questions, requests, or feedback? We’d love to hear from you.
+  </p>
+
+  <div class="bg-white shadow rounded-2xl p-6">
+    <%= form_with url: contact_path, method: :post, local: true do |form| %>
+      <div class="mb-4">
+        <%= form.label :name, class: "block font-semibold mb-2" %>
+        <%= form.text_field :name, class: "w-full border rounded-lg p-2" %>
+      </div>
+
+      <div class="mb-4">
+        <%= form.label :email, class: "block font-semibold mb-2" %>
+        <%= form.email_field :email, class: "w-full border rounded-lg p-2" %>
+      </div>
+
+      <div class="mb-4">
+        <%= form.label :message, class: "block font-semibold mb-2" %>
+        <%= form.text_area :message, rows: 5, class: "w-full border rounded-lg p-2" %>
+      </div>
+
+      <%= form.submit "Send Message", class: "btn btn-accent w-full" %>
+    <% end %>
+  </div>
+</div>
+

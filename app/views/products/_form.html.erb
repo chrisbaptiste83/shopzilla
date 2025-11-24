@@ -2,7 +2,9 @@
   <% if product.errors.any? %>
     <div class="alert alert-error shadow-lg mb-4">
       <div>
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
         <span><%= pluralize(product.errors.count, "error") %> prevented this product from being saved:</span>
       </div>
       <ul class="list-disc ml-6">
@@ -13,9 +15,10 @@
     </div>
   <% end %>
 
+  <!-- Product Details -->
   <div class="card bg-base-100 shadow-xl p-6">
     <h2 class="card-title text-2xl mb-4">Product Details</h2>
-    
+
     <div class="form-control mb-4">
       <%= form.label :title, class: "label" %>
       <%= form.text_field :title, class: "input input-bordered w-full", placeholder: "Enter product title" %>
@@ -30,22 +33,29 @@
 
     <div class="form-control mb-4">
       <%= form.label :description, class: "label" %>
-      <%= form.text_area :description, class: "textarea textarea-bordered w-full h-24", placeholder: "Describe the product in detail" %>
+      <%= form.rich_text_area :description, class: "w-full h-64" %>
       <div class="label-text-alt mt-2 text-gray-500">Optional: Provide details about the design or usage</div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-      <div class="form-control">
-        <%= form.label :category, class: "label" %>
-        <%= form.text_field :category, class: "input input-bordered w-full", placeholder: "e.g., Floral, Animals" %>
-        <div class="label-text-alt mt-2 text-gray-500">Optional: Category for organization</div>
-      </div>
+    <!-- Category Selection -->
+    <div class="mb-4">
+      <%= form.label :category_id, "Category", class: "block font-semibold" %>
+      <%= form.collection_select :category_id, Category.all, :id, :name,
+            { prompt: "Select a category" },
+            { class: "w-full border rounded px-2 py-1" } %>
+    </div>
 
-      <div class="form-control">
-        <%= form.label :file_format, class: "label" %>
-        <%= form.text_field :file_format, class: "input input-bordered w-full", placeholder: "e.g., PES, DST" %>
-        <div class="label-text-alt mt-2 text-gray-500">Optional: Format of embroidery file</div>
-      </div>
+    <!-- Optional New Category -->
+    <div class="mb-4">
+      <%= form.label :new_category_name, "Or create a new category", class: "block font-semibold" %>
+      <%= form.text_field :new_category_name, class: "w-full border rounded px-2 py-1" %>
+      <p class="text-sm text-gray-500">If you enter a new category name, it will be created automatically.</p>
+    </div>
+
+    <div class="form-control mb-4">
+      <%= form.label :file_format, class: "label" %>
+      <%= form.text_field :file_format, class: "input input-bordered w-full", placeholder: "e.g., PES, DST" %>
+      <div class="label-text-alt mt-2 text-gray-500">Optional: Format of embroidery file</div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -66,9 +76,10 @@
     </div>
   </div>
 
+  <!-- Media Uploads -->
   <div class="card bg-base-100 shadow-xl p-6">
     <h2 class="card-title text-2xl mb-4">Media Uploads</h2>
-    
+
     <div class="form-control mb-4">
       <%= form.label :embroidery_file, class: "label" %>
       <%= form.file_field :embroidery_file, class: "file-input file-input-bordered file-input-primary w-full", accept: ".pes,.dst,.jef" %>
@@ -93,3 +104,4 @@
     <%= form.submit product.new_record? ? "Create Product" : "Update Product", class: "btn btn-primary" %>
   </div>
 <% end %>
+

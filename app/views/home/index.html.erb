@@ -1,3 +1,4 @@
+
 <!-- Hero Section -->
 <div class="hero min-h-[80vh] bg-blue-900 mb-12">
   <div class="hero-overlay bg-black bg-opacity-50"></div>
@@ -32,10 +33,6 @@
   </div>
 </div>
 
-<!-- Alternative: Use bg-gray-800 for a gray background -->
-principle
-<!-- <div class="hero min-h-[80vh] bg-gray-800 mb-12"> -->
-
 <!-- Categories Section -->
 <section id="categories" class="mb-16">
   <div class="text-center mb-12">
@@ -45,7 +42,8 @@ principle
     </p>
   </div>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group">
+    <!-- Floral -->
+    <%= link_to category_path(Category.find_by(name: "Floral Designs")), class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group" do %>
       <figure class="px-6 pt-6">
         <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
           <span class="text-3xl">🌸</span>
@@ -55,9 +53,10 @@ principle
         <h3 class="card-title text-lg">Floral</h3>
         <p class="text-sm text-base-content/70">Beautiful flower designs</p>
       </div>
-    </div>
-    
-    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group">
+    <% end %>
+
+    <!-- Animals -->
+    <%= link_to category_path(Category.find_by(name: "Animal Patterns")), class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group" do %>
       <figure class="px-6 pt-6">
         <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
           <span class="text-3xl">🦋</span>
@@ -67,9 +66,10 @@ principle
         <h3 class="card-title text-lg">Animals</h3>
         <p class="text-sm text-base-content/70">Cute animal patterns</p>
       </div>
-    </div>
-    
-    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group">
+    <% end %>
+
+    <!-- Holiday -->
+    <%= link_to category_path(Category.find_by(name: "Holidays")), class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group" do %>
       <figure class="px-6 pt-6">
         <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center group-hover:bg-accent/20 transition-colors">
           <span class="text-3xl">🎄</span>
@@ -79,9 +79,10 @@ principle
         <h3 class="card-title text-lg">Holiday</h3>
         <p class="text-sm text-base-content/70">Seasonal celebrations</p>
       </div>
-    </div>
-    
-    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group">
+    <% end %>
+
+    <!-- Monograms -->
+    <%= link_to category_path(Category.find_by(name: "Monograms")), class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group" do %>
       <figure class="px-6 pt-6">
         <div class="w-16 h-16 bg-info/10 rounded-full flex items-center justify-center group-hover:bg-info/20 transition-colors">
           <span class="text-3xl">✍️</span>
@@ -91,18 +92,33 @@ principle
         <h3 class="card-title text-lg">Monograms</h3>
         <p class="text-sm text-base-content/70">Personalized letters</p>
       </div>
-    </div>
-<div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group">
-  <figure class="px-6 pt-6">
-    <div class="w-16 h-16 bg-info/10 rounded-full flex items-center justify-center group-hover:bg-info/20 transition-colors">
-      <span class="text-3xl">🍳</span>
-    </div>
-  </figure>
-  <div class="card-body items-center text-center py-4">
-    <h3 class="card-title text-lg">Cooking</h3>
-    <p class="text-sm text-base-content/70">Culinary-themed patterns</p>
-  </div>
-</div>
+    <% end %>
+
+    <!-- Cooking -->
+    <%= link_to category_path(Category.find_by(name: "Cooking")), class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group" do %>
+      <figure class="px-6 pt-6">
+        <div class="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center group-hover:bg-warning/20 transition-colors">
+          <span class="text-3xl">🍳</span>
+        </div>
+      </figure>
+      <div class="card-body items-center text-center py-4">
+        <h3 class="card-title text-lg">Cooking</h3>
+        <p class="text-sm text-base-content/70">Culinary-themed patterns</p>
+      </div>
+    <% end %>
+
+    <!-- Celebration -->
+    <%= link_to category_path(Category.find_by(name: "Celebrations")), class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group" do %>
+      <figure class="px-6 pt-6">
+        <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center group-hover:bg-success/20 transition-colors">
+          <span class="text-3xl">🎉</span>
+        </div>
+      </figure>
+      <div class="card-body items-center text-center py-4">
+        <h3 class="card-title text-lg">Celebration</h3>
+        <p class="text-sm text-base-content/70">Party & special occasions</p>
+      </div>
+    <% end %>
   </div>
 </section>
 
@@ -146,11 +162,10 @@ principle
               <div class="badge badge-secondary">NEW</div>
             </h3>
             
-          <p class="text-sm text-base-content/70 mb-3">
-            <%= truncate(product.description.body.to_html.html_safe, length: 60, escape: false) %>
-          </p>
-
+            <p class="text-sm text-base-content/70 mb-3">
+              <%= truncate(product.description.body.to_html.html_safe, length: 60, escape: false) %>
             </p>
+
             <div class="flex items-center justify-between">
               <span class="text-2xl font-bold text-primary">$<%= product.price %></span>
               <div class="rating rating-sm">
@@ -163,7 +178,6 @@ principle
             </div>
             <div class="card-actions justify-between mt-6">
               <%= link_to "Quick View", product_path(product), class: "btn btn-outline btn-sm flex-1" %>
-              <%= link_to "Add to Cart", "#", class: "btn btn-primary btn-sm flex-1" %>
             </div>
           </div>
         </div>
@@ -218,3 +232,4 @@ principle
     </div>
   </div>
 </section>
+

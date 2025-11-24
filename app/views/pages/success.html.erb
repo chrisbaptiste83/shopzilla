@@ -4,15 +4,43 @@
     <div class="max-w-md">
       <h1 class="text-5xl font-bold text-success">Thank You!</h1>
       <p class="py-6 text-lg">
-        Your purchase was successful. We've emailed you a receipt and your order is being processed.
+        Your purchase was successful. We've emailed you a receipt. The download links below will enable you to download your purchased files. We appreciate your business!
       </p>
-      <% if params[:session_id] %>
+
+      <% if current_user %>
+        <% if @download_accesses.any? %>
+          <div class="mb-4">
+            <p class="mb-2 font-medium text-lg">Your Downloads:</p>
+            <% @download_accesses.each do |da| %>
+              <% if da.product&.embroidery_file&.attached? %>
+                <div class="mb-2 flex flex-col items-center rounded-lg p-4 bg-base-200">
+                  <p class="font-medium mb-1"><%= da.product.title %></p>
+                  <%= link_to "Download", secure_download_path(da.access_token),
+                              class: "btn btn-accent mt-1" %>
+                  <p class="text-xs text-base-content/60 mt-1">
+                    Link expires: <%= da.expires_at.strftime("%B %d, %Y") %>
+                  </p>
+                </div>
+              <% else %>
+                <div class="alert alert-info mb-2">
+                  <p>Your download for "<%= da.product&.title || 'Unknown Product' %>" is not available yet.</p>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="alert alert-info mb-4">
+            <p>Your download links will be available shortly. Check your account for access.</p>
+          </div>
+        <% end %>
+      <% else %>
         <div class="alert alert-info mb-4">
-          <p>Your download links will be available shortly. Check your account for access.</p>
+          <p>Please <%= link_to "log in", new_user_session_path %> to access your downloads.</p>
         </div>
       <% end %>
-      <%= link_to "Back to Shop", products_path, class: "btn btn-success" %>
+
+      <%= link_to "Back to Shop", products_path, class: "btn btn-success mt-4" %>
     </div>
   </div>
 </div>
-/pages/success.html.erb</p>
+

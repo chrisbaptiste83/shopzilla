@@ -1,0 +1,36 @@
+<!-- app/views/categories/show.html.erb -->
+<div class="container mx-auto p-4">
+  <!-- Category Title -->
+  <h1 class="text-3xl font-bold mb-6"><%= @category.name %></h1>
+
+  <% if @products.present? %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <% @products.each do |product| %>
+        <div class="card bg-base-100 shadow-md rounded-lg overflow-hidden">
+          <!-- Product Image -->
+          <figure class="px-4 pt-4">
+            <% if product.images.attached? %>
+              <%= image_tag product.images.first.variant(resize_to_limit: [300, 300]), 
+                            class: "rounded-lg object-cover w-full h-48" %>
+            <% else %>
+              <img src="https://via.placeholder.com/300x300?text=No+Image" 
+                   alt="No Image" 
+                   class="rounded-lg object-cover w-full h-48" />
+            <% end %>
+          </figure>
+
+          <!-- Product Body -->
+          <div class="card-body">
+            <h2 class="card-title text-lg font-semibold">
+              <%= link_to product.title, product_path(product), class: "hover:text-primary" %>
+            </h2>
+            <p class="text-gray-600 font-bold">$<%= product.price %></p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-500">No products in this category yet.</p>
+  <% end %>
+</div>
+

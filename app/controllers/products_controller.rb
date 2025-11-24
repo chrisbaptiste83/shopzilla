@@ -1,16 +1,43 @@
+# app/controllers/products_controller.rb
 class ProductsController < ApplicationController
   before_action :set_product, only: %i[show edit update destroy]
   before_action :authenticate_user!, only: %i[new create edit update destroy]
   before_action :check_admin, only: %i[new create edit update destroy]
 
-  # GET /products or /products.json
+  # GET /products
   def index
     @products = Product.all
+
+    # 🔎 Search (title + description if present)
+    if params[:search].present?
+      search_term = "%#{params[:search].downcase}%"
+      @products = @products.where("LOWER(title) LIKE ? OR LOWER(description) LIKE ?", search_term, search_term)
+    end
+
+    # 🎨 Filter by category
+    if params[:category_id].present?
+      @products = @products.where(category_id: params[:category_id])
+    end
+
+    # 🗂️ Filter by format
+    if params[:format].present?
+      format_term = "%#{params[:format].downcase}%"
+      @products = @products.where("LOWER(file_format) LIKE ?", format_term)
+    end
+
+    # 🔃 Sorting
+    case params[:sort]
+    when "newest"
+      @products = @products.order(created_at: :desc)
+    when "price_low"
+      @products = @products.order(price: :asc)
+    when "price_high"
+      @products = @products.order(price: :desc)
+    end
   end
 
-  # GET /products/1 or /products/1.json
-  def show
-  end
+  # GET /products/1
+  def show; end
 
   # GET /products/new
   def new
@@ -18,10 +45,9 @@ class ProductsController < ApplicationController
   end
 
   # GET /products/1/edit
-  def edit
-  end
+  def edit; end
 
-  # POST /products or /products.json
+  # POST /products
   def create
     @product = Product.new(product_params)
 
@@ -36,7 +62,7 @@ class ProductsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /products/1 or /products/1.json
+  # PATCH/PUT /products/1
   def update
     respond_to do |format|
       if @product.update(product_params)
@@ -49,10 +75,9 @@ class ProductsController < ApplicationController
     end
   end
 
-  # DELETE /products/1 or /products/1.json
+  # DELETE /products/1
   def destroy
     @product.destroy!
-
     respond_to do |format|
       format.html { redirect_to products_url, notice: "Product was successfully destroyed." }
       format.json { head :no_content }
@@ -60,17 +85,29 @@ class ProductsController < ApplicationController
   end
 
   private
-    def set_product
-      @product = Product.find(params[:id])
-    end
 
-    def product_params
-      params.require(:product).permit(:title, :price, :description, :category, :file_format, :is_available, :dimensions, :embroidery_file, images: [])
-    end
+  def set_product
+    @product = Product.find(params[:id])
+  end
 
-    def check_admin
-      unless current_user&.admin?
-        redirect_to root_path, alert: "You are not authorized to perform this action."
-      end
+  def product_params
+    params.require(:product).permit(
+      :title,
+      :price,
+      :description,
+      :category_id,  # use association
+      :file_format,
+      :is_available,
+      :dimensions,
+      :embroidery_file,
+      images: []
+    )
+  end
+
+  def check_admin
+    unless current_user&.admin?
+      redirect_to root_path, alert: "You are not authorized to perform this action."
     end
+  end
 end
+

@@ -5,6 +5,9 @@ class User < ApplicationRecord
   has_one_attached :avatar
   has_rich_text :bio
 
+  has_many :download_accesses, dependent: :destroy
+  
+
   def self.ransackable_associations(auth_object = nil)
     ["orders"]
   end

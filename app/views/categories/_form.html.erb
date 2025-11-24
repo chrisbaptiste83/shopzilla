@@ -1,0 +1,22 @@
+<%= form_with(model: @category, local: true, class: "space-y-6 max-w-xl") do |form| %>
+  <% if @category.errors.any? %>
+    <div class="alert alert-error shadow-lg mb-4">
+      <ul class="list-disc ml-6">
+        <% @category.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-control mb-4">
+    <%= form.label :name, class: "label" %>
+    <%= form.text_field :name, class: "input input-bordered w-full", placeholder: "Category name" %>
+  </div>
+
+  <div class="card-actions justify-between mt-4">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", categories_path, class: "btn btn-outline btn-secondary" %>
+  </div>
+<% end %>
+

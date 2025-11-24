@@ -3,7 +3,9 @@
   <ul>
     <li><%= link_to "Home", root_path %></li>
     <li><%= link_to "Products", products_path %></li>
-    <li><%= @product.category if @product.category.present? %></li>
+    <li>
+      <%= link_to @product.category.name, category_path(@product.category), class: "hover:text-primary font-semibold" %>
+    </li>
     <li class="font-semibold"><%= @product.title %></li>
   </ul>
 </div>
@@ -41,7 +43,7 @@
   <div class="space-y-6">
     <div>
       <% if @product.category.present? %>
-        <div class="badge badge-primary mb-2"><%= @product.category %></div>
+        <div class="badge badge-primary mb-2"><%= @product.category.name %></div>
       <% end %>
       <h1 class="text-4xl font-bold mb-4"><%= @product.title %></h1>
       
@@ -112,19 +114,29 @@
               </svg>
               Add to Wishlist
             </button>
-            <%= link_to "#", class: "btn btn-primary flex-1" do %>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6" />
-              </svg>
-              Add to Cart
+
+            <!-- Add to Cart -->
+            <%= form_with url: add_cart_path, method: :post, local: true, class: "flex-1" do %>
+              <%= hidden_field_tag :product_id, @product.id %>
+              <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6" />
+                </svg>
+                Add to Cart
+              </button>
             <% end %>
           </div>
           
-          <%= button_to checkout_index_path(product_id: @product.id), method: :post, class: "btn btn-accent btn-lg w-full" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Buy Now - Instant Download
+          <!-- Stripe Checkout -->
+          <% if user_signed_in? %>
+            <%= form_with url: checkout_path(product_id: @product.id), method: :post, data: { turbo: false } do %>
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <button class="btn btn-accent btn-lg w-full">Buy Now - Instant Download</button>
+            <% end %>
+          <% else %>
+            <%= link_to new_user_session_path, class: "btn btn-accent btn-lg w-full" do %>
+              Login to Buy Now with One Click
+            <% end %>
           <% end %>
           
           <div class="flex items-center justify-center gap-4 text-sm text-base-content/70">
@@ -168,21 +180,27 @@
 <section class="mt-16">
   <h2 class="text-3xl font-bold text-center mb-8">You Might Also Like</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <% 4.times do |i| %>
+    <% related_products = @product.category.products.where.not(id: @product.id).limit(4) %>
+    <% related_products.each do |related| %>
       <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
         <figure class="px-4 pt-4">
-          <div class="rounded-lg h-40 w-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-            <span class="text-4xl opacity-50">🎨</span>
-          </div>
+          <% if related.images.attached? %>
+            <%= image_tag related.images.first, class: "rounded-lg h-40 w-full object-cover" %>
+          <% else %>
+            <div class="rounded-lg h-40 w-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+              <span class="text-4xl opacity-50">🎨</span>
+            </div>
+          <% end %>
         </figure>
         <div class="card-body p-4">
-          <h3 class="card-title text-sm">Related Design <%= i + 1 %></h3>
-          <p class="text-primary font-bold">$12.99</p>
+          <h3 class="card-title text-sm"><%= related.title %></h3>
+          <p class="text-primary font-bold">$<%= related.price %></p>
           <div class="card-actions">
-            <button class="btn btn-primary btn-sm w-full">View Details</button>
+            <%= link_to "View Details", product_path(related), class: "btn btn-primary btn-sm w-full" %>
           </div>
         </div>
       </div>
     <% end %>
   </div>
 </section>
+
