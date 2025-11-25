@@ -1,4 +1,6 @@
 class CategoriesController < ApplicationController
+  before_action :authenticate_user!, only: %i[new create edit update destroy]
+  before_action :check_admin, only: %i[new create edit update destroy]
   before_action :set_category, only: %i[show edit update destroy]
 
   def index
@@ -45,5 +47,11 @@ class CategoriesController < ApplicationController
 
   def category_params
     params.require(:category).permit(:name, :description)
+  end
+
+  def check_admin
+    unless current_user&.admin?
+      redirect_to root_path, alert: "You must be an admin to perform this action."
+    end
   end
 end

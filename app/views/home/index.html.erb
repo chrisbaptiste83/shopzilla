@@ -163,7 +163,7 @@
             </h3>
             
             <p class="text-sm text-base-content/70 mb-3">
-              <%= truncate(product.description.body.to_html.html_safe, length: 60, escape: false) %>
+              <%= truncate(product.description.to_plain_text, length: 60) %>
             </p>
 
             <div class="flex items-center justify-between">

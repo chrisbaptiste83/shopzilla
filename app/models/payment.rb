@@ -1,6 +1,10 @@
 class Payment < ApplicationRecord
   belongs_to :order
-  
+
+  validates :order_id, presence: true
+  validates :amount, presence: true, numericality: { greater_than: 0 }
+  validates :status, presence: true, inclusion: { in: %w[pending completed failed] }
+
   def self.ransackable_associations(auth_object = nil)
     ["order"]
   end

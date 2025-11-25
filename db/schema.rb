@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_01_000321) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_25_092920) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -90,6 +90,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_000321) do
     t.integer "download_count"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["access_token"], name: "index_download_accesses_on_access_token", unique: true
     t.index ["order_id"], name: "index_download_accesses_on_order_id"
     t.index ["product_id"], name: "index_download_accesses_on_product_id"
     t.index ["user_id"], name: "index_download_accesses_on_user_id"
