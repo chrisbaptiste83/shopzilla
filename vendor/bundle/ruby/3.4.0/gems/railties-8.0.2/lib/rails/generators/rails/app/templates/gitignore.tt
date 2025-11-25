@@ -9,6 +9,8 @@
 
 # Ignore all environment files.
 /.env*
+.kamal/secrets
+config/deploy.yml   # optional: only if deploy.yml contains secrets
 
 # Ignore all logfiles and tempfiles.
 /log/*
