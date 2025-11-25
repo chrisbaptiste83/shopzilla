@@ -17,13 +17,16 @@ class CheckoutController < ApplicationController
     # Build line_items for Stripe
     line_items = products.map do |product|
       quantity = params[:product_id].present? ? 1 : session[:cart][product.id.to_s].to_i
+
+      # Build product_data, only include description if present
+      product_data = { name: product.title }
+      description = product.description.to_plain_text.squish
+      product_data[:description] = description if description.present?
+
       {
         price_data: {
           currency: "usd",
-          product_data: {
-            name: product.title,
-            description: product.description.to_plain_text.squish
-          },
+          product_data: product_data,
           unit_amount: (product.price * 100).to_i
         },
         quantity: quantity
