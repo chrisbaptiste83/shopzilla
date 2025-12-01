@@ -1,5 +1,6 @@
 
 Rails.application.routes.draw do
+  resources :orders, only: [:index]
 
   post '/webhooks/stripe', to: 'webhooks#stripe'
 

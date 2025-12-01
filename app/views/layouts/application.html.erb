@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Embroidery Shop</title>
+  <title>Gloria's Embroidery Shop</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
@@ -40,7 +40,7 @@
         </ul>
       </div>
       <%= link_to root_path, class: "btn btn-ghost normal-case text-xl font-bold" do %>
-        <span class="text-primary">✂️</span> Embroidery Shop
+        <span class="text-primary">✂️</span> Gloria's Embroidery Shop
       <% end %>
     </div>
 
@@ -143,7 +143,7 @@
               <span><%= current_user.email %></span>
             </li>
             <li><%= link_to "Profile", profile_path %></li>
-            <li><%= link_to "Orders", "#" %></li>
+            <li><%= link_to "Orders", orders_path %></li>
             <li><%= link_to "Wishlist", wishlist_items_path %></li>
             <li>
               <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
@@ -211,7 +211,7 @@
     <div class="items-center grid-flow-col">
       <div class="flex items-center gap-2">
         <span class="text-primary text-2xl">✂️</span>
-        <p class="font-semibold">Embroidery Shop</p>
+        <p class="font-semibold">Gloria's Embroidery Shop</p>
       </div>
       <p>&copy; <%= Time.current.year %> All rights reserved.</p>
     </div>
