@@ -108,12 +108,36 @@
       <div class="card-body">
         <div class="flex flex-col gap-4">
           <div class="flex gap-2">
-            <button class="btn btn-outline flex-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-              Add to Wishlist
-            </button>
+            <!-- Wishlist Button -->
+            <% if user_signed_in? %>
+              <% if in_wishlist?(@product) %>
+                <%= form_with url: wishlist_item_path(wishlist_item_for(@product)), method: :delete, local: true, class: "flex-1" do %>
+                  <button type="submit" class="btn btn-error btn-outline w-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    Remove from Wishlist
+                  </button>
+                <% end %>
+              <% else %>
+                <%= form_with url: wishlist_items_path, method: :post, local: true, class: "flex-1" do %>
+                  <%= hidden_field_tag :product_id, @product.id %>
+                  <button type="submit" class="btn btn-outline w-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    Add to Wishlist
+                  </button>
+                <% end %>
+              <% end %>
+            <% else %>
+              <%= link_to new_user_session_path, class: "btn btn-outline flex-1" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                Login to Save
+              <% end %>
+            <% end %>
 
             <!-- Add to Cart -->
             <%= form_with url: add_cart_path, method: :post, local: true, class: "flex-1" do %>

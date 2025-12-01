@@ -45,7 +45,7 @@
     </div>
 
     <div class="navbar-center hidden lg:flex">
-      <ul class="menu menu-horizontal px-1">
+      <ul class="menu menu-horizontal px-1 gap-2">
         <li><%= link_to "Products", products_path, class: "font-medium" %></li>
         <li>
           <details>
@@ -71,6 +71,21 @@
   <% end %>
 </div>
 
+
+      <!-- Wishlist -->
+      <% if user_signed_in? %>
+        <% wishlist_count = current_user.wishlist_items.count %>
+        <%= link_to wishlist_items_path, class: "btn btn-ghost btn-circle" do %>
+          <div class="indicator">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            <% if wishlist_count.positive? %>
+              <span class="badge badge-sm badge-secondary indicator-item"><%= wishlist_count %></span>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
 
       <!-- Shopping Cart -->
       <% if user_signed_in? %>
@@ -129,7 +144,7 @@
             </li>
             <li><%= link_to "Profile", profile_path %></li>
             <li><%= link_to "Orders", "#" %></li>
-            <li><%= link_to "Wishlist", "#" %></li>
+            <li><%= link_to "Wishlist", wishlist_items_path %></li>
             <li>
               <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
                 <%= submit_tag "Logout", class: "btn btn-ghost text-error w-full text-left" %>

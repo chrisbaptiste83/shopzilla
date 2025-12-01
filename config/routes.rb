@@ -9,20 +9,20 @@ Rails.application.routes.draw do
 
   get "pages/success"
   get "pages/cancel"
-  
+
   resource :profile, only: [:show, :edit, :update]
 
   resources :products
   resources :categories
   # Devise + Admin
-  devise_for :admin_users, ActiveAdmin::Devise.config
-  ActiveAdmin.routes(self)
   devise_for :users
-  
+  ActiveAdmin.routes(self)
+
+  resources :wishlist_items, only: [:index, :create, :destroy]
 
   get "about", to: "home#about"
   get "contact", to: "home#contact"
-  post "contact", to: "home#contact" 
+  post "contact", to: "home#contact"
 
   resource :cart, only: [:show] do
     collection do

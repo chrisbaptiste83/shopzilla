@@ -1,0 +1,109 @@
+<!-- Breadcrumb -->
+<div class="text-sm breadcrumbs mb-6">
+  <ul>
+    <li><%= link_to "Home", root_path %></li>
+    <li class="font-semibold">My Wishlist</li>
+  </ul>
+</div>
+
+<!-- Page Header -->
+<div class="text-center mb-12">
+  <h1 class="text-5xl font-bold mb-4">My Wishlist</h1>
+  <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+    Save your favorite embroidery designs for later
+  </p>
+</div>
+
+<% if @wishlist_items.empty? %>
+  <!-- Empty State -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body text-center py-20">
+      <div class="text-8xl mb-6">💝</div>
+      <h2 class="text-3xl font-bold mb-4">Your Wishlist is Empty</h2>
+      <p class="text-lg text-base-content/70 mb-8 max-w-md mx-auto">
+        Start adding products you love to your wishlist so you can find them easily later!
+      </p>
+      <%= link_to "Browse Products", products_path, class: "btn btn-primary" %>
+    </div>
+  </div>
+<% else %>
+  <!-- Wishlist Items Count -->
+  <div class="mb-6">
+    <p class="text-lg">
+      <span class="font-bold"><%= @wishlist_items.count %></span>
+      <%= "item".pluralize(@wishlist_items.count) %> in your wishlist
+    </p>
+  </div>
+
+  <!-- Wishlist Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <% @wishlist_items.each do |wishlist_item| %>
+      <% product = wishlist_item.product %>
+      <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+        <figure class="px-4 pt-4 relative overflow-hidden">
+          <%= link_to product_path(product) do %>
+            <% if product.images.attached? %>
+              <%= image_tag product.images.first, class: "rounded-lg h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300" %>
+            <% else %>
+              <div class="rounded-lg h-48 w-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                <span class="text-5xl opacity-50">🎨</span>
+              </div>
+            <% end %>
+          <% end %>
+
+          <!-- Category Badge -->
+          <% if product.category.present? %>
+            <div class="absolute top-6 left-6">
+              <%= link_to product.category.name, category_path(product.category), class: "badge badge-primary badge-sm hover:bg-primary/80" %>
+            </div>
+          <% end %>
+
+          <!-- Remove Button -->
+          <div class="absolute top-6 right-6">
+            <%= form_with url: wishlist_item_path(wishlist_item), method: :delete, local: true do %>
+              <button type="submit" class="btn btn-circle btn-sm btn-error" title="Remove from wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            <% end %>
+          </div>
+        </figure>
+
+        <div class="card-body p-4">
+          <h3 class="card-title text-lg mb-2">
+            <%= link_to product.title, product_path(product), class: "hover:text-primary transition-colors" %>
+          </h3>
+          <p class="text-sm text-base-content/70 mb-3">
+            <% if product.description.present? && product.description.body.present? %>
+              <%= truncate(product.description.to_plain_text, length: 60) %>
+            <% end %>
+          </p>
+
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xl font-bold text-primary">$<%= product.price %></span>
+            <span class="text-xs text-base-content/60">Added <%= time_ago_in_words(wishlist_item.created_at) %> ago</span>
+          </div>
+
+          <% if product.file_format.present? %>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <% product.file_format.split(",").each do |format| %>
+                <div class="badge badge-outline badge-xs"><%= format.strip %></div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <div class="card-actions flex gap-2">
+            <%= link_to "View Details", product_path(product), class: "btn btn-outline btn-sm flex-1" %>
+            <%= form_with url: add_cart_path, method: :post, local: true, class: "flex-1" do %>
+              <%= hidden_field_tag :product_id, product.id %>
+              <button type="submit" class="btn btn-primary btn-sm w-full">
+                Add to Cart
+              </button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

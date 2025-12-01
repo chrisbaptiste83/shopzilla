@@ -6,12 +6,14 @@ class User < ApplicationRecord
   has_rich_text :bio
 
   has_many :download_accesses, dependent: :destroy
-  
+  has_many :wishlist_items, dependent: :destroy
+  has_many :wishlist_products, through: :wishlist_items, source: :product
+
 
   def self.ransackable_associations(auth_object = nil)
     ["orders"]
   end
-  
+
   def self.ransackable_attributes(auth_object = nil)
     ["id", "email", "created_at", "updated_at", "admin"]
   end

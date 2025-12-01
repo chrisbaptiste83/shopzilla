@@ -3,6 +3,7 @@ class Product < ApplicationRecord
   has_one_attached :embroidery_file
   has_many_attached :images
   belongs_to :category
+  has_many :wishlist_items, dependent: :destroy
 
   validates :title, presence: true, length: { minimum: 3, maximum: 255 }
   validates :price, presence: true, numericality: { greater_than: 0 }
