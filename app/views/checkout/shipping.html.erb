@@ -1,0 +1,47 @@
+<div class="container mx-auto max-w-2xl px-4 py-12">
+  <h1 class="text-3xl font-bold mb-6">Shipping Information</h1>
+
+  <%= form_with(model: @order, url: process_shipping_address_path, method: :post, local: true) do |form| %>
+    <%= form.fields_for :shipping_address do |shipping_form| %>
+      <div class="space-y-4">
+        <div class="form-control">
+          <%= shipping_form.label :full_name, class: "label" %>
+          <%= shipping_form.text_field :full_name, class: "input input-bordered w-full", required: true %>
+        </div>
+
+        <div class="form-control">
+          <%= shipping_form.label :street_address, class: "label" %>
+          <%= shipping_form.text_field :street_address, class: "input input-bordered w-full", required: true %>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="form-control">
+            <%= shipping_form.label :city, class: "label" %>
+            <%= shipping_form.text_field :city, class: "input input-bordered w-full", required: true %>
+          </div>
+          <div class="form-control">
+            <%= shipping_form.label :state, class: "label" %>
+            <%= shipping_form.text_field :state, class: "input input-bordered w-full", required: true %>
+          </div>
+          <div class="form-control">
+            <%= shipping_form.label :zip_code, class: "label" %>
+            <%= shipping_form.text_field :zip_code, class: "input input-bordered w-full", required: true %>
+          </div>
+        </div>
+
+        <div class="form-control">
+          <%= shipping_form.label :country, class: "label" %>
+          <%= shipping_form.text_field :country, class: "input input-bordered w-full", required: true %>
+        </div>
+      </div>
+    <% end %>
+
+    <% @products.each do |product| %>
+      <%= form.hidden_field :product_ids, multiple: true, value: product.id %>
+    <% end %>
+
+    <div class="mt-8">
+      <%= form.submit "Continue to Payment", class: "btn btn-primary w-full" %>
+    </div>
+  <% end %>
+</div>

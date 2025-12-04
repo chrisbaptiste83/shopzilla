@@ -29,12 +29,22 @@ class WebhooksController < ApplicationController
     # Avoid duplicate orders
     return if Order.exists?(stripe_session_id: session['id'])
 
-    order = Order.create!(
-      user: user,
-      total: session['amount_total'] / 100.0,
-      status: 'completed',
-      stripe_session_id: session['id']
-    )
+    # Check if order already exists (for physical products with shipping address)
+    if session['metadata']['order_id'].present?
+      order = Order.find(session['metadata']['order_id'])
+      order.update!(
+        status: 'completed',
+        stripe_session_id: session['id']
+      )
+    else
+      # Create new order (for digital products)
+      order = Order.create!(
+        user: user,
+        total: session['amount_total'] / 100.0,
+        status: 'completed',
+        stripe_session_id: session['id']
+      )
+    end
 
     product_ids = session['metadata']['product_ids'].split(",").map(&:to_i)
     products = Product.where(id: product_ids)
@@ -55,14 +65,16 @@ class WebhooksController < ApplicationController
         status: 'completed'
       )
 
-      # Create download access
-      DownloadAccess.create!(
-        user: user,
-        product: product,
-        order: order,
-        expires_at: 30.days.from_now,
-        download_count: 0
-      )
+      # Only create download access for digital products (non-shippable)
+      unless product.shippable
+        DownloadAccess.create!(
+          user: user,
+          product: product,
+          order: order,
+          expires_at: 30.days.from_now,
+          download_count: 0
+        )
+      end
     end
   end
 end

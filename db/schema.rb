@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_01_114221) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_02_185531) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -113,7 +113,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_114221) do
     t.boolean "is_available"
     t.string "dimensions"
     t.integer "category_id"
+    t.boolean "physical_product"
+    t.boolean "shippable", default: false, null: false
     t.index ["category_id"], name: "index_products_on_category_id"
+  end
+
+  create_table "shipping_addresses", force: :cascade do |t|
+    t.string "full_name"
+    t.string "street_address"
+    t.string "city"
+    t.string "state"
+    t.string "zip_code"
+    t.string "country"
+    t.integer "order_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_shipping_addresses_on_order_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -149,6 +164,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_114221) do
   add_foreign_key "orders", "users"
   add_foreign_key "payments", "orders"
   add_foreign_key "products", "categories"
+  add_foreign_key "shipping_addresses", "orders"
   add_foreign_key "wishlist_items", "products"
   add_foreign_key "wishlist_items", "users"
 end

@@ -64,6 +64,12 @@ class ProductsController < ApplicationController
 
   # PATCH/PUT /products/1
   def update
+    # Purge selected images before updating the product
+    if params[:purge_images].present?
+      attachments = ActiveStorage::Attachment.find(params[:purge_images])
+      attachments.each(&:purge)
+    end
+
     respond_to do |format|
       if @product.update(product_params)
         format.html { redirect_to product_url(@product), notice: "Product was successfully updated." }
@@ -95,12 +101,15 @@ class ProductsController < ApplicationController
       :title,
       :price,
       :description,
-      :category_id,  # use association
+      :category_id,
+      :new_category_name, # 🆕 allow new category name
       :file_format,
       :is_available,
       :dimensions,
+      :physical_product, # 🚚 allow physical product
       :embroidery_file,
-      images: []
+      images: [],
+      purge_images: [] # 🖼️ allow purging images
     )
   end
 

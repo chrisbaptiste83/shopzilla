@@ -78,8 +78,9 @@
               <div>
                 <% if order.shipping_address.present? %>
                   <p class="text-sm text-base-content/70">
-                    <span class="font-semibold">Shipping to:</span> <%= order.shipping_address %>
+                    <span class="font-semibold">Shipping to:</span>
                   </p>
+                  <%= render 'shipping_addresses/shipping_address', shipping_address: order.shipping_address %>
                 <% end %>
               </div>
               <div class="text-right mt-3 md:mt-0">

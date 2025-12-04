@@ -1,0 +1,97 @@
+<div class="max-w-4xl mx-auto py-12 px-4">
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <!-- Order Header -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 pb-4 border-b border-base-300">
+        <div>
+          <h1 class="text-3xl font-bold mb-1">Order #<%= @order.id %></h1>
+          <p class="text-sm text-base-content/70">
+            Placed on <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+          </p>
+        </div>
+        <div class="mt-3 md:mt-0">
+          <%
+            status_class = case @order.status
+              when 'completed' then 'badge-success'
+              when 'pending' then 'badge-warning'
+              when 'failed' then 'badge-error'
+              when 'cancelled' then 'badge-ghost'
+              else 'badge-info'
+            end
+          %>
+          <span class="badge <%= status_class %> badge-lg">
+            <%= @order.status.capitalize %>
+          </span>
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="space-y-3 mb-6">
+        <h2 class="font-semibold text-xl mb-4">Items</h2>
+        <% @order.order_items.each do |item| %>
+          <div class="flex items-center gap-4 p-3 bg-base-200 rounded-lg">
+            <% if item.product.images.attached? %>
+              <%= image_tag item.product.images.first.variant(resize_to_fill: [80, 80]),
+                  class: "w-20 h-20 object-cover rounded-lg",
+                  alt: item.product.title %>
+            <% else %>
+              <div class="w-20 h-20 bg-base-300 rounded-lg flex items-center justify-center">
+                <span class="text-3xl">✂️</span>
+              </div>
+            <% end %>
+
+            <div class="flex-grow">
+              <h3 class="font-semibold text-lg"><%= item.product.title %></h3>
+              <p class="text-sm text-base-content/70">Quantity: <%= item.quantity %></p>
+              <% if item.product.category %>
+                <span class="badge badge-sm badge-outline mt-1"><%= item.product.category.name %></span>
+              <% end %>
+            </div>
+
+            <div class="text-right">
+              <p class="font-bold text-lg">$<%= '%.2f' % (item.price * item.quantity) %></p>
+              <p class="text-sm text-base-content/70">$<%= '%.2f' % item.price %> each</p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Shipping & Total -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <% if @order.shipping_address.present? %>
+            <h2 class="font-semibold text-xl mb-4">Shipping Address</h2>
+            <div class="p-4 bg-base-200 rounded-lg">
+              <%= render 'shipping_addresses/shipping_address', shipping_address: @order.shipping_address %>
+            </div>
+          <% else %>
+            <h2 class="font-semibold text-xl mb-4">No Shipping Required</h2>
+            <p class="text-base-content/70">This order contains only digital products.</p>
+          <% end %>
+        </div>
+
+        <div class="text-right">
+          <h2 class="font-semibold text-xl mb-4">Order Total</h2>
+          <p class="text-4xl font-bold text-primary">$<%= '%.2f' % @order.total %></p>
+        </div>
+      </div>
+
+      <!-- Download Link (for completed orders) -->
+      <% if @order.status == 'completed' && @order.order_items.any? { |item| !item.product.physical_product } %>
+        <div class="mt-8">
+          <div class="alert alert-info">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <h3 class="font-bold">Downloads Available!</h3>
+              <div class="text-xs">Your digital embroidery files are ready. Check your email for download links or find them in your profile's download section.</div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="mt-8 text-center">
+        <%= link_to 'Back to My Orders', orders_path, class: 'btn btn-outline' %>
+      </div>
+    </div>
+  </div>
+</div>

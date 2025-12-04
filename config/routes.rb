@@ -1,12 +1,13 @@
 
 Rails.application.routes.draw do
-  resources :orders, only: [:index]
+  resources :orders, only: [:index, :show]
 
   post '/webhooks/stripe', to: 'webhooks#stripe'
 
   get '/downloads/:token', to: 'downloads#show', as: :secure_download
 
   resource :checkout, only: [:create], controller: "checkout"
+  post 'checkout/process_shipping_address', to: 'checkout#process_shipping_address', as: :process_shipping_address
 
   get "pages/success"
   get "pages/cancel"

@@ -1,13 +1,18 @@
 class Product < ApplicationRecord
+  # Add a virtual attribute to hold the new category name
+  attr_accessor :new_category_name
+
   has_rich_text :description
   has_one_attached :embroidery_file
   has_many_attached :images
   belongs_to :category
   has_many :wishlist_items, dependent: :destroy
 
+  before_save :create_category_from_name, if: -> { new_category_name.present? }
+
   validates :title, presence: true, length: { minimum: 3, maximum: 255 }
   validates :price, presence: true, numericality: { greater_than: 0 }
-  validates :category_id, presence: true
+  validates :category_id, presence: true, unless: -> { new_category_name.present? }
   validate :acceptable_images
 
   def self.ransackable_attributes(auth_object = nil)
@@ -19,6 +24,11 @@ class Product < ApplicationRecord
   end
 
   private
+
+  def create_category_from_name
+    created_category = Category.create!(name: new_category_name)
+    self.category_id = created_category.id
+  end
 
   def acceptable_images
     return unless images.attached?

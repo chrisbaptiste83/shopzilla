@@ -1,5 +1,5 @@
 ActiveAdmin.register Product do
-  permit_params :title, :price, :description, :file_format, :is_available, :dimensions, :category_id, :embroidery_file
+  permit_params :title, :price, :description, :file_format, :is_available, :dimensions, :category_id, :embroidery_file, :shippable
 
   # Index page
   index do
@@ -9,6 +9,7 @@ ActiveAdmin.register Product do
     column :price
     column :category
     column :is_available
+    column :shippable
     column :created_at
     actions
   end
@@ -31,6 +32,7 @@ ActiveAdmin.register Product do
 
       f.input :file_format
       f.input :is_available
+      f.input :shippable
       f.input :dimensions
       f.input :category, as: :select, collection: Category.all, include_blank: "Select a category"
       f.input :category, as: :string, input_html: { placeholder: "Or type a new category" }

@@ -73,6 +73,15 @@
         </div>
         <div class="label-text-alt mt-2 text-gray-500">Check if ready to sell</div>
       </div>
+
+      <div class="form-control flex items-center">
+        <%= form.label :physical_product, class: "label" %>
+        <div class="flex items-center space-x-2 mt-2">
+          <%= form.check_box :physical_product, class: "checkbox checkbox-secondary" %>
+          <span class="label-text">Physical product</span>
+        </div>
+        <div class="label-text-alt mt-2 text-gray-500">Check if this is a physical product that needs shipping</div>
+      </div>
     </div>
   </div>
 
@@ -93,8 +102,23 @@
       <%= form.label :images, class: "label" %>
       <%= form.file_field :images, multiple: true, class: "file-input file-input-bordered file-input-secondary w-full", accept: "image/*" %>
       <div class="label-text-alt mt-2 text-gray-500">Optional: Upload images to showcase the product</div>
-      <% if product.images.attached? %>
-        <div class="mt-2 text-sm text-success"><%= pluralize(product.images.count, "image") %> attached</div>
+      
+      <%# --- Show existing images --- %>
+      <% if @product.images.attached? %>
+        <div class="mt-4">
+          <p class="font-semibold text-sm mb-2">Currently attached images:</p>
+          <div class="flex flex-wrap gap-4">
+            <% @product.images.each do |image| %>
+              <div class="relative">
+                <%= image_tag image.variant(resize_to_limit: [100, 100]), class: "rounded-lg" %>
+                <div class="absolute top-1 right-1">
+                  <%= check_box_tag "purge_images[]", image.id, false, class: "checkbox checkbox-xs" %>
+                  <%= label_tag "purge_images_#{image.id}", "Remove", class: "text-xs" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
       <% end %>
     </div>
   </div>
