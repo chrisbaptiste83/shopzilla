@@ -16,7 +16,7 @@
 <body class="bg-base-200 text-high-contrast"
       data-controller="page-transition loading-animation">
   <!-- Navigation Bar -->
-  <div class="navbar bg-base-100 shadow-xl sticky top-0 z-50">
+  <div class="navbar bg-base-100 shadow-xl sticky top-0 z-50 px-2 sm:px-4">
     <div class="navbar-start">
       <div class="dropdown">
         <label tabindex="0" class="btn btn-ghost lg:hidden">
@@ -24,7 +24,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
           </svg>
         </label>
-        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-64">
           <li><%= link_to "Products", products_path %></li>
           <li>
             <details>
@@ -38,10 +38,32 @@
           </li>
           <li><%= link_to "About", about_path %></li>
           <li><%= link_to "Contact", contact_path %></li>
+          <li class="menu-title mt-2"><span>Account</span></li>
+          <% if user_signed_in? %>
+            <li><%= link_to "Profile", profile_path %></li>
+            <li><%= link_to "Orders", orders_path %></li>
+            <li><%= link_to "Wishlist", wishlist_items_path %></li>
+            <% if current_user.admin? %>
+              <li class="menu-title mt-2"><span>Admin</span></li>
+              <li><%= link_to "Add Product", new_product_path %></li>
+              <li><%= link_to "Admin Panel", admin_root_path if defined?(admin_root_path) %></li>
+            <% end %>
+            <li class="mt-2">
+              <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
+                <%= submit_tag "Logout", class: "btn btn-ghost btn-sm text-error w-full text-left" %>
+              <% end %>
+            </li>
+          <% else %>
+            <li><%= link_to "Login", new_user_session_path %></li>
+            <li><%= link_to "Sign Up", new_user_registration_path %></li>
+          <% end %>
         </ul>
       </div>
-      <%= link_to root_path, class: "btn btn-ghost normal-case text-xl font-bold" do %>
-        <span class="text-primary">✂️</span> Gloria's Embroidery Shop
+      <%= link_to root_path, class: "btn btn-ghost normal-case text-sm sm:text-xl font-bold px-1 sm:px-4" do %>
+        <span class="text-primary">✂️</span>
+        <span class="hidden xs:inline">Gloria's</span>
+        <span class="hidden sm:inline"> Embroidery Shop</span>
+        <span class="xs:hidden">Gloria's</span>
       <% end %>
     </div>
 
@@ -63,14 +85,13 @@
       </ul>
     </div>
 
-    <div class="navbar-end gap-2">
+    <div class="navbar-end gap-1 sm:gap-2">
       <!-- Search -->
-   
-<div class="form-control hidden md:block">
-  <%= form_with url: products_path, method: :get, local: true do |f| %>
-    <%= f.text_field :search, placeholder: "Search designs...", class: "input input-bordered input-sm w-24 md:w-auto", value: params[:search], autocomplete: "off" %>
-  <% end %>
-</div>
+      <div class="form-control hidden md:block">
+        <%= form_with url: products_path, method: :get, local: true do |f| %>
+          <%= f.text_field :search, placeholder: "Search designs...", class: "input input-bordered input-sm w-24 md:w-auto", value: params[:search], autocomplete: "off" %>
+        <% end %>
+      </div>
 
 
       <!-- Wishlist -->
@@ -154,8 +175,8 @@
           </ul>
         </div>
       <% else %>
-        <%= link_to "Login", new_user_session_path, class: "btn btn-ghost btn-sm" %>
-        <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-primary btn-sm" %>
+        <%= link_to "Login", new_user_session_path, class: "btn btn-ghost btn-sm hidden lg:inline-flex" %>
+        <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-primary btn-sm hidden lg:inline-flex" %>
       <% end %>
     </div>
   </div>
@@ -180,47 +201,49 @@
   </main>
 
   <!-- Footer -->
-  <footer class="footer p-10 bg-base-200 text-base-content mt-16">
-    <div>
-      <span class="footer-title">Shop</span>
+  <footer class="footer p-6 sm:p-10 bg-base-200 text-base-content mt-16 grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+    <nav>
+      <h6 class="footer-title">Shop</h6>
       <a class="link link-hover" href="<%= products_path %>">All Products</a>
-      <% Category.all.each do |category| %>
+      <% Category.limit(4).each do |category| %>
         <a class="link link-hover" href="<%= category_path(category) %>"><%= category.name %></a>
       <% end %>
-    </div>
-    <div>
-      <span class="footer-title">Support</span>
+    </nav>
+    <nav>
+      <h6 class="footer-title">Support</h6>
       <a class="link link-hover" href="<%= contact_path %>">Contact Us</a>
       <a class="link link-hover">Help Center</a>
       <a class="link link-hover">Size Guide</a>
-      <a class="link link-hover">File Formats</a>
-      <a class="link link-hover">Machine Compatibility</a>
-    </div>
-    <div>
-      <span class="footer-title">Company</span>
+      <a class="link link-hover hidden sm:block">File Formats</a>
+      <a class="link link-hover hidden sm:block">Machine Compatibility</a>
+    </nav>
+    <nav>
+      <h6 class="footer-title">Company</h6>
       <a class="link link-hover" href="<%= about_path %>">About Us</a>
       <a class="link link-hover">Blog</a>
-      <a class="link link-hover">Careers</a>
-      <a class="link link-hover">Press</a>
-    </div>
-    <div>
-      <span class="footer-title">Legal</span>
+      <a class="link link-hover hidden sm:block">Careers</a>
+      <a class="link link-hover hidden sm:block">Press</a>
+    </nav>
+    <nav>
+      <h6 class="footer-title">Legal</h6>
       <a class="link link-hover">Terms of Service</a>
       <a class="link link-hover">Privacy Policy</a>
-      <a class="link link-hover">Cookie Policy</a>
-      <a class="link link-hover">Refund Policy</a>
-    </div>
+      <a class="link link-hover hidden sm:block">Cookie Policy</a>
+      <a class="link link-hover hidden sm:block">Refund Policy</a>
+    </nav>
   </footer>
   
-  <footer class="footer px-10 py-4 border-t bg-base-200 text-base-content border-base-300">
-    <div class="items-center grid-flow-col">
-      <div class="flex items-center gap-2">
-        <span class="text-primary text-2xl">✂️</span>
-        <p class="font-semibold">Gloria's Embroidery Shop</p>
+  <footer class="footer footer-center sm:footer px-4 sm:px-10 py-4 border-t bg-base-200 text-base-content border-base-300">
+    <aside class="items-center grid-flow-col">
+      <div class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-primary text-2xl">✂️</span>
+          <p class="font-semibold text-sm sm:text-base">Gloria's Embroidery Shop</p>
+        </div>
+        <p class="text-xs sm:text-sm">&copy; <%= Time.current.year %> All rights reserved.</p>
       </div>
-      <p>&copy; <%= Time.current.year %> All rights reserved.</p>
-    </div>
-    <div class="md:place-self-center md:justify-self-end">
+    </aside>
+    <nav class="md:place-self-center md:justify-self-end">
       <div class="grid grid-flow-col gap-4">
         <a class="link link-hover">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
@@ -238,7 +261,7 @@
           </svg>
         </a>
       </div>
-    </div>
+    </nav>
   </footer>
 </body>
 </html>

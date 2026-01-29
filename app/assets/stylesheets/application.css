@@ -406,6 +406,18 @@ img {
 }
 
 /* ========================================
+   Custom Breakpoint for Extra Small
+   ======================================== */
+@media (min-width: 480px) {
+  .xs\:inline {
+    display: inline !important;
+  }
+  .xs\:hidden {
+    display: none !important;
+  }
+}
+
+/* ========================================
    Mobile Optimizations
    ======================================== */
 @media (max-width: 640px) {
@@ -476,6 +488,16 @@ img {
   .footer {
     padding: 2rem 1rem;
     text-align: center;
+  }
+
+  /* Footer grid layout for mobile */
+  .footer > div {
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer > div:last-child {
+    margin-bottom: 0;
   }
 }
 

@@ -1,11 +1,86 @@
-<div class="max-w-3xl mx-auto py-12 px-6">
-  <h1 class="text-4xl font-bold mb-4">About Us</h1>
-  <p class="text-lg leading-relaxed text-gray-700">
-    Welcome to our embroidery design store!  
-    We specialize in high-quality, downloadable embroidery files designed for professionals and hobbyists.  
-  </p>
-  <p class="mt-4 text-gray-600">
-    Our mission is to provide unique, creative, and affordable designs that help bring your stitching projects to life.
-  </p>
+<!-- Hero Section -->
+<div class="hero min-h-[40vh] bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900 mb-8 md:mb-12 relative">
+  <div class="hero-overlay bg-black bg-opacity-40"></div>
+  <div class="hero-content text-center text-neutral-content relative z-10 px-4">
+    <div class="max-w-2xl" data-controller="scroll-animation" data-scroll-animation-animation-value="scale-up">
+      <h1 class="mb-4 text-3xl sm:text-4xl md:text-5xl font-bold text-gradient-hero">About Us</h1>
+      <p class="text-base sm:text-lg md:text-xl text-white/90">
+        Discover the passion behind Gloria's Embroidery Shop
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .text-gradient-hero {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #fef3c7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+
+<!-- Main Content -->
+<div class="max-w-4xl mx-auto px-4 sm:px-6 mb-12">
+  <!-- Story Card -->
+  <div class="card bg-base-100 shadow-xl mb-8" data-controller="scroll-animation" data-scroll-animation-animation-value="fade-up">
+    <div class="card-body">
+      <h2 class="card-title text-2xl md:text-3xl text-gradient mb-4">Our Story</h2>
+      <p class="text-lg leading-relaxed text-medium-contrast mb-4">
+        Welcome to Gloria's Embroidery Shop! We specialize in high-quality, downloadable embroidery files designed for professionals and hobbyists alike.
+      </p>
+      <p class="text-medium-contrast leading-relaxed">
+        Our mission is to provide unique, creative, and affordable designs that help bring your stitching projects to life. Each design is crafted with care and tested to ensure the best results on your embroidery machine.
+      </p>
+    </div>
+  </div>
+
+  <!-- Values Section -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="card bg-base-100 shadow-lg" data-controller="hover-effect scroll-animation" data-hover-effect-effect-value="scale" data-scroll-animation-animation-value="fade-up" data-scroll-animation-delay-value="0.1">
+      <div class="card-body text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+        </div>
+        <h3 class="card-title justify-center text-high-contrast">Passion</h3>
+        <p class="text-medium-contrast">Every design is created with love and attention to detail.</p>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-lg" data-controller="hover-effect scroll-animation" data-hover-effect-effect-value="scale" data-scroll-animation-animation-value="fade-up" data-scroll-animation-delay-value="0.2">
+      <div class="card-body text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-secondary/10 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+          </svg>
+        </div>
+        <h3 class="card-title justify-center text-high-contrast">Quality</h3>
+        <p class="text-medium-contrast">Professional-grade designs tested on real machines.</p>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-lg" data-controller="hover-effect scroll-animation" data-hover-effect-effect-value="scale" data-scroll-animation-animation-value="fade-up" data-scroll-animation-delay-value="0.3">
+      <div class="card-body text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </div>
+        <h3 class="card-title justify-center text-high-contrast">Community</h3>
+        <p class="text-medium-contrast">Supporting crafters and creators worldwide.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Section -->
+  <div class="card bg-gradient-to-r from-primary to-secondary text-primary-content shadow-xl" data-controller="scroll-animation" data-scroll-animation-animation-value="scale-up">
+    <div class="card-body text-center py-10">
+      <h2 class="text-2xl md:text-3xl font-bold mb-4">Ready to Start Creating?</h2>
+      <p class="text-lg opacity-90 mb-6">Browse our collection of beautiful embroidery designs.</p>
+      <%= link_to "Shop Now", products_path, class: "btn btn-accent btn-lg" %>
+    </div>
+  </div>
 </div>
 
