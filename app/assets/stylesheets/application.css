@@ -7,6 +7,80 @@
 
 @import "trix/dist/trix.css";
 
+/* ========================================
+   Custom Base Styles & Variables
+   ======================================== */
+@layer base {
+  :root {
+    --transition-speed: 0.3s;
+    --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    /* High contrast text colors */
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #4b5563;
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: var(--text-primary);
+  }
+
+  /* High contrast text utilities */
+  .text-high-contrast {
+    color: var(--text-primary) !important;
+  }
+
+  .text-medium-contrast {
+    color: var(--text-secondary) !important;
+  }
+
+  .text-muted-contrast {
+    color: var(--text-muted) !important;
+  }
+}
+
+/* ========================================
+   Enhanced Transitions & Animations
+   ======================================== */
+@layer utilities {
+  .transition-all-smooth {
+    transition: all var(--transition-speed) var(--transition-ease);
+  }
+
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+}
+
+/* ========================================
+   Dashboard Stats
+   ======================================== */
 .dashboard-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -15,21 +89,428 @@
 }
 
 .stat-item {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
   text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
 }
 
 .stat-item h3 {
   font-size: 0.875rem;
   color: #6b7280;
   margin-bottom: 0.5rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .stat-item h2 {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: bold;
   color: #1f2937;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ========================================
+   Enhanced Card Styles
+   ======================================== */
+.card {
+  transition: all var(--transition-speed) var(--transition-ease);
+  will-change: transform;
+}
+
+.card:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.card-hover-scale {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover-scale:hover {
+  transform: scale(1.03);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ========================================
+   Enhanced Button Styles
+   ======================================== */
+.btn {
+  transition: all var(--transition-speed) var(--transition-ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* ========================================
+   Hero Section Enhancements
+   ======================================== */
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+  pointer-events: none;
+}
+
+/* ========================================
+   Product Grid Enhancements
+   ======================================== */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* ========================================
+   Image Enhancements
+   ======================================== */
+img {
+  transition: all var(--transition-speed) var(--transition-ease);
+}
+
+.image-zoom {
+  overflow: hidden;
+}
+
+.image-zoom img {
+  transition: transform 0.5s ease;
+}
+
+.image-zoom:hover img {
+  transform: scale(1.1);
+}
+
+/* ========================================
+   Navbar Enhancements
+   ======================================== */
+.navbar {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+/* ========================================
+   Form Enhancements
+   ======================================== */
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   Badge Enhancements
+   ======================================== */
+.badge {
+  transition: all var(--transition-speed) var(--transition-ease);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ========================================
+   Loading Animations
+   ======================================== */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%);
+  background-size: 1000px 100%;
+}
+
+/* ========================================
+   Scroll Animations Base
+   ======================================== */
+[data-controller*="scroll-animation"] {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* ========================================
+   3D Elements Base Styles
+   ======================================== */
+.three-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ========================================
+   Custom Scrollbar
+   ======================================== */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+.text-gradient {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.bg-gradient-purple {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.bg-gradient-pink {
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+}
+
+/* ========================================
+   High Contrast Overrides
+   ======================================== */
+/* Override low contrast text */
+.text-base-content\/70 {
+  color: #374151 !important;
+}
+
+.text-base-content\/80 {
+  color: #1f2937 !important;
+}
+
+/* Card text improvements */
+.card-title {
+  color: #111827;
+  font-weight: 700;
+}
+
+.card-body p {
+  color: #374151;
+}
+
+/* Category card icon styling */
+.category-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  stroke-width: 1.5;
+  transition: all 0.3s ease;
+}
+
+.group:hover .category-icon {
+  transform: scale(1.1);
+}
+
+/* Hero text improvements */
+.hero-content h1 {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hero-content p {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Footer text contrast */
+.footer {
+  color: #374151;
+}
+
+.footer-title {
+  color: #111827 !important;
+  font-weight: 700;
+}
+
+/* Badge text contrast */
+.badge {
+  font-weight: 600;
+}
+
+/* Description text in cards */
+.line-clamp-2 {
+  color: #4b5563;
+}
+
+/* ========================================
+   Mobile Optimizations
+   ======================================== */
+@media (max-width: 640px) {
+  /* Container padding optimization */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Hero section mobile adjustments */
+  .hero {
+    min-height: 60vh !important;
+    padding: 2rem 1rem;
+  }
+
+  .hero-content {
+    padding: 1rem;
+  }
+
+  .hero h1 {
+    font-size: 2rem !important;
+    line-height: 1.2;
+  }
+
+  .hero p {
+    font-size: 1rem !important;
+  }
+
+  /* Card spacing mobile */
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  /* Grid adjustments for mobile */
+  .grid {
+    gap: 1rem;
+  }
+
+  /* Reduce font sizes for mobile */
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  /* Button sizing */
+  .btn-lg {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+  }
+
+  /* Navbar mobile fix */
+  .navbar {
+    padding: 0.5rem;
+  }
+
+  /* Footer mobile spacing */
+  .footer {
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Tablet optimizations */
+  main {
+    padding: 1rem;
+  }
+
+  /* Featured products grid */
+  .grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3 {
+    gap: 1rem;
+  }
+
+  /* Category cards */
+  .grid.grid-cols-2 {
+    gap: 0.75rem;
+  }
+
+  /* Product images mobile */
+  figure img {
+    height: auto;
+    max-height: 200px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Tablet-specific adjustments */
+  .hero {
+    min-height: 70vh !important;
+  }
+
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 

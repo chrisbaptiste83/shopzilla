@@ -6,3 +6,27 @@ import { application } from "./application"
 
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import BackgroundThreeController from "./background_three_controller"
+application.register("background-three", BackgroundThreeController)
+
+import CategoryCardController from "./category_card_controller"
+application.register("category-card", CategoryCardController)
+
+import HeroThreeController from "./hero_three_controller"
+application.register("hero-three", HeroThreeController)
+
+import HoverEffectController from "./hover_effect_controller"
+application.register("hover-effect", HoverEffectController)
+
+import LoadingAnimationController from "./loading_animation_controller"
+application.register("loading-animation", LoadingAnimationController)
+
+import PageTransitionController from "./page_transition_controller"
+application.register("page-transition", PageTransitionController)
+
+import ProductViewerController from "./product_viewer_controller"
+application.register("product-viewer", ProductViewerController)
+
+import ScrollAnimationController from "./scroll_animation_controller"
+application.register("scroll-animation", ScrollAnimationController)

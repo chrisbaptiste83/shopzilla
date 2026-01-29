@@ -1,5 +1,7 @@
 <!-- Breadcrumb -->
-<div class="text-sm breadcrumbs mb-6">
+<div class="text-sm breadcrumbs mb-6"
+     data-controller="scroll-animation"
+     data-scroll-animation-animation-value="fade-right">
   <ul>
     <li><%= link_to "Home", root_path %></li>
     <li><%= link_to "Products", products_path %></li>
@@ -12,8 +14,10 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
   <!-- Product Images -->
-  <div class="space-y-4">
-    <div class="card bg-base-100 shadow-xl">
+  <div class="space-y-4"
+       data-controller="scroll-animation"
+       data-scroll-animation-animation-value="fade-right">
+    <div class="card bg-base-100 shadow-xl image-zoom">
       <figure class="p-6">
         <% if @product.images.attached? %>
           <%= image_tag @product.images.first, class: "rounded-xl w-full h-96 object-cover", id: "main-image" %>
@@ -24,12 +28,26 @@
         <% end %>
       </figure>
     </div>
-    
+
+    <!-- 3D Product Viewer (only for physical products) -->
+    <% if @product.physical_product %>
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body p-4">
+          <h3 class="font-semibold mb-2 text-sm">Interactive 3D Preview</h3>
+          <div data-controller="product-viewer"></div>
+          <p class="text-xs text-base-content/60 mt-2 text-center">Drag to rotate • Scroll to zoom</p>
+        </div>
+      </div>
+    <% end %>
+
     <!-- Thumbnail Gallery -->
     <% if @product.images.attached? && @product.images.count > 1 %>
       <div class="grid grid-cols-4 gap-2">
         <% @product.images.each_with_index do |image, index| %>
-          <div class="card bg-base-100 shadow cursor-pointer hover:shadow-lg transition-shadow">
+          <div class="card bg-base-100 shadow cursor-pointer hover:shadow-lg transition-shadow"
+               data-controller="hover-effect"
+               data-hover-effect-effect-value="scale"
+               data-hover-effect-scale-value="1.1">
             <figure class="p-2">
               <%= image_tag image, class: "rounded-lg w-full h-20 object-cover", onclick: "document.getElementById('main-image').src = this.src" %>
             </figure>
@@ -40,12 +58,14 @@
   </div>
 
   <!-- Product Details -->
-  <div class="space-y-6">
+  <div class="space-y-6"
+       data-controller="scroll-animation"
+       data-scroll-animation-animation-value="fade-left">
     <div>
       <% if @product.category.present? %>
         <div class="badge badge-primary mb-2"><%= @product.category.name %></div>
       <% end %>
-      <h1 class="text-4xl font-bold mb-4"><%= @product.title %></h1>
+      <h1 class="text-4xl font-bold mb-4 text-gradient"><%= @product.title %></h1>
       
       <!-- Rating and Reviews -->
       <div class="flex items-center gap-4 mb-4">
@@ -56,7 +76,7 @@
           <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" />
           <input type="radio" name="rating-1" class="mask mask-star-2 bg-orange-400" checked />
         </div>
-        <span class="text-sm text-base-content/70">(24 reviews)</span>
+        <span class="text-sm text-medium-contrast">(24 reviews)</span>
       </div>
       
       <div class="text-4xl font-bold text-primary mb-6">$<%= @product.price %></div>
@@ -64,8 +84,8 @@
 
     <!-- Product Description -->
     <div class="prose max-w-none">
-      <h3 class="text-xl font-semibold mb-3">Description</h3>
-      <p class="text-base-content/80 leading-relaxed">
+      <h3 class="text-xl font-semibold mb-3 text-high-contrast">Description</h3>
+      <p class="text-medium-contrast leading-relaxed">
         <%= @product.description || "This beautiful embroidery design is perfect for adding a unique touch to your creative projects. Crafted with attention to detail and tested on multiple machine types for optimal results." %>
       </p>
     </div>
@@ -76,12 +96,12 @@
         <h3 class="card-title text-lg mb-4">Product Details</h3>
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span class="font-semibold">Dimensions:</span>
-            <span class="text-base-content/70"><%= @product.dimensions || "4x4 inches" %></span>
+            <span class="font-semibold text-high-contrast">Dimensions:</span>
+            <span class="text-medium-contrast"><%= @product.dimensions || "4x4 inches" %></span>
           </div>
           <div>
-            <span class="font-semibold">Stitch Count:</span>
-            <span class="text-base-content/70">~8,500 stitches</span>
+            <span class="font-semibold text-high-contrast">Stitch Count:</span>
+            <span class="text-medium-contrast">~8,500 stitches</span>
           </div>
           <% if @product.file_format.present? %>
             <div class="col-span-2">
@@ -163,7 +183,7 @@
             <% end %>
           <% end %>
           
-          <div class="flex items-center justify-center gap-4 text-sm text-base-content/70">
+          <div class="flex items-center justify-center gap-4 text-sm text-medium-contrast">
             <div class="flex items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -202,11 +222,17 @@
 
 <!-- Related Products -->
 <section class="mt-16">
-  <h2 class="text-3xl font-bold text-center mb-8">You Might Also Like</h2>
+  <h2 class="text-3xl font-bold text-center mb-8 text-gradient"
+      data-controller="scroll-animation"
+      data-scroll-animation-animation-value="fade-up">You Might Also Like</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <% related_products = @product.category.products.where.not(id: @product.id).limit(4) %>
-    <% related_products.each do |related| %>
-      <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+    <% related_products.each_with_index do |related, index| %>
+      <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300"
+           data-controller="hover-effect scroll-animation"
+           data-hover-effect-effect-value="lift"
+           data-scroll-animation-animation-value="fade-up"
+           data-scroll-animation-delay-value="<%= index * 0.1 %>">
         <figure class="px-4 pt-4">
           <% if related.images.attached? %>
             <%= image_tag related.images.first, class: "rounded-lg h-40 w-full object-cover" %>

@@ -1,26 +1,31 @@
 <!-- app/views/products/index.html.erb -->
 
 <!-- Page Header -->
-<div class="text-center mb-12">
-  <h1 class="text-5xl font-bold mb-4">All Products</h1>
-  <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+<div class="text-center mb-8 md:mb-12 px-4"
+     data-controller="scroll-animation"
+     data-scroll-animation-animation-value="fade-up">
+  <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 md:mb-4 text-gradient">All Products</h1>
+  <p class="text-base sm:text-lg md:text-xl text-medium-contrast max-w-3xl mx-auto">
     Browse embroidery designs and find the perfect pattern for your next project.
   </p>
 </div>
 
 <!-- Filters and Search -->
-<div class="card bg-base-100 shadow-lg mb-8">
-  <div class="card-body">
-    <div class="flex flex-col lg:flex-row gap-4 items-center">
-      <%= form_with url: products_path, method: :get, local: true, class: "flex flex-1 gap-2 flex-wrap" do |f| %>
-        
+<div class="card bg-base-100 shadow-lg mb-6 md:mb-8 mx-2 sm:mx-0"
+     data-controller="scroll-animation"
+     data-scroll-animation-animation-value="fade-up"
+     data-scroll-animation-delay-value="0.2">
+  <div class="card-body p-4 md:p-6">
+    <div class="flex flex-col lg:flex-row gap-3 md:gap-4 items-stretch lg:items-center">
+      <%= form_with url: products_path, method: :get, local: true, class: "flex flex-1 gap-2 md:gap-3 flex-wrap" do |f| %>
+
         <!-- 🔎 Search -->
-        <div class="form-control flex-1">
-          <%= f.text_field :search, value: params[:search], placeholder: "Search products...", class: "input input-bordered w-full" %>
+        <div class="form-control flex-1 min-w-full sm:min-w-[200px]">
+          <%= f.text_field :search, value: params[:search], placeholder: "Search products...", class: "input input-bordered input-sm md:input-md w-full" %>
         </div>
 
         <!-- 🗂️ Category Filter -->
-        <select name="category_id" class="select select-bordered">
+        <select name="category_id" class="select select-bordered select-sm md:select-md w-full sm:w-auto">
           <option value="">All Categories</option>
           <% Category.all.each do |category| %>
             <option value="<%= category.id %>" <%= "selected" if params[:category_id].to_s == category.id.to_s %>>
@@ -30,7 +35,7 @@
         </select>
 
         <!-- 🔃 Sorting -->
-        <select name="sort" class="select select-bordered">
+        <select name="sort" class="select select-bordered select-sm md:select-md w-full sm:w-auto">
           <option value="">Sort by</option>
           <option value="newest" <%= "selected" if params[:sort] == "newest" %>>Newest First</option>
           <option value="price_low" <%= "selected" if params[:sort] == "price_low" %>>Price: Low to High</option>
@@ -38,7 +43,7 @@
         </select>
 
         <!-- 🎨 Format Filter -->
-        <select name="format" class="select select-bordered">
+        <select name="format" class="select select-bordered select-sm md:select-md w-full sm:w-auto">
           <option value="">All Formats</option>
           <% Product.distinct.pluck(:file_format).compact.each do |formats| %>
             <% formats.split(",").each do |format| %>
@@ -49,7 +54,7 @@
           <% end %>
         </select>
 
-        <%= f.submit "Filter", class: "btn btn-primary" %>
+        <%= f.submit "Filter", class: "btn btn-primary btn-sm md:btn-md w-full sm:w-auto" %>
       <% end %>
     </div>
   </div>
@@ -59,41 +64,49 @@
 <% if @products.empty? %>
   <div class="card bg-base-100 shadow-xl">
     <div class="card-body text-center py-20">
-      <div class="text-8xl mb-6">🎨</div>
-      <h2 class="text-3xl font-bold mb-4">No Products Found</h2>
-      <p class="text-lg text-base-content/70 mb-8 max-w-md mx-auto">
+      <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <h2 class="text-3xl font-bold mb-4 text-high-contrast">No Products Found</h2>
+      <p class="text-lg text-medium-contrast mb-8 max-w-md mx-auto">
         Try adjusting your filters or search terms.
       </p>
       <%= link_to "Browse Categories", categories_path, class: "btn btn-primary" %>
     </div>
   </div>
 <% else %>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-    <% @products.each do |product| %>
-      <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-        <figure class="px-4 pt-4 relative overflow-hidden">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 lg:gap-6 px-2 sm:px-0">
+    <% @products.each_with_index do |product, index| %>
+      <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group"
+           data-controller="hover-effect scroll-animation"
+           data-hover-effect-effect-value="lift"
+           data-scroll-animation-animation-value="fade-up"
+           data-scroll-animation-delay-value="<%= (index % 4) * 0.1 %>">
+        <figure class="px-3 md:px-4 pt-3 md:pt-4 relative overflow-hidden">
           <% if product.images.attached? %>
-            <%= image_tag product.images.first, class: "rounded-lg h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300" %>
+            <%= image_tag product.images.first, class: "rounded-lg h-40 sm:h-44 md:h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300" %>
           <% else %>
-            <div class="rounded-lg h-48 w-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-              <span class="text-5xl opacity-50">🎨</span>
+            <div class="rounded-lg h-40 sm:h-44 md:h-48 w-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+              <span class="text-4xl sm:text-5xl opacity-50">🎨</span>
             </div>
           <% end %>
 
           <!-- Category Badge -->
           <% if product.category.present? %>
-            <div class="absolute top-6 left-6">
-              <%= link_to product.category.name, category_path(product.category), class: "badge badge-primary badge-sm hover:bg-primary/80" %>
+            <div class="absolute top-4 md:top-6 left-4 md:left-6">
+              <%= link_to product.category.name, category_path(product.category), class: "badge badge-primary badge-xs sm:badge-sm hover:bg-primary/80" %>
             </div>
           <% end %>
 
           <!-- Wishlist Button -->
           <% if user_signed_in? %>
-            <div class="absolute top-6 right-6">
+            <div class="absolute top-4 md:top-6 right-4 md:right-6">
               <% if in_wishlist?(product) %>
                 <%= form_with url: wishlist_item_path(wishlist_item_for(product)), method: :delete, local: true do %>
-                  <button type="submit" class="btn btn-circle btn-sm btn-error">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <button type="submit" class="btn btn-circle btn-xs sm:btn-sm btn-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                   </button>
@@ -101,8 +114,8 @@
               <% else %>
                 <%= form_with url: wishlist_items_path, method: :post, local: true do %>
                   <%= hidden_field_tag :product_id, product.id %>
-                  <button type="submit" class="btn btn-circle btn-sm btn-ghost bg-white/80 hover:bg-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <button type="submit" class="btn btn-circle btn-xs sm:btn-sm btn-ghost bg-white/80 hover:bg-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                   </button>
@@ -112,28 +125,31 @@
           <% end %>
         </figure>
 
-        <div class="card-body p-4">
-          <h3 class="card-title text-lg mb-2">
+        <div class="card-body p-3 md:p-4">
+          <h3 class="card-title text-base md:text-lg mb-2 text-high-contrast">
             <%= link_to product.title, product_path(product), class: "hover:text-primary transition-colors" %>
           </h3>
-          <p class="text-sm text-base-content/70 mb-3">
+          <p class="text-xs sm:text-sm text-medium-contrast mb-2 md:mb-3 line-clamp-2">
             <%= truncate(product.description.to_plain_text, length: 60) if product.description.present? %>
           </p>
 
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-xl font-bold text-primary">$<%= product.price %></span>
+          <div class="flex items-center justify-between mb-3 md:mb-4">
+            <span class="text-lg sm:text-xl font-bold text-primary">$<%= product.price %></span>
           </div>
 
           <% if product.file_format.present? %>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <% product.file_format.split(",").each do |format| %>
+            <div class="flex flex-wrap gap-1 mb-3 md:mb-4">
+              <% product.file_format.split(",").first(3).each do |format| %>
                 <div class="badge badge-outline badge-xs"><%= format.strip %></div>
+              <% end %>
+              <% if product.file_format.split(",").length > 3 %>
+                <div class="badge badge-outline badge-xs">+<%= product.file_format.split(",").length - 3 %></div>
               <% end %>
             </div>
           <% end %>
 
           <div class="card-actions justify-between">
-            <%= link_to "View Details", product_path(product), class: "btn btn-outline btn-sm flex-1" %>
+            <%= link_to "View Details", product_path(product), class: "btn btn-outline btn-xs sm:btn-sm flex-1" %>
           </div>
         </div>
       </div>
