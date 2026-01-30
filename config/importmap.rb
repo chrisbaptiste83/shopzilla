@@ -7,12 +7,12 @@ pin "@hotwired/stimulus-loading", to: "stimulus-loading.js", preload: true
 
 pin_all_from "app/javascript/controllers", under: "controllers"
 
-# Three.js
-pin "three", to: "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+# Three.js (ESM)
+pin "three", to: "https://esm.sh/three@0.160.0"
 
-# GSAP (ESM builds)
-pin "gsap", to: "https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"
-pin "gsap/ScrollTrigger", to: "https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"
+# GSAP (ESM via esm.sh)
+pin "gsap", to: "https://esm.sh/gsap@3.12.5"
+pin "gsap/ScrollTrigger", to: "https://esm.sh/gsap@3.12.5/ScrollTrigger"
 
 # Action Text
 pin "trix"
