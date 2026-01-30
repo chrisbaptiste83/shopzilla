@@ -6,12 +6,11 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-  <%= javascript_importmap_tags if defined?(javascript_importmap_tags) %>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  
+
   <script src="https://js.stripe.com/v3/"></script>
-  <%= javascript_importmap_tags %>
 </head>
 <body class="bg-base-200 text-high-contrast"
       data-controller="page-transition loading-animation">
