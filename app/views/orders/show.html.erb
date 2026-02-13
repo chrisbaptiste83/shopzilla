@@ -1,5 +1,5 @@
 <div class="max-w-4xl mx-auto py-12 px-4">
-  <div class="card bg-base-100 shadow-xl">
+  <div class="card shadow-xl">
     <div class="card-body">
       <!-- Order Header -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 pb-4 border-b border-base-300">
@@ -29,7 +29,7 @@
       <div class="space-y-3 mb-6">
         <h2 class="font-semibold text-xl mb-4">Items</h2>
         <% @order.order_items.each do |item| %>
-          <div class="flex items-center gap-4 p-3 bg-base-200 rounded-lg">
+          <div class="flex items-center gap-4 p-3 rounded-lg">
             <% if item.product.images.attached? %>
               <%= image_tag item.product.images.first.variant(resize_to_fill: [80, 80]),
                   class: "w-20 h-20 object-cover rounded-lg",
@@ -61,7 +61,7 @@
         <div>
           <% if @order.shipping_address.present? %>
             <h2 class="font-semibold text-xl mb-4">Shipping Address</h2>
-            <div class="p-4 bg-base-200 rounded-lg">
+            <div class="p-4 rounded-lg">
               <%= render 'shipping_addresses/shipping_address', shipping_address: @order.shipping_address %>
             </div>
           <% else %>

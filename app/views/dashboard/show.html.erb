@@ -1,0 +1,168 @@
+<div class="dashboard-dark">
+  <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 relative z-10">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold mb-1">
+        Welcome back<%= ", #{@user.email.split('@').first}" %>!
+      </h1>
+      <p class="text-dark-secondary">Your embroidery dashboard</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+      <div class="stat-card">
+        <p class="text-xs text-dark-muted uppercase tracking-wider mb-1">Total Spent</p>
+        <p class="text-2xl font-bold text-gradient-glow">$<%= '%.2f' % @total_spent %></p>
+      </div>
+      <div class="stat-card">
+        <p class="text-xs text-dark-muted uppercase tracking-wider mb-1">Completed Orders</p>
+        <p class="text-2xl font-bold text-dark-primary"><%= @total_orders %></p>
+      </div>
+      <div class="stat-card">
+        <p class="text-xs text-dark-muted uppercase tracking-wider mb-1">Active Downloads</p>
+        <p class="text-2xl font-bold" style="color: #2dd4bf;"><%= @download_count %></p>
+      </div>
+      <div class="stat-card">
+        <p class="text-xs text-dark-muted uppercase tracking-wider mb-1">Wishlist Items</p>
+        <p class="text-2xl font-bold" style="color: #f59e0b;"><%= @wishlist_count %></p>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+      <%= link_to dashboard_orders_path, class: "quick-link-card group" do %>
+        <div class="icon-circle" style="background: rgba(45, 212, 191, 0.1);">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" style="color: #2dd4bf;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-dark-primary group-hover:text-teal-400 transition-colors">Order History</h3>
+          <p class="text-sm text-dark-muted">View past purchases</p>
+        </div>
+      <% end %>
+
+      <%= link_to dashboard_downloads_path, class: "quick-link-card group" do %>
+        <div class="icon-circle" style="background: rgba(99, 102, 241, 0.1);">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" style="color: #818cf8;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-dark-primary group-hover:text-indigo-400 transition-colors">My Downloads</h3>
+          <p class="text-sm text-dark-muted">Access purchased files</p>
+        </div>
+      <% end %>
+
+      <%= link_to dashboard_wishlist_path, class: "quick-link-card group" do %>
+        <div class="icon-circle" style="background: rgba(245, 158, 11, 0.1);">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" style="color: #f59e0b;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-dark-primary group-hover:text-amber-400 transition-colors">Wishlist</h3>
+          <p class="text-sm text-dark-muted">Saved designs</p>
+        </div>
+      <% end %>
+
+      <%= link_to profile_path, class: "quick-link-card group" do %>
+        <div class="icon-circle" style="background: rgba(244, 114, 182, 0.1);">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" style="color: #f472b6;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-dark-primary group-hover:text-pink-400 transition-colors">Edit Profile</h3>
+          <p class="text-sm text-dark-muted">Update your account</p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="mb-10">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold">Recent Orders</h2>
+        <% if @recent_orders.any? %>
+          <%= link_to "View All", dashboard_orders_path, class: "btn btn-sm btn-dark-outline" %>
+        <% end %>
+      </div>
+
+      <% if @recent_orders.any? %>
+        <div class="card-dark rounded-2xl overflow-x-auto">
+          <table class="table table-dark w-full">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @recent_orders.each do |order| %>
+                <tr>
+                  <td class="font-medium text-dark-primary">#<%= order.id %></td>
+                  <td class="text-sm text-dark-secondary max-w-xs truncate">
+                    <%= order.order_items.map { |i| i.product.title }.join(", ") %>
+                  </td>
+                  <td class="font-semibold" style="color: #2dd4bf;">$<%= '%.2f' % order.total %></td>
+                  <td>
+                    <%
+                      status_class = case order.status
+                        when 'completed' then 'badge-success'
+                        when 'pending' then 'badge-warning'
+                        when 'failed' then 'badge-error'
+                        when 'cancelled' then 'badge-ghost'
+                        else 'badge-info'
+                      end
+                    %>
+                    <span class="badge badge-sm <%= status_class %>"><%= order.status.capitalize %></span>
+                  </td>
+                  <td class="text-sm text-dark-muted"><%= order.created_at.strftime("%b %d, %Y") %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="card-dark rounded-2xl">
+          <div class="p-12 text-center">
+            <div class="text-5xl mb-4 opacity-60">📦</div>
+            <h3 class="text-xl font-semibold mb-2 text-dark-primary">No orders yet</h3>
+            <p class="text-dark-secondary mb-4">Your purchase history will appear here.</p>
+            <%= link_to "Browse Products", products_path, class: "btn btn-primary btn-sm" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Account Info -->
+    <div class="card-dark rounded-2xl">
+      <div class="p-6">
+        <h2 class="text-xl font-bold mb-4 text-dark-primary">Account Info</h2>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-full overflow-hidden ring-2 ring-slate-600">
+              <% if @user.avatar.attached? %>
+                <%= image_tag @user.avatar.variant(resize_to_fill: [56, 56]), class: "w-full h-full object-cover" %>
+              <% else %>
+                <div class="w-full h-full flex items-center justify-center" style="background: rgba(45, 212, 191, 0.15);">
+                  <span class="text-xl font-bold" style="color: #2dd4bf;"><%= @user.email.first.upcase %></span>
+                </div>
+              <% end %>
+            </div>
+            <div>
+              <p class="font-semibold text-dark-primary"><%= @user.email %></p>
+              <p class="text-sm text-dark-muted">Member since <%= @user.created_at.strftime("%B %Y") %></p>
+            </div>
+          </div>
+          <div class="sm:ml-auto">
+            <%= link_to "Edit Profile", edit_profile_path, class: "btn btn-sm btn-dark-outline" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

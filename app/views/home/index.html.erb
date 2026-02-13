@@ -1,13 +1,13 @@
 
 <!-- Hero Section -->
-<div class="hero min-h-[80vh] bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900 mb-8 md:mb-12 relative"
+<div class="hero min-h-[80vh] bg-gradient-to-br from-teal-900 via-green-900 to-amber-800 mb-8 md:mb-12 relative"
      data-controller="hero-three"
      style="position: relative;">
   <div class="hero-overlay bg-black bg-opacity-40"></div>
   <div class="hero-content text-center text-neutral-content relative z-10 px-4">
     <div class="max-w-2xl" data-controller="scroll-animation" data-scroll-animation-animation-value="scale-up">
       <h1 class="mb-5 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-gradient-hero">
-        Unique <span class="text-yellow-300">Embroidery</span> Designs
+        Unique <span class="text-amber-200">Embroidery</span> Designs
       </h1>
       <p class="mb-6 md:mb-8 text-base sm:text-lg md:text-xl leading-relaxed text-white/90">
         Discover our premium collection of high-quality embroidery files and patterns.
@@ -37,7 +37,7 @@
 
 <style>
   .text-gradient-hero {
-    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #fef3c7 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #ecfeff 55%, #fef3c7 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -55,7 +55,7 @@
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
     <!-- Floral -->
     <%= link_to category_path(Category.find_by(name: "Floral Designs")),
-        class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
+        class: "card shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
         data: {
           controller: "hover-effect scroll-animation",
           hover_effect_effect_value: "tilt",
@@ -78,7 +78,7 @@
 
     <!-- Animals -->
     <%= link_to category_path(Category.find_by(name: "Animal Patterns")),
-        class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
+        class: "card shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
         data: {
           controller: "hover-effect scroll-animation",
           hover_effect_effect_value: "tilt",
@@ -103,7 +103,7 @@
 
     <!-- Holiday -->
     <%= link_to category_path(Category.find_by(name: "Holidays")),
-        class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
+        class: "card shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
         data: {
           controller: "hover-effect scroll-animation",
           hover_effect_effect_value: "tilt",
@@ -128,7 +128,7 @@
 
     <!-- Monograms -->
     <%= link_to category_path(Category.find_by(name: "Monograms")),
-        class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
+        class: "card shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
         data: {
           controller: "hover-effect scroll-animation",
           hover_effect_effect_value: "tilt",
@@ -150,7 +150,7 @@
 
     <!-- Cooking -->
     <%= link_to category_path(Category.find_by(name: "Cooking")),
-        class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
+        class: "card shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
         data: {
           controller: "hover-effect scroll-animation",
           hover_effect_effect_value: "tilt",
@@ -174,7 +174,7 @@
 
     <!-- Celebration -->
     <%= link_to category_path(Category.find_by(name: "Celebrations")),
-        class: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
+        class: "card shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group perspective-1000",
         data: {
           controller: "hover-effect scroll-animation",
           hover_effect_effect_value: "tilt",
@@ -208,7 +208,7 @@
   </div>
 
   <% if @featured_products.empty? %>
-    <div class="card bg-base-100 shadow-xl">
+    <div class="card shadow-xl">
       <div class="card-body text-center py-16">
         <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -223,7 +223,7 @@
   <% else %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
       <% @featured_products.each_with_index do |product, index| %>
-        <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group"
+        <div class="card shadow-xl hover:shadow-2xl transition-all duration-300 group"
              data-controller="hover-effect scroll-animation"
              data-hover-effect-effect-value="lift"
              data-scroll-animation-animation-value="fade-up"
@@ -278,7 +278,7 @@
 <!-- Features Section -->
 <section class="mb-12 md:mb-16 px-2 sm:px-0">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-    <div class="card bg-base-100 shadow-lg"
+    <div class="card shadow-lg"
          data-controller="hover-effect scroll-animation"
          data-hover-effect-effect-value="scale"
          data-scroll-animation-animation-value="fade-up"
@@ -294,7 +294,7 @@
       </div>
     </div>
 
-    <div class="card bg-base-100 shadow-lg"
+    <div class="card shadow-lg"
          data-controller="hover-effect scroll-animation"
          data-hover-effect-effect-value="scale"
          data-scroll-animation-animation-value="fade-up"
@@ -310,7 +310,7 @@
       </div>
     </div>
 
-    <div class="card bg-base-100 shadow-lg"
+    <div class="card shadow-lg"
          data-controller="hover-effect scroll-animation"
          data-hover-effect-effect-value="scale"
          data-scroll-animation-animation-value="fade-up"
@@ -342,4 +342,3 @@
     </div>
   </div>
 </section>
-

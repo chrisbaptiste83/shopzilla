@@ -11,7 +11,7 @@
 </div>
 
 <!-- Filters and Search -->
-<div class="card bg-base-100 shadow-lg mb-6 md:mb-8 mx-2 sm:mx-0"
+<div class="card shadow-lg mb-6 md:mb-8 mx-2 sm:mx-0"
      data-controller="scroll-animation"
      data-scroll-animation-animation-value="fade-up"
      data-scroll-animation-delay-value="0.2">
@@ -62,7 +62,7 @@
 
 <!-- Products Grid -->
 <% if @products.empty? %>
-  <div class="card bg-base-100 shadow-xl">
+  <div class="card shadow-xl">
     <div class="card-body text-center py-20">
       <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -79,7 +79,7 @@
 <% else %>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 lg:gap-6 px-2 sm:px-0">
     <% @products.each_with_index do |product, index| %>
-      <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group"
+      <div class="card shadow-xl hover:shadow-2xl transition-all duration-300 group"
            data-controller="hover-effect scroll-animation"
            data-hover-effect-effect-value="lift"
            data-scroll-animation-animation-value="fade-up"
@@ -114,7 +114,7 @@
               <% else %>
                 <%= form_with url: wishlist_items_path, method: :post, local: true do %>
                   <%= hidden_field_tag :product_id, product.id %>
-                  <button type="submit" class="btn btn-circle btn-xs sm:btn-sm btn-ghost bg-white/80 hover:bg-white">
+                  <button type="submit" class="btn btn-circle btn-xs sm:btn-sm btn-ghost bg-slate-800/80 hover:bg-slate-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>

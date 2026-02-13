@@ -14,6 +14,11 @@ Rails.application.routes.draw do
 
   resource :profile, only: [:show, :edit, :update]
 
+  get "dashboard", to: "dashboard#show", as: :dashboard
+  get "dashboard/orders", to: "dashboard#orders", as: :dashboard_orders
+  get "dashboard/downloads", to: "dashboard#downloads", as: :dashboard_downloads
+  get "dashboard/wishlist", to: "dashboard#wishlist", as: :dashboard_wishlist
+
   resources :products
   resources :categories
   # Devise + Admin

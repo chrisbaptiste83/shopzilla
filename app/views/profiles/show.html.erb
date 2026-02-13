@@ -1,5 +1,5 @@
 ```erb
-<div class="bg-base-200 min-h-screen">
+<div class="min-h-screen">
   <div class="container mx-auto py-12 px-4 max-w-5xl">
     <!-- Profile Banner & Avatar -->
     <div class="relative mb-16">
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Profile Info -->
-    <div class="bg-base-100 rounded-xl shadow-lg px-6 sm:px-8 pt-16 pb-8 mb-10">
+    <div class="rounded-xl shadow-lg px-6 sm:px-8 pt-16 pb-8 mb-10">
       <p class="text-neutral-focus text-sm mb-3">@<%= @user.email.split('@').first %></p>
       <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm mb-4">
         <span><strong class="font-medium">Joined:</strong> <%= @user.created_at.strftime("%B %Y") %></span>
@@ -29,7 +29,7 @@
 
     <!-- Simplified Edit Form (only if current user) -->
     <% if current_user == @user %>
-      <div class="bg-base-100 rounded-xl shadow-lg p-6 mb-10">
+      <div class="rounded-xl shadow-lg p-6 mb-10">
         <h2 class="text-xl font-semibold mb-4 text-base-content">Quick Update</h2>
         <%= form_with model: @user, url: profile_path, local: true, class: "space-y-3" do |form| %>
           <% if @user.errors.any? %>

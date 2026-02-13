@@ -1,0 +1,66 @@
+<div class="dashboard-dark">
+  <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 relative z-10">
+    <!-- Breadcrumb -->
+    <div class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><%= link_to "Dashboard", dashboard_path %></li>
+        <li class="font-semibold text-dark-primary">My Downloads</li>
+      </ul>
+    </div>
+
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold mb-1">My Downloads</h1>
+      <p class="text-dark-secondary">Your purchased embroidery files</p>
+    </div>
+
+    <% if @download_accesses.any? %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <% @download_accesses.each do |access| %>
+          <div class="card-dark rounded-2xl">
+            <div class="p-5">
+              <div class="flex items-start gap-4">
+                <div class="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0" style="background: rgba(148, 163, 184, 0.1);">
+                  <% if access.product.images.attached? %>
+                    <%= image_tag access.product.images.first.variant(resize_to_fill: [56, 56]), class: "w-full h-full object-cover" %>
+                  <% else %>
+                    <div class="w-full h-full flex items-center justify-center text-2xl opacity-50">✂️</div>
+                  <% end %>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-semibold truncate text-dark-primary"><%= access.product.title %></h3>
+                  <% if access.product.category %>
+                    <span class="badge badge-dark badge-xs mt-1"><%= access.product.category.name %></span>
+                  <% end %>
+                  <p class="text-xs text-dark-muted mt-1">Downloaded <%= access.download_count %> times</p>
+                  <p class="text-xs text-dark-muted">Expires: <%= access.expires_at.strftime("%b %d, %Y") %></p>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <% if access.product.embroidery_file.attached? %>
+                  <%= link_to secure_download_path(token: access.access_token), class: "btn btn-primary btn-sm w-full gap-2" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Download
+                  <% end %>
+                <% else %>
+                  <span class="btn btn-disabled btn-sm w-full">File not yet available</span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="card-dark rounded-2xl">
+        <div class="p-16 text-center">
+          <div class="text-6xl mb-4 opacity-60">📂</div>
+          <h2 class="text-2xl font-bold mb-2 text-dark-primary">No downloads yet</h2>
+          <p class="text-dark-secondary mb-6">Purchase embroidery designs to access them here.</p>
+          <%= link_to "Browse Products", products_path, class: "btn btn-primary" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

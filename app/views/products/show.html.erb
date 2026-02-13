@@ -17,7 +17,7 @@
   <div class="space-y-4"
        data-controller="scroll-animation"
        data-scroll-animation-animation-value="fade-right">
-    <div class="card bg-base-100 shadow-xl image-zoom">
+    <div class="card shadow-xl image-zoom">
       <figure class="p-6">
         <% if @product.images.attached? %>
           <%= image_tag @product.images.first, class: "rounded-xl w-full h-96 object-cover", id: "main-image" %>
@@ -31,7 +31,7 @@
 
     <!-- 3D Product Viewer (only for physical products) -->
     <% if @product.physical_product %>
-      <div class="card bg-base-100 shadow-xl">
+      <div class="card shadow-xl">
         <div class="card-body p-4">
           <h3 class="font-semibold mb-2 text-sm">Interactive 3D Preview</h3>
           <div data-controller="product-viewer"></div>
@@ -44,7 +44,7 @@
     <% if @product.images.attached? && @product.images.count > 1 %>
       <div class="grid grid-cols-4 gap-2">
         <% @product.images.each_with_index do |image, index| %>
-          <div class="card bg-base-100 shadow cursor-pointer hover:shadow-lg transition-shadow"
+          <div class="card shadow cursor-pointer hover:shadow-lg transition-shadow"
                data-controller="hover-effect"
                data-hover-effect-effect-value="scale"
                data-hover-effect-scale-value="1.1">
@@ -91,7 +91,7 @@
     </div>
 
     <!-- Product Specifications -->
-    <div class="card bg-base-100 shadow-lg">
+    <div class="card shadow-lg">
       <div class="card-body">
         <h3 class="card-title text-lg mb-4">Product Details</h3>
         <div class="grid grid-cols-2 gap-4 text-sm">
@@ -124,7 +124,7 @@
     </div>
 
     <!-- Purchase Actions -->
-    <div class="card bg-base-100 shadow-lg">
+    <div class="card shadow-lg">
       <div class="card-body">
         <div class="flex flex-col gap-4">
           <div class="flex gap-2">
@@ -203,7 +203,7 @@
 
     <!-- Admin Actions -->
     <% if current_user&.admin? %>
-      <div class="card bg-base-200 shadow-lg">
+      <div class="card shadow-lg">
         <div class="card-body">
           <h3 class="card-title text-sm">Admin Actions</h3>
           <div class="flex gap-2">
@@ -228,7 +228,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <% related_products = @product.category.products.where.not(id: @product.id).limit(4) %>
     <% related_products.each_with_index do |related, index| %>
-      <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300"
+      <div class="card shadow-xl hover:shadow-2xl transition-all duration-300"
            data-controller="hover-effect scroll-animation"
            data-hover-effect-effect-value="lift"
            data-scroll-animation-animation-value="fade-up"

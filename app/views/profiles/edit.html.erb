@@ -1,5 +1,5 @@
 
-<%= form_with model: current_user, url: profile_path, local: true, html: { multipart: true, class: "card bg-base-100 shadow-xl p-8" } do |f| %>
+<%= form_with model: current_user, url: profile_path, local: true, html: { multipart: true, class: "card shadow-xl p-8" } do |f| %>
   <div class="form-control mb-4">
     <%= f.label :email, class: "label" %>
     <%= f.email_field :email, class: "input input-bordered" %>

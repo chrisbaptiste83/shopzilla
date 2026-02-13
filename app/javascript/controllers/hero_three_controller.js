@@ -116,11 +116,17 @@ export default class extends Controller {
 
     this.scene.add(this.mainGroup)
 
-    gsap.from(this.meshes, {
-      duration: 2,
-      scale: 0,
-      stagger: 0.15,
-      ease: "elastic.out(1, 0.5)"
+    // Animate scale using GSAP with Three.js Vector3
+    this.meshes.forEach((mesh, index) => {
+      mesh.scale.set(0, 0, 0)
+      gsap.to(mesh.scale, {
+        x: 1,
+        y: 1,
+        z: 1,
+        duration: 2,
+        delay: index * 0.15,
+        ease: "elastic.out(1, 0.5)"
+      })
     })
   }
 

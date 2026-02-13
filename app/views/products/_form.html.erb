@@ -16,25 +16,25 @@
   <% end %>
 
   <!-- Product Details -->
-  <div class="card bg-base-100 shadow-xl p-6">
+  <div class="card shadow-xl p-6">
     <h2 class="card-title text-2xl mb-4">Product Details</h2>
 
     <div class="form-control mb-4">
       <%= form.label :title, class: "label" %>
       <%= form.text_field :title, class: "input input-bordered w-full", placeholder: "Enter product title" %>
-      <div class="label-text-alt mt-2 text-gray-500">A catchy name for your embroidery design</div>
+      <div class="label-text-alt mt-2 text-muted-contrast">A catchy name for your embroidery design</div>
     </div>
 
     <div class="form-control mb-4">
       <%= form.label :price, class: "label" %>
       <%= form.number_field :price, class: "input input-bordered w-full", placeholder: "Enter price in dollars", min: 0 %>
-      <div class="label-text-alt mt-2 text-gray-500">Price for this product (whole dollars)</div>
+      <div class="label-text-alt mt-2 text-muted-contrast">Price for this product (whole dollars)</div>
     </div>
 
     <div class="form-control mb-4">
       <%= form.label :description, class: "label" %>
       <%= form.rich_text_area :description, class: "w-full h-64" %>
-      <div class="label-text-alt mt-2 text-gray-500">Optional: Provide details about the design or usage</div>
+      <div class="label-text-alt mt-2 text-muted-contrast">Optional: Provide details about the design or usage</div>
     </div>
 
     <!-- Category Selection -->
@@ -49,20 +49,20 @@
     <div class="mb-4">
       <%= form.label :new_category_name, "Or create a new category", class: "block font-semibold" %>
       <%= form.text_field :new_category_name, class: "w-full border rounded px-2 py-1" %>
-      <p class="text-sm text-gray-500">If you enter a new category name, it will be created automatically.</p>
+      <p class="text-sm text-muted-contrast">If you enter a new category name, it will be created automatically.</p>
     </div>
 
     <div class="form-control mb-4">
       <%= form.label :file_format, class: "label" %>
       <%= form.text_field :file_format, class: "input input-bordered w-full", placeholder: "e.g., PES, DST" %>
-      <div class="label-text-alt mt-2 text-gray-500">Optional: Format of embroidery file</div>
+      <div class="label-text-alt mt-2 text-muted-contrast">Optional: Format of embroidery file</div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div class="form-control">
         <%= form.label :dimensions, class: "label" %>
         <%= form.text_field :dimensions, class: "input input-bordered w-full", placeholder: "e.g., 4x4 inches" %>
-        <div class="label-text-alt mt-2 text-gray-500">Optional: Dimensions or hoop size</div>
+        <div class="label-text-alt mt-2 text-muted-contrast">Optional: Dimensions or hoop size</div>
       </div>
 
       <div class="form-control flex items-center">
@@ -71,7 +71,7 @@
           <%= form.check_box :is_available, class: "checkbox checkbox-primary" %>
           <span class="label-text">Available for purchase</span>
         </div>
-        <div class="label-text-alt mt-2 text-gray-500">Check if ready to sell</div>
+        <div class="label-text-alt mt-2 text-muted-contrast">Check if ready to sell</div>
       </div>
 
       <div class="form-control flex items-center">
@@ -80,19 +80,19 @@
           <%= form.check_box :physical_product, class: "checkbox checkbox-secondary" %>
           <span class="label-text">Physical product</span>
         </div>
-        <div class="label-text-alt mt-2 text-gray-500">Check if this is a physical product that needs shipping</div>
+        <div class="label-text-alt mt-2 text-muted-contrast">Check if this is a physical product that needs shipping</div>
       </div>
     </div>
   </div>
 
   <!-- Media Uploads -->
-  <div class="card bg-base-100 shadow-xl p-6">
+  <div class="card shadow-xl p-6">
     <h2 class="card-title text-2xl mb-4">Media Uploads</h2>
 
     <div class="form-control mb-4">
       <%= form.label :embroidery_file, class: "label" %>
       <%= form.file_field :embroidery_file, class: "file-input file-input-bordered file-input-primary w-full", accept: ".pes,.dst,.jef" %>
-      <div class="label-text-alt mt-2 text-gray-500">Optional: Upload the embroidery file for download after purchase</div>
+      <div class="label-text-alt mt-2 text-muted-contrast">Optional: Upload the embroidery file for download after purchase</div>
       <% if product.embroidery_file.attached? %>
         <div class="mt-2 text-sm text-success">File attached: <%= product.embroidery_file.filename %></div>
       <% end %>
@@ -101,7 +101,7 @@
     <div class="form-control mb-4">
       <%= form.label :images, class: "label" %>
       <%= form.file_field :images, multiple: true, class: "file-input file-input-bordered file-input-secondary w-full", accept: "image/*" %>
-      <div class="label-text-alt mt-2 text-gray-500">Optional: Upload images to showcase the product</div>
+      <div class="label-text-alt mt-2 text-muted-contrast">Optional: Upload images to showcase the product</div>
       
       <%# --- Show existing images --- %>
       <% if @product.images.attached? %>

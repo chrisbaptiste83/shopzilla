@@ -6,76 +6,51 @@ gsap.registerPlugin(ScrollTrigger)
 
 export default class extends Controller {
   connect() {
-    this.setupTransitions()
     this.animatePageIn()
+    this.setupTransitions()
   }
 
   setupTransitions() {
-    this.boundBeforeVisit = this.beforeVisit.bind(this)
+    this.boundBeforeCache = this.beforeCache.bind(this)
     this.boundAfterLoad = this.afterLoad.bind(this)
 
-    document.addEventListener('turbo:before-visit', this.boundBeforeVisit)
+    document.addEventListener('turbo:before-cache', this.boundBeforeCache)
     document.addEventListener('turbo:load', this.boundAfterLoad)
   }
 
   disconnect() {
-    document.removeEventListener('turbo:before-visit', this.boundBeforeVisit)
+    document.removeEventListener('turbo:before-cache', this.boundBeforeCache)
     document.removeEventListener('turbo:load', this.boundAfterLoad)
   }
 
   animatePageIn() {
     gsap.fromTo('main',
-      {
-        opacity: 0,
-        y: 30
-      },
+      { opacity: 0, y: 20 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.6,
-        ease: "power3.out",
+        duration: 0.4,
+        ease: "power2.out",
         clearProps: "all"
       }
     )
-
-    gsap.fromTo('.navbar',
-      {
-        y: -100,
-        opacity: 0
-      },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.5,
-        ease: "power3.out",
-        delay: 0.1
-      }
-    )
   }
 
-  beforeVisit(event) {
-    gsap.to('main', {
-      opacity: 0,
-      y: -30,
-      scale: 0.98,
-      duration: 0.3,
-      ease: "power2.in"
-    })
+  beforeCache() {
+    // Reset state before Turbo caches the page so cached version looks clean
+    gsap.killTweensOf('main')
+    gsap.set('main', { opacity: 1, y: 0, clearProps: "all" })
   }
 
-  afterLoad(event) {
+  afterLoad() {
+    gsap.killTweensOf('main')
     gsap.fromTo('main',
-      {
-        opacity: 0,
-        y: 40,
-        scale: 0.98
-      },
+      { opacity: 0, y: 20 },
       {
         opacity: 1,
         y: 0,
-        scale: 1,
-        duration: 0.6,
-        ease: "power3.out",
+        duration: 0.4,
+        ease: "power2.out",
         clearProps: "all"
       }
     )

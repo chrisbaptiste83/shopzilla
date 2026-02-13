@@ -1,0 +1,94 @@
+<div class="dashboard-dark">
+  <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 relative z-10">
+    <!-- Breadcrumb -->
+    <div class="text-sm breadcrumbs mb-6">
+      <ul>
+        <li><%= link_to "Dashboard", dashboard_path %></li>
+        <li class="font-semibold text-dark-primary">Wishlist</li>
+      </ul>
+    </div>
+
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold mb-1">My Wishlist</h1>
+      <p class="text-dark-secondary">Designs you've saved for later</p>
+    </div>
+
+    <% if @wishlist_items.any? %>
+      <p class="text-sm text-dark-muted mb-4">
+        <span class="font-semibold text-dark-primary"><%= @wishlist_items.count %></span>
+        <%= "item".pluralize(@wishlist_items.count) %> saved
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <% @wishlist_items.each do |wishlist_item| %>
+          <% product = wishlist_item.product %>
+          <div class="card-dark rounded-2xl group">
+            <figure class="px-4 pt-4 relative overflow-hidden">
+              <%= link_to product_path(product) do %>
+                <% if product.images.attached? %>
+                  <%= image_tag product.images.first, class: "rounded-lg h-44 w-full object-cover group-hover:scale-105 transition-transform duration-300" %>
+                <% else %>
+                  <div class="rounded-lg h-44 w-full flex items-center justify-center" style="background: linear-gradient(135deg, rgba(45, 212, 191, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);">
+                    <span class="text-4xl opacity-40">🎨</span>
+                  </div>
+                <% end %>
+              <% end %>
+
+              <% if product.category.present? %>
+                <div class="absolute top-6 left-6">
+                  <%= link_to product.category.name, category_path(product.category), class: "badge badge-primary badge-sm" %>
+                </div>
+              <% end %>
+
+              <div class="absolute top-6 right-6">
+                <%= form_with url: wishlist_item_path(wishlist_item), method: :delete, local: true do %>
+                  <button type="submit" class="btn btn-circle btn-xs btn-error" title="Remove from wishlist">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                <% end %>
+              </div>
+            </figure>
+
+            <div class="p-4">
+              <h3 class="font-semibold text-base mb-2">
+                <%= link_to product.title, product_path(product), class: "text-dark-primary hover:text-teal-400 transition-colors" %>
+              </h3>
+
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-lg font-bold" style="color: #2dd4bf;">$<%= '%.2f' % product.price %></span>
+                <span class="text-xs text-dark-muted">Added <%= time_ago_in_words(wishlist_item.created_at) %> ago</span>
+              </div>
+
+              <% if product.file_format.present? %>
+                <div class="flex flex-wrap gap-1 mb-3">
+                  <% product.file_format.split(",").each do |format| %>
+                    <span class="badge badge-dark badge-xs"><%= format.strip %></span>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <div class="flex gap-2">
+                <%= link_to "View", product_path(product), class: "btn btn-sm btn-dark-outline flex-1" %>
+                <%= form_with url: add_cart_path, method: :post, local: true, class: "flex-1" do %>
+                  <%= hidden_field_tag :product_id, product.id %>
+                  <button type="submit" class="btn btn-primary btn-sm w-full">Add to Cart</button>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="card-dark rounded-2xl">
+        <div class="p-16 text-center">
+          <div class="text-6xl mb-4 opacity-60">💝</div>
+          <h2 class="text-2xl font-bold mb-2 text-dark-primary">Your wishlist is empty</h2>
+          <p class="text-dark-secondary mb-6">Save your favorite embroidery designs here so you can find them easily later.</p>
+          <%= link_to "Browse Products", products_path, class: "btn btn-primary" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

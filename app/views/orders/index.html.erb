@@ -5,7 +5,7 @@
   </div>
 
   <% if @orders.empty? %>
-    <div class="card bg-base-100 shadow-xl">
+    <div class="card shadow-xl">
       <div class="card-body text-center py-16">
         <div class="text-6xl mb-4">📦</div>
         <h2 class="text-2xl font-bold mb-2">No orders yet</h2>
@@ -16,7 +16,7 @@
   <% else %>
     <div class="space-y-6">
       <% @orders.each do |order| %>
-        <div class="card bg-base-100 shadow-xl">
+        <div class="card shadow-xl">
           <div class="card-body">
             <!-- Order Header -->
             <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 pb-4 border-b border-base-300">
@@ -46,7 +46,7 @@
             <div class="space-y-3">
               <h3 class="font-semibold text-lg mb-3">Items</h3>
               <% order.order_items.each do |item| %>
-                <div class="flex items-center gap-4 p-3 bg-base-200 rounded-lg">
+                <div class="flex items-center gap-4 p-3 rounded-lg">
                   <% if item.product.images.attached? %>
                     <%= image_tag item.product.images.first.variant(resize_to_fill: [80, 80]),
                         class: "w-20 h-20 object-cover rounded-lg",
