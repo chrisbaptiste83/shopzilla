@@ -70,7 +70,7 @@ gem "devise", "~> 4.9"
 
 gem "importmap-rails", "~> 2.2"
 
-gem "activeadmin", "~> 3.3"
+gem "activeadmin", "~> 3.4"
 
 gem "sassc-rails", "~> 2.1"
 
