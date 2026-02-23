@@ -19,9 +19,6 @@ application.register("hero-three", HeroThreeController)
 import HoverEffectController from "./hover_effect_controller"
 application.register("hover-effect", HoverEffectController)
 
-import LoadingAnimationController from "./loading_animation_controller"
-application.register("loading-animation", LoadingAnimationController)
-
 import PageTransitionController from "./page_transition_controller"
 application.register("page-transition", PageTransitionController)
 
