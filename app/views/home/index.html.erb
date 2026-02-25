@@ -230,7 +230,7 @@
              data-scroll-animation-delay-value="<%= (index % 3) * 0.1 %>">
           <figure class="px-6 pt-6 relative overflow-hidden">
             <% if product.images.attached? %>
-              <%= image_tag product.images.first, class: "rounded-xl h-56 w-full object-cover group-hover:scale-105 transition-transform duration-300" %>
+              <%= image_tag product.images.first, class: "rounded-xl h-56 w-full object-contain bg-base-200 group-hover:scale-105 transition-transform duration-300" %>
             <% else %>
               <div class="rounded-xl h-56 w-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-primary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -254,13 +254,6 @@
 
             <div class="flex items-center justify-between">
               <span class="text-2xl font-bold text-primary">$<%= product.price %></span>
-              <div class="rating rating-sm">
-                <input type="radio" name="rating-<%= product.id %>" class="mask mask-star-2 bg-orange-400" />
-                <input type="radio" name="rating-<%= product.id %>" class="mask mask-star-2 bg-orange-400" />
-                <input type="radio" name="rating-<%= product.id %>" class="mask mask-star-2 bg-orange-400" />
-                <input type="radio" name="rating-<%= product.id %>" class="mask mask-star-2 bg-orange-400" />
-                <input type="radio" name="rating-<%= product.id %>" class="mask mask-star-2 bg-orange-400" checked />
-              </div>
             </div>
             <div class="card-actions justify-between mt-6">
               <%= link_to "Quick View", product_path(product), class: "btn btn-outline btn-sm flex-1" %>
