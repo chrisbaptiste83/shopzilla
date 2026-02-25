@@ -6,7 +6,9 @@ class ProductsController < ApplicationController
 
   # GET /products
   def index
-    @products = Product.all
+    @products = Product
+      .includes(:category, images_attachments: :blob)
+      .with_rich_text_description
 
     # 🔎 Search (title + description if present)
     if params[:search].present?
@@ -42,6 +44,13 @@ class ProductsController < ApplicationController
     when "price_high"
       @products = @products.order(price: :desc)
     end
+
+    @products = @products.order(created_at: :desc) if @products.order_values.empty?
+
+    per_page = params[:per].to_i
+    per_page = 24 if per_page <= 0
+    per_page = 48 if per_page > 48
+    @products = @products.page(params[:page]).per(per_page)
   end
 
   # GET /products/1

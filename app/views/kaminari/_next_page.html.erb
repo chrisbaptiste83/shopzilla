@@ -1,0 +1,5 @@
+<% if current_page.last? %>
+  <span class="join-item btn btn-outline btn-sm btn-disabled" aria-disabled="true">Next</span>
+<% else %>
+  <%= link_to 'Next', url, class: "join-item btn btn-outline btn-sm", rel: 'next' %>
+<% end %>

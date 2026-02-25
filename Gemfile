@@ -77,3 +77,6 @@ gem "sassc-rails", "~> 2.1"
 gem "sprockets-rails", "~> 3.5"
 
 gem "aws-sdk-s3", "~> 1.48"
+
+# Pagination
+gem "kaminari", "~> 1.2"

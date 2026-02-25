@@ -1,0 +1,5 @@
+<% if current_page.first? %>
+  <span class="join-item btn btn-outline btn-sm btn-disabled" aria-disabled="true">Prev</span>
+<% else %>
+  <%= link_to 'Prev', url, class: "join-item btn btn-outline btn-sm", rel: 'prev' %>
+<% end %>
