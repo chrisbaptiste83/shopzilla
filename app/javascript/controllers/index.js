@@ -25,5 +25,8 @@ application.register("page-transition", PageTransitionController)
 import ProductViewerController from "./product_viewer_controller"
 application.register("product-viewer", ProductViewerController)
 
+import ProductGalleryController from "./product_gallery_controller"
+application.register("product-gallery", ProductGalleryController)
+
 import ScrollAnimationController from "./scroll_animation_controller"
 application.register("scroll-animation", ScrollAnimationController)

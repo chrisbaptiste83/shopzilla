@@ -16,7 +16,7 @@ class Product < ApplicationRecord
   validate :acceptable_images
 
   def self.ransackable_attributes(auth_object = nil)
-    %w[id title price file_format is_available dimensions created_at updated_at]
+    %w[id title price file_format is_available dimensions stitch_count created_at updated_at]
   end
 
   def self.ransackable_associations(auth_object = nil)

@@ -15,12 +15,12 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
   <!-- Product Images -->
   <div class="space-y-4"
-       data-controller="scroll-animation"
+       data-controller="scroll-animation product-gallery"
        data-scroll-animation-animation-value="fade-right">
     <div class="card shadow-xl image-zoom">
       <figure class="p-6">
         <% if @product.images.attached? %>
-          <%= image_tag @product.images.first, class: "rounded-xl w-full h-96 object-contain bg-base-200", id: "main-image" %>
+          <%= image_tag @product.images.first, class: "rounded-xl w-full h-96 object-contain bg-base-200", data: { product_gallery_target: "mainImage" } %>
         <% else %>
           <div class="rounded-xl w-full h-96 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
             <span class="text-8xl opacity-50">🎨</span>
@@ -49,7 +49,13 @@
                data-hover-effect-effect-value="scale"
                data-hover-effect-scale-value="1.1">
             <figure class="p-2">
-              <%= image_tag image, class: "rounded-lg w-full h-20 object-contain bg-base-200", onclick: "document.getElementById('main-image').src = this.src" %>
+              <%= image_tag image,
+                class: "rounded-lg w-full h-20 object-contain bg-base-200",
+                data: {
+                  action: "click->product-gallery#select",
+                  product_gallery_full_src: url_for(image),
+                  product_gallery_target: "thumbnail"
+                } %>
             </figure>
           </div>
         <% end %>
@@ -83,14 +89,18 @@
       <div class="card-body">
         <h3 class="card-title text-lg mb-4">Product Details</h3>
         <div class="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span class="font-semibold text-high-contrast">Dimensions:</span>
-            <span class="text-medium-contrast"><%= @product.dimensions || "4x4 inches" %></span>
-          </div>
-          <div>
-            <span class="font-semibold text-high-contrast">Stitch Count:</span>
-            <span class="text-medium-contrast">~8,500 stitches</span>
-          </div>
+          <% if @product.dimensions.present? %>
+            <div>
+              <span class="font-semibold text-high-contrast">Dimensions:</span>
+              <span class="text-medium-contrast"><%= @product.dimensions %></span>
+            </div>
+          <% end %>
+          <% if @product.stitch_count.present? %>
+            <div>
+              <span class="font-semibold text-high-contrast">Stitch Count:</span>
+              <span class="text-medium-contrast"><%= number_with_delimiter(@product.stitch_count) %> stitches</span>
+            </div>
+          <% end %>
           <% if @product.file_format.present? %>
             <div class="col-span-2">
               <span class="font-semibold">Available Formats:</span>

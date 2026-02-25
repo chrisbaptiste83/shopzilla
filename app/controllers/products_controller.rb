@@ -25,6 +25,14 @@ class ProductsController < ApplicationController
       @products = @products.where("LOWER(file_format) LIKE ?", format_term)
     end
 
+    # 🧵 Filter by stitch count
+    if params[:stitch_min].present?
+      @products = @products.where("stitch_count >= ?", params[:stitch_min].to_i)
+    end
+    if params[:stitch_max].present?
+      @products = @products.where("stitch_count <= ?", params[:stitch_max].to_i)
+    end
+
     # 🔃 Sorting
     case params[:sort]
     when "newest"
@@ -106,6 +114,7 @@ class ProductsController < ApplicationController
       :file_format,
       :is_available,
       :dimensions,
+      :stitch_count,
       :physical_product, # 🚚 allow physical product
       :embroidery_file,
       images: [],
@@ -119,4 +128,3 @@ class ProductsController < ApplicationController
     end
   end
 end
-

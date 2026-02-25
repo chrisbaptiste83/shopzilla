@@ -54,6 +54,14 @@
           <% end %>
         </select>
 
+        <!-- 🧵 Stitch Count -->
+        <div class="form-control w-full sm:w-auto">
+          <%= f.number_field :stitch_min, value: params[:stitch_min], min: 0, step: 1, placeholder: "Min stitches", class: "input input-bordered input-sm md:input-md w-full sm:w-40" %>
+        </div>
+        <div class="form-control w-full sm:w-auto">
+          <%= f.number_field :stitch_max, value: params[:stitch_max], min: 0, step: 1, placeholder: "Max stitches", class: "input input-bordered input-sm md:input-md w-full sm:w-40" %>
+        </div>
+
         <%= f.submit "Filter", class: "btn btn-primary btn-sm md:btn-md w-full sm:w-auto" %>
       <% end %>
     </div>
