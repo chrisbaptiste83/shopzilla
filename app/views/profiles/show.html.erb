@@ -8,7 +8,7 @@
       </div>
       <div class="absolute -bottom-12 sm:-bottom-14 left-4 sm:left-6 transform">
         <% if @user.avatar.attached? %>
-          <%= image_tag @user.avatar.variant(resize_to_limit: [112, 112]), class: "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-base-100 shadow-xl object-cover", alt: "Avatar for #{@user.email}" %>
+          <%= image_tag @user.avatar.variant(resize_to_fill: [80, 80]), class: "w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-base-100 shadow-xl object-cover", alt: "Avatar for #{@user.email}" %>
         <% else %>
           <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-neutral text-neutral-content flex items-center justify-center border-4 border-base-100 shadow-xl">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 opacity-50">
@@ -46,7 +46,7 @@
             <%= form.file_field :avatar, class: "file-input file-input-bordered file-input-sm w-full max-w-xs" %>
             <% if @user.avatar.attached? %>
               <div class="mt-2">
-                <%= image_tag @user.avatar.variant(resize_to_limit: [60, 60]), class: "rounded-full" %>
+                <%= image_tag @user.avatar.variant(resize_to_fill: [80, 80]), class: "rounded-full" %>
               </div>
             <% end %>
           </div>

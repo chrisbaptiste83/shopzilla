@@ -10,7 +10,7 @@
     <%= f.file_field :avatar, class: "file-input file-input-bordered" %>
     <% if current_user.avatar.attached? %>
       <p class="mt-2">Current Avatar:</p>
-      <%= image_tag current_user.avatar.variant(resize_to_fill: [100, 100]), class: "rounded-full w-24 h-24 mt-1" %>
+      <%= image_tag current_user.avatar.variant(resize_to_fill: [80, 80]), class: "rounded-full w-24 h-24 mt-1" %>
     <% end %>
   </div>
 

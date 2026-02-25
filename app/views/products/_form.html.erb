@@ -116,7 +116,7 @@
           <div class="flex flex-wrap gap-4">
             <% @product.images.each do |image| %>
               <div class="relative">
-                <%= image_tag image.variant(resize_to_limit: [100, 100]), class: "rounded-lg" %>
+                <%= image_tag image.variant(resize_to_fill: [80, 80]), class: "rounded-lg" %>
                 <div class="absolute top-1 right-1">
                   <%= check_box_tag "purge_images[]", image.id, false, class: "checkbox checkbox-xs" %>
                   <%= label_tag "purge_images_#{image.id}", "Remove", class: "text-xs" %>

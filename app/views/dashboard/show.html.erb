@@ -146,7 +146,7 @@
           <div class="flex items-center gap-3">
             <div class="w-14 h-14 rounded-full overflow-hidden ring-2 ring-slate-600">
               <% if @user.avatar.attached? %>
-                <%= image_tag @user.avatar.variant(resize_to_fill: [56, 56]), class: "w-full h-full object-cover" %>
+                <%= image_tag @user.avatar.variant(resize_to_fill: [80, 80]), class: "w-full h-full object-cover" %>
               <% else %>
                 <div class="w-full h-full flex items-center justify-center" style="background: rgba(45, 212, 191, 0.15);">
                   <span class="text-xl font-bold" style="color: #2dd4bf;"><%= @user.email.first.upcase %></span>

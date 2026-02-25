@@ -154,7 +154,7 @@
           <label tabindex="0" class="btn btn-ghost btn-circle avatar">
             <div class="w-10 rounded-full">
               <% if current_user.avatar.attached? %>
-                <%= image_tag current_user.avatar.variant(resize_to_fill: [40, 40]), class: "rounded-full" %>
+                <%= image_tag current_user.avatar.variant(resize_to_fill: [80, 80]), class: "rounded-full" %>
               <% else %>
                 <img src="https://ui-avatars.com/api/?name=<%= current_user.email.first %>&background=random" alt="User Avatar" />
               <% end %>
