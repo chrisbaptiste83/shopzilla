@@ -9,6 +9,8 @@ class CategoriesController < ApplicationController
 
   def show
     @products = @category.products.where(is_available: true)
+                         .with_attached_images
+                         .page(params[:page]).per(20)
   end
 
   def new
