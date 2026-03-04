@@ -1,253 +1,160 @@
 <!-- Breadcrumb -->
-<div class="text-sm breadcrumbs mb-6"
-     data-controller="scroll-animation"
-     data-scroll-animation-animation-value="fade-right">
+<div class="text-sm breadcrumbs mb-8 opacity-60">
   <ul>
     <li><%= link_to "Home", root_path %></li>
     <li><%= link_to "Products", products_path %></li>
-    <li>
-      <%= link_to @product.category.name, category_path(@product.category), class: "hover:text-primary font-semibold" %>
-    </li>
-    <li class="font-semibold"><%= @product.title %></li>
+    <li><%= link_to @product.category.name, category_path(@product.category) %></li>
+    <li class="font-medium opacity-100"><%= @product.title %></li>
   </ul>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
   <!-- Product Images -->
-  <div class="space-y-4"
-       data-controller="scroll-animation product-gallery"
-       data-scroll-animation-animation-value="fade-right">
-    <div class="card shadow-xl image-zoom">
-      <figure class="p-6">
-        <% if @product.images.attached? %>
-          <%= image_tag @product.images.first, class: "rounded-xl w-full h-96 object-contain bg-base-200", data: { product_gallery_target: "mainImage" } %>
-        <% else %>
-          <div class="rounded-xl w-full h-96 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-            <span class="text-8xl opacity-50">🎨</span>
-          </div>
-        <% end %>
-      </figure>
-    </div>
-
-    <!-- 3D Product Viewer (only for physical products) -->
-    <% if @product.physical_product %>
-      <div class="card shadow-xl">
-        <div class="card-body p-4">
-          <h3 class="font-semibold mb-2 text-sm">Interactive 3D Preview</h3>
-          <div data-controller="product-viewer"></div>
-          <p class="text-xs text-base-content/60 mt-2 text-center">Drag to rotate • Scroll to zoom</p>
-        </div>
+  <div data-controller="product-gallery">
+    <% if @product.images.attached? %>
+      <%= image_tag @product.images.first,
+            class: "rounded-2xl w-full h-96 object-contain bg-base-200",
+            data: { product_gallery_target: "mainImage" } %>
+    <% else %>
+      <div class="rounded-2xl w-full h-96 bg-base-200 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
       </div>
     <% end %>
 
-    <!-- Thumbnail Gallery -->
+    <!-- Thumbnails -->
     <% if @product.images.attached? && @product.images.count > 1 %>
-      <div class="grid grid-cols-4 gap-2">
-        <% @product.images.each_with_index do |image, index| %>
-          <div class="card shadow cursor-pointer hover:shadow-lg transition-shadow"
-               data-controller="hover-effect"
-               data-hover-effect-effect-value="scale"
-               data-hover-effect-scale-value="1.1">
-            <figure class="p-2">
-              <%= image_tag image,
-                class: "rounded-lg w-full h-20 object-contain bg-base-200",
+      <div class="grid grid-cols-5 gap-2 mt-3">
+        <% @product.images.each do |image| %>
+          <%= image_tag image,
+                class: "rounded-lg w-full h-16 object-contain bg-base-200 cursor-pointer opacity-50 hover:opacity-100 transition-opacity",
                 data: {
                   action: "click->product-gallery#select",
                   product_gallery_full_src: url_for(image),
                   product_gallery_target: "thumbnail"
                 } %>
-            </figure>
-          </div>
         <% end %>
       </div>
     <% end %>
   </div>
 
   <!-- Product Details -->
-  <div class="space-y-6"
-       data-controller="scroll-animation"
-       data-scroll-animation-animation-value="fade-left">
+  <div class="flex flex-col gap-7">
+    <!-- Category + Title + Price -->
     <div>
       <% if @product.category.present? %>
-        <div class="badge badge-primary mb-2"><%= @product.category.name %></div>
+        <span class="text-xs uppercase tracking-widest text-base-content/40 font-medium">
+          <%= @product.category.name %>
+        </span>
       <% end %>
-      <h1 class="text-4xl font-bold mb-4 text-gradient"><%= @product.title %></h1>
-      
-      <div class="text-4xl font-bold text-primary mb-6">$<%= @product.price %></div>
+      <h1 class="text-3xl font-bold mt-2 mb-5"><%= @product.title %></h1>
+      <div class="text-3xl font-bold text-primary">$<%= @product.price %></div>
     </div>
 
-    <!-- Product Description -->
-    <div class="prose max-w-none">
-      <h3 class="text-xl font-semibold mb-3 text-high-contrast">Description</h3>
-      <p class="text-medium-contrast leading-relaxed">
-        <%= @product.description || "This beautiful embroidery design is perfect for adding a unique touch to your creative projects. Crafted with attention to detail and tested on multiple machine types for optimal results." %>
-      </p>
-    </div>
-
-    <!-- Product Specifications -->
-    <div class="card shadow-lg">
-      <div class="card-body">
-        <h3 class="card-title text-lg mb-4">Product Details</h3>
-        <div class="grid grid-cols-2 gap-4 text-sm">
-          <% if @product.dimensions.present? %>
-            <div>
-              <span class="font-semibold text-high-contrast">Dimensions:</span>
-              <span class="text-medium-contrast"><%= @product.dimensions %></span>
-            </div>
-          <% end %>
-          <% if @product.stitch_count.present? %>
-            <div>
-              <span class="font-semibold text-high-contrast">Stitch Count:</span>
-              <span class="text-medium-contrast"><%= number_with_delimiter(@product.stitch_count) %> stitches</span>
-            </div>
-          <% end %>
-          <% if @product.file_format.present? %>
-            <div class="col-span-2">
-              <span class="font-semibold">Available Formats:</span>
-              <div class="flex flex-wrap gap-1 mt-1">
-                <% @product.file_format.split(',').each do |format| %>
-                  <div class="badge badge-outline badge-sm"><%= format.strip %></div>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
-          <% if @product.embroidery_file.attached? %>
-            <div class="col-span-2">
-              <span class="font-semibold">Download:</span>
-              <span class="text-success">✓ Instant download after purchase</span>
-            </div>
-          <% end %>
+    <!-- Stitch Count — Primary Attribute -->
+    <% if @product.stitch_count.present? %>
+      <div class="flex items-center gap-4 p-4 rounded-xl bg-base-200/60 border border-base-300">
+        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </div>
+        <div>
+          <div class="text-xs text-base-content/40 uppercase tracking-wide mb-0.5">Stitch Count</div>
+          <div class="text-2xl font-bold"><%= number_with_delimiter(@product.stitch_count) %></div>
         </div>
       </div>
+    <% end %>
+
+    <!-- Description -->
+    <p class="text-base-content/65 leading-relaxed">
+      <%= @product.description.present? ? @product.description.to_plain_text : "This embroidery design is crafted with attention to detail and tested on multiple machine types for optimal results." %>
+    </p>
+
+    <!-- Specs row -->
+    <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-base-content/55">
+      <% if @product.dimensions.present? %>
+        <span><span class="font-semibold text-base-content/80">Dimensions</span> · <%= @product.dimensions %></span>
+      <% end %>
+      <% if @product.file_format.present? %>
+        <span><span class="font-semibold text-base-content/80">Formats</span> · <%= @product.file_format %></span>
+      <% end %>
+      <% if @product.embroidery_file.attached? %>
+        <span class="text-success font-medium">✓ Instant download</span>
+      <% end %>
     </div>
 
-    <!-- Purchase Actions -->
-    <div class="card shadow-lg">
-      <div class="card-body">
-        <div class="flex flex-col gap-4">
-          <div class="flex gap-2">
-            <!-- Wishlist Button -->
-            <% if user_signed_in? %>
-              <% if in_wishlist?(@product) %>
-                <%= form_with url: wishlist_item_path(wishlist_item_for(@product)), method: :delete, local: true, class: "flex-1" do %>
-                  <button type="submit" class="btn btn-error btn-outline w-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    Remove from Wishlist
-                  </button>
-                <% end %>
-              <% else %>
-                <%= form_with url: wishlist_items_path, method: :post, local: true, class: "flex-1" do %>
-                  <%= hidden_field_tag :product_id, @product.id %>
-                  <button type="submit" class="btn btn-outline w-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    Add to Wishlist
-                  </button>
-                <% end %>
-              <% end %>
-            <% else %>
-              <%= link_to new_user_session_path, class: "btn btn-outline flex-1" do %>
+    <!-- Actions -->
+    <div class="flex flex-col gap-3">
+      <div class="flex gap-3">
+        <!-- Wishlist -->
+        <% if user_signed_in? %>
+          <% if in_wishlist?(@product) %>
+            <%= form_with url: wishlist_item_path(wishlist_item_for(@product)), method: :delete, local: true do %>
+              <button type="submit" class="btn btn-error btn-outline btn-square" title="Remove from wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
+            <% end %>
+          <% else %>
+            <%= form_with url: wishlist_items_path, method: :post, local: true do %>
+              <%= hidden_field_tag :product_id, @product.id %>
+              <button type="submit" class="btn btn-outline btn-square" title="Add to wishlist">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
-                Login to Save
-              <% end %>
-            <% end %>
-
-            <!-- Add to Cart -->
-            <%= form_with url: add_cart_path, method: :post, local: true, class: "flex-1" do %>
-              <%= hidden_field_tag :product_id, @product.id %>
-              <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6" />
-                </svg>
-                Add to Cart
               </button>
             <% end %>
-          </div>
-          
-          <!-- Stripe Checkout -->
-          <% if user_signed_in? %>
-            <%= form_with url: checkout_path(product_id: @product.id), method: :post, data: { turbo: false } do %>
-              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-              <button class="btn btn-accent btn-lg w-full">Buy Now - Instant Download</button>
-            <% end %>
-          <% else %>
-            <%= link_to new_user_session_path, class: "btn btn-accent btn-lg w-full" do %>
-              Login to Buy Now with One Click
-            <% end %>
           <% end %>
-          
-          <div class="flex items-center justify-center gap-4 text-sm text-medium-contrast">
-            <div class="flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Secure Payment</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              <span>Instant Download</span>
-            </div>
-          </div>
-        </div>
+        <% end %>
+
+        <!-- Add to Cart -->
+        <%= form_with url: add_cart_path, method: :post, local: true, class: "flex-1" do %>
+          <%= hidden_field_tag :product_id, @product.id %>
+          <button type="submit" class="btn btn-outline w-full">Add to Cart</button>
+        <% end %>
       </div>
+
+      <!-- Buy Now -->
+      <% if user_signed_in? %>
+        <%= form_with url: checkout_path(product_id: @product.id), method: :post, data: { turbo: false } do %>
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <button class="btn btn-primary w-full">Buy Now — Instant Download</button>
+        <% end %>
+      <% else %>
+        <%= link_to "Sign in to Purchase", new_user_session_path, class: "btn btn-primary w-full" %>
+      <% end %>
     </div>
 
-    <!-- Admin Actions -->
-    <% if current_user&.admin? %>
-      <div class="card shadow-lg">
-        <div class="card-body">
-          <h3 class="card-title text-sm">Admin Actions</h3>
-          <div class="flex gap-2">
-            <%= link_to "Edit Product", edit_product_path(@product), class: "btn btn-warning btn-sm" %>
-            <%= link_to "Back to Products", products_path, class: "btn btn-outline btn-sm" %>
-          </div>
-        </div>
-      </div>
-    <% else %>
-      <div class="text-center">
-        <%= link_to "← Back to Products", products_path, class: "btn btn-outline" %>
-      </div>
-    <% end %>
+    <!-- Admin / Back -->
+    <div class="flex gap-3 pt-2">
+      <% if current_user&.admin? %>
+        <%= link_to "Edit", edit_product_path(@product), class: "btn btn-ghost btn-sm" %>
+      <% end %>
+      <%= link_to "← All Products", products_path, class: "btn btn-ghost btn-sm" %>
+    </div>
   </div>
 </div>
 
 <!-- Related Products -->
-<section class="mt-16">
-  <h2 class="text-3xl font-bold text-center mb-8 text-gradient"
-      data-controller="scroll-animation"
-      data-scroll-animation-animation-value="fade-up">You Might Also Like</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <% related_products = @product.category.products.where.not(id: @product.id).limit(4) %>
-    <% related_products.each_with_index do |related, index| %>
-      <div class="card shadow-xl hover:shadow-2xl transition-all duration-300"
-           data-controller="hover-effect scroll-animation"
-           data-hover-effect-effect-value="lift"
-           data-scroll-animation-animation-value="fade-up"
-           data-scroll-animation-delay-value="<%= index * 0.1 %>">
-        <figure class="px-4 pt-4">
+<% related_products = @product.category.products.where.not(id: @product.id).limit(4) %>
+<% if related_products.any? %>
+  <section class="border-t border-base-300 pt-12">
+    <h2 class="text-lg font-semibold mb-6 text-base-content/60">You Might Also Like</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <% related_products.each do |related| %>
+        <%= link_to product_path(related), class: "group block" do %>
           <% if related.images.attached? %>
-            <%= image_tag related.images.first, class: "rounded-lg h-40 w-full object-contain bg-base-200" %>
+            <%= image_tag related.images.first, class: "rounded-xl w-full h-36 object-contain bg-base-200 group-hover:opacity-80 transition-opacity mb-3" %>
           <% else %>
-            <div class="rounded-lg h-40 w-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-              <span class="text-4xl opacity-50">🎨</span>
-            </div>
+            <div class="rounded-xl w-full h-36 bg-base-200 mb-3"></div>
           <% end %>
-        </figure>
-        <div class="card-body p-4">
-          <h3 class="card-title text-sm"><%= related.title %></h3>
-          <p class="text-primary font-bold">$<%= related.price %></p>
-          <div class="card-actions">
-            <%= link_to "View Details", product_path(related), class: "btn btn-primary btn-sm w-full" %>
-          </div>
-        </div>
-      </div>
-    <% end %>
-  </div>
-</section>
+          <div class="text-sm font-medium group-hover:text-primary transition-colors"><%= related.title %></div>
+          <div class="text-sm text-base-content/50 mt-0.5">$<%= related.price %></div>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+<% end %>
