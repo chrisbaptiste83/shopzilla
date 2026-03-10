@@ -1,105 +1,78 @@
-<!-- Hero Section -->
-<div class="hero min-h-[40vh] bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900 mb-8 md:mb-12 relative">
-  <div class="hero-overlay bg-black bg-opacity-40"></div>
-  <div class="hero-content text-center text-neutral-content relative z-10 px-4">
-    <div class="max-w-2xl" data-controller="scroll-animation" data-scroll-animation-animation-value="scale-up">
-      <h1 class="mb-4 text-3xl sm:text-4xl md:text-5xl font-bold text-gradient-hero">Contact Us</h1>
-      <p class="text-base sm:text-lg md:text-xl text-white/90">
-        We'd love to hear from you
-      </p>
-    </div>
-  </div>
+<!-- Page Header -->
+<div class="mb-2 pt-6 px-1">
+  <p class="sz-section-label">Get in Touch</p>
+  <h1 class="sz-headline">
+    We'd Love to<br>
+    <span class="sz-gradient-text">Hear From You</span>
+  </h1>
 </div>
+<div class="sz-divider mt-4 mb-12"></div>
 
-<style>
-  .text-gradient-hero {
-    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #fef3c7 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-</style>
+<div class="max-w-4xl mx-auto mb-16 px-1">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-<!-- Main Content -->
-<div class="max-w-4xl mx-auto px-4 sm:px-6 mb-12">
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Contact Info Cards -->
-    <div class="lg:col-span-1 space-y-6">
-      <div class="card shadow-lg" data-controller="hover-effect scroll-animation" data-hover-effect-effect-value="scale" data-scroll-animation-animation-value="fade-up" data-scroll-animation-delay-value="0.1">
-        <div class="card-body text-center">
-          <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-          </div>
-          <h3 class="font-semibold text-high-contrast">Email</h3>
-          <p class="text-sm text-medium-contrast">support@gloriasembroidery.com</p>
+    <!-- Contact Info -->
+    <div class="space-y-4">
+      <div class="sz-feature-item items-start text-left">
+        <div class="sz-feature-icon flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" style="color:#0f766e" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-gray-900 text-sm mb-0.5">Email</h3>
+          <p class="text-sm text-gray-500">support@gloriasembroidery.com</p>
         </div>
       </div>
 
-      <div class="card shadow-lg" data-controller="hover-effect scroll-animation" data-hover-effect-effect-value="scale" data-scroll-animation-animation-value="fade-up" data-scroll-animation-delay-value="0.2">
-        <div class="card-body text-center">
-          <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-secondary/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <h3 class="font-semibold text-high-contrast">Response Time</h3>
-          <p class="text-sm text-medium-contrast">Within 24-48 hours</p>
+      <div class="sz-feature-item items-start text-left">
+        <div class="sz-feature-icon flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" style="color:#0f766e" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
         </div>
-      </div>
-
-      <div class="card shadow-lg" data-controller="hover-effect scroll-animation" data-hover-effect-effect-value="scale" data-scroll-animation-animation-value="fade-up" data-scroll-animation-delay-value="0.3">
-        <div class="card-body text-center">
-          <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-accent/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <h3 class="font-semibold text-high-contrast">FAQ</h3>
-          <p class="text-sm text-medium-contrast">Check our help section first</p>
+        <div>
+          <h3 class="font-semibold text-gray-900 text-sm mb-0.5">Response Time</h3>
+          <p class="text-sm text-gray-500">Within 24–48 hours</p>
         </div>
       </div>
     </div>
 
     <!-- Contact Form -->
-    <div class="lg:col-span-2" data-controller="scroll-animation" data-scroll-animation-animation-value="fade-up">
-      <div class="card shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-2xl text-gradient mb-4">Send Us a Message</h2>
-          <p class="text-medium-contrast mb-6">
-            Have questions, requests, or feedback? Fill out the form below and we'll get back to you.
-          </p>
+    <div class="lg:col-span-2">
+      <div class="sz-product-card p-8">
+        <p class="sz-section-label mb-1">Message Us</p>
+        <h2 class="sz-section-title mb-6">Send Us a Message</h2>
 
-          <%= form_with url: contact_path, method: :post, local: true do |form| %>
-            <div class="mb-5">
-              <%= form.label :name, class: "block font-semibold mb-2 text-high-contrast" %>
-              <%= form.text_field :name, class: "input input-bordered w-full", placeholder: "Your name" %>
+        <%= form_with url: contact_path, method: :post, local: true do |form| %>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <%= form.label :name, "Your Name", class: "block text-sm font-semibold text-gray-700 mb-1.5" %>
+              <%= form.text_field :name, class: "input input-bordered w-full", placeholder: "Gloria" %>
             </div>
-
-            <div class="mb-5">
-              <%= form.label :email, class: "block font-semibold mb-2 text-high-contrast" %>
-              <%= form.email_field :email, class: "input input-bordered w-full", placeholder: "your@email.com" %>
+            <div>
+              <%= form.label :email, "Email Address", class: "block text-sm font-semibold text-gray-700 mb-1.5" %>
+              <%= form.email_field :email, class: "input input-bordered w-full", placeholder: "you@email.com" %>
             </div>
+          </div>
 
-            <div class="mb-5">
-              <%= form.label :subject, class: "block font-semibold mb-2 text-high-contrast" %>
-              <%= form.select :subject,
-                  ["General Inquiry", "Order Support", "Design Request", "Technical Help", "Feedback"],
-                  { prompt: "Select a topic" },
-                  class: "select select-bordered w-full" %>
-            </div>
+          <div class="mb-4">
+            <%= form.label :subject, "Topic", class: "block text-sm font-semibold text-gray-700 mb-1.5" %>
+            <%= form.select :subject,
+                ["General Inquiry", "Order Support", "Design Request", "Technical Help", "Feedback"],
+                { prompt: "Select a topic" },
+                class: "select select-bordered w-full" %>
+          </div>
 
-            <div class="mb-6">
-              <%= form.label :message, class: "block font-semibold mb-2 text-high-contrast" %>
-              <%= form.text_area :message, rows: 5, class: "textarea textarea-bordered w-full", placeholder: "How can we help you?" %>
-            </div>
+          <div class="mb-6">
+            <%= form.label :message, "Message", class: "block text-sm font-semibold text-gray-700 mb-1.5" %>
+            <%= form.text_area :message, rows: 5, class: "textarea textarea-bordered w-full", placeholder: "How can we help you?" %>
+          </div>
 
-            <%= form.submit "Send Message", class: "btn btn-accent btn-lg w-full" %>
-          <% end %>
-        </div>
+          <%= form.submit "Send Message", class: "sz-cta-primary w-full justify-center" %>
+        <% end %>
       </div>
     </div>
+
   </div>
 </div>
-
