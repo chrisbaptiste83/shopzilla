@@ -1,41 +1,108 @@
 <!-- Hero Section -->
-<div class="hero min-h-[75vh] bg-gradient-to-br from-teal-900 via-green-900 to-amber-800 mb-12 relative"
-     data-controller="hero-three"
-     style="position: relative;">
-  <div class="hero-overlay bg-black bg-opacity-35"></div>
-  <div class="hero-content text-center text-neutral-content relative z-10 px-4">
-    <div class="max-w-xl">
-      <h1 class="mb-4 text-4xl md:text-6xl font-bold leading-tight" style="background: linear-gradient(135deg, #fff 0%, #ecfeff 55%, #fef3c7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-        Unique Embroidery Designs
-      </h1>
-      <p class="mb-8 text-lg text-white/75 leading-relaxed">
-        Premium embroidery files and patterns — instant download after purchase.
-      </p>
-      <div class="flex gap-3 justify-center">
-        <%= link_to "Shop Now", products_path, class: "btn btn-accent btn-lg" %>
-        <%= link_to "Browse Categories", "#categories", class: "btn btn-ghost btn-lg text-white border-white/30 hover:border-white/60" %>
-      </div>
+<section class="sz-hero">
+  <div class="sz-hero-dot-grid" aria-hidden="true"></div>
+
+  <!-- Left: Content -->
+  <div class="sz-hero-content">
+    <span class="sz-eyebrow sz-fade-up sz-fade-up-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+      </svg>
+      Handcrafted Embroidery
+    </span>
+
+    <h1 class="sz-headline sz-fade-up sz-fade-up-2">
+      Premium Designs<br>
+      <span class="sz-gradient-text">Made to Stitch</span>
+    </h1>
+
+    <p class="sz-subhead sz-fade-up sz-fade-up-3">
+      Instant-download embroidery files crafted for all major machines —
+      PES, DST, JEF and more. Ready the moment you purchase.
+    </p>
+
+    <div class="sz-hero-actions sz-fade-up sz-fade-up-4">
+      <%= link_to products_path, class: "sz-cta-primary" do %>
+        Shop Now
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      <% end %>
+      <%= link_to "Browse Categories", "#categories", class: "sz-cta-outline" %>
+    </div>
+
+    <div class="sz-trust-row sz-fade-up sz-fade-up-5">
+      <span class="sz-trust-badge">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#0f766e" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Instant Download
+      </span>
+      <span class="sz-trust-badge">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#0f766e" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        All Formats
+      </span>
+      <span class="sz-trust-badge">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#0f766e" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Machine Tested
+      </span>
     </div>
   </div>
-</div>
+
+  <!-- Right: Product mosaic -->
+  <div class="sz-hero-mosaic sz-fade-up sz-fade-up-3">
+    <div class="sz-mosaic-ring" aria-hidden="true"></div>
+    <div class="sz-mosaic-ring-2" aria-hidden="true"></div>
+    <div class="sz-mosaic">
+      <% if @mosaic_products.any? %>
+        <% @mosaic_products.first(5).each do |product| %>
+          <div class="sz-mosaic-item">
+            <% if product.images.attached? %>
+              <%= image_tag product.images.first, alt: product.title, class: "w-full h-full object-cover" %>
+            <% else %>
+              <div class="sz-mosaic-empty w-full h-full min-h-[120px]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        <% [5 - @mosaic_products.size, 0].max.times do %>
+          <div class="sz-mosaic-item sz-mosaic-empty min-h-[120px]"></div>
+        <% end %>
+      <% else %>
+        <% 5.times do %>
+          <div class="sz-mosaic-item sz-mosaic-empty min-h-[120px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 opacity-15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- Section divider -->
+<div class="sz-divider mb-14"></div>
 
 <!-- Categories Section -->
-<section id="categories" class="mb-14 px-1">
-  <div class="mb-6">
-    <h2 class="text-2xl font-bold">Shop by Category</h2>
+<section id="categories" class="mb-16 px-1">
+  <div class="mb-1">
+    <p class="sz-section-label">Browse</p>
+    <h2 class="sz-section-title">Shop by Category</h2>
   </div>
+  <div class="sz-divider my-4"></div>
 
   <% if @random_categories.any? %>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
       <% @random_categories.each do |category| %>
-        <%= link_to category_path(category),
-              class: "group flex flex-col items-center gap-3 p-5 rounded-xl bg-base-200/50 hover:bg-base-200 transition-colors text-center" do %>
-          <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        <%= link_to category_path(category), class: "sz-category-card group" do %>
+          <div class="sz-category-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" style="color:#0f766e" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
             </svg>
           </div>
-          <span class="text-sm font-medium group-hover:text-primary transition-colors"><%= category.name %></span>
+          <span class="text-sm font-semibold text-gray-700 group-hover:text-teal-700 transition-colors"><%= category.name %></span>
         <% end %>
       <% end %>
     </div>
@@ -43,42 +110,52 @@
 </section>
 
 <!-- Featured Products -->
-<section class="mb-14 px-1">
-  <div class="flex items-center justify-between mb-6">
-    <h2 class="text-2xl font-bold">Featured Products</h2>
-    <%= link_to "View all →", products_path, class: "text-sm text-primary hover:underline" %>
+<section class="mb-16 px-1">
+  <div class="flex items-end justify-between mb-1">
+    <div>
+      <p class="sz-section-label">Handpicked</p>
+      <h2 class="sz-section-title">Featured Products</h2>
+    </div>
+    <%= link_to products_path, class: "flex items-center gap-1 text-sm font-semibold pb-1 transition-colors", style: "color:#0f766e" do %>
+      View all
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+      </svg>
+    <% end %>
   </div>
+  <div class="sz-divider my-4"></div>
 
   <% if @featured_products.empty? %>
-    <div class="text-center py-16 text-base-content/40">
-      <p>Designs coming soon.</p>
+    <div class="text-center py-16">
+      <p class="text-gray-400 text-sm">Designs coming soon.</p>
     </div>
   <% else %>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <% @featured_products.each do |product| %>
-        <div class="group">
+        <div class="sz-product-card group">
           <%= link_to product_path(product) do %>
-            <div class="rounded-xl overflow-hidden bg-base-200 mb-3">
+            <div class="sz-product-image">
               <% if product.images.attached? %>
                 <%= image_tag product.images.first,
-                      class: "w-full h-52 object-contain group-hover:scale-105 transition-transform duration-300" %>
+                      class: "w-full h-52 object-contain",
+                      alt: product.title %>
               <% else %>
                 <div class="w-full h-52 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 opacity-15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                   </svg>
                 </div>
               <% end %>
             </div>
           <% end %>
-          <div class="px-1">
-            <h3 class="font-semibold mb-1 group-hover:text-primary transition-colors">
-              <%= link_to product.title, product_path(product) %>
+          <div class="p-4">
+            <h3 class="font-semibold text-gray-900 mb-2 group-hover:text-teal-700 transition-colors line-clamp-1">
+              <%= link_to product.title, product_path(product), class: "hover:no-underline" %>
             </h3>
             <div class="flex items-center justify-between">
-              <span class="font-bold text-primary">$<%= product.price %></span>
+              <span class="sz-product-price">$<%= product.price %></span>
               <% if product.stitch_count.present? %>
-                <span class="text-xs text-base-content/45"><%= number_with_delimiter(product.stitch_count) %> sts</span>
+                <span class="text-xs text-gray-400 font-medium"><%= number_with_delimiter(product.stitch_count) %> sts</span>
               <% end %>
             </div>
           </div>
@@ -88,35 +165,43 @@
   <% end %>
 </section>
 
-<!-- Features -->
-<section class="border-t border-base-300 pt-12 mb-12 px-1">
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-    <div>
-      <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+<!-- Features Strip -->
+<div class="sz-divider mb-8"></div>
+
+<section class="mb-14 px-1">
+  <div class="sz-features-strip">
+    <div class="sz-feature-item">
+      <div class="sz-feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" style="color:#0f766e" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
       </div>
-      <h3 class="font-semibold mb-2">Instant Download</h3>
-      <p class="text-sm text-base-content/55">Get your designs immediately after purchase.</p>
+      <div>
+        <h3 class="font-semibold text-gray-900 mb-1 text-sm">Instant Download</h3>
+        <p class="text-sm text-gray-500">Get your designs immediately after purchase.</p>
+      </div>
     </div>
-    <div>
-      <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    <div class="sz-feature-item">
+      <div class="sz-feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" style="color:#0f766e" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
       </div>
-      <h3 class="font-semibold mb-2">Multiple Formats</h3>
-      <p class="text-sm text-base-content/55">PES, DST, JEF and more — compatible with all major machines.</p>
+      <div>
+        <h3 class="font-semibold text-gray-900 mb-1 text-sm">Multiple Formats</h3>
+        <p class="text-sm text-gray-500">PES, DST, JEF and more — compatible with all major machines.</p>
+      </div>
     </div>
-    <div>
-      <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    <div class="sz-feature-item">
+      <div class="sz-feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" style="color:#0f766e" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </div>
-      <h3 class="font-semibold mb-2">Tested Quality</h3>
-      <p class="text-sm text-base-content/55">Hand-crafted designs tested on real machines.</p>
+      <div>
+        <h3 class="font-semibold text-gray-900 mb-1 text-sm">Tested Quality</h3>
+        <p class="text-sm text-gray-500">Hand-crafted designs tested on real machines.</p>
+      </div>
     </div>
   </div>
 </section>

@@ -5,7 +5,14 @@ class HomeController < ApplicationController
                                   .distinct
                                   .order(Arel.sql(random_order))
                                   .limit(6)
-    @featured_products = Product.where(is_available: true).limit(3)
+    @featured_products = Product.where(is_available: true)
+                                 .includes(:images_attachments)
+                                 .limit(3)
+    @mosaic_products = Product.where(is_available: true)
+                               .joins(:images_attachments)
+                               .distinct
+                               .order(Arel.sql(random_order))
+                               .limit(5)
   end
   
   def about
