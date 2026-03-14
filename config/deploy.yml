@@ -6,11 +6,6 @@ servers:
   web:
     hosts:
       - 172.235.34.185
-    labels:
-      traefik.http.routers.shopzilla-web.rule: Host(`gloriasembroideryshop.com`)
-      traefik.http.routers.shopzilla-web-secure.rule: Host(`gloriasembroideryshop.com`)
-      traefik.http.routers.shopzilla-web-secure.entrypoints: websecure
-      traefik.http.routers.shopzilla-web-secure.tls.certresolver: letsencrypt
 
 proxy:
   ssl: true
@@ -27,11 +22,12 @@ builder:
 env:
   clear:
     RAILS_ENV: production
+    SOLID_QUEUE_IN_PUMA: true
+    STRIPE_PUBLISHABLE_KEY: pk_live_51RpoJNRvD8xPSLFB5jDzQn6LOleyWHoc3ehv2h8ArfVZAIdG4sjBnS2DVfz7q9f49R9u1m4OB1gwlr9rfYSjhvdP00nV9YXhS4
     FRONTEND_URL: https://chrisbaptiste83.github.io
   secret:
     - RAILS_MASTER_KEY
     - STRIPE_SECRET_KEY
-    - STRIPE_WEBHOOK_SECRET
 
 volumes:
   - shopzilla_storage:/rails/storage
