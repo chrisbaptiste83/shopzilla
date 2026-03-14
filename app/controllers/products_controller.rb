@@ -21,9 +21,9 @@ class ProductsController < ApplicationController
       @products = @products.where(category_id: params[:category_id])
     end
 
-    # 🗂️ Filter by format
-    if params[:format].present?
-      format_term = "%#{params[:format].downcase}%"
+    # 🗂️ Filter by file_format (use :file_format param to avoid clash with Rails' :format)
+    if params[:file_format].present?
+      format_term = "%#{params[:file_format].downcase}%"
       @products = @products.where("LOWER(file_format) LIKE ?", format_term)
     end
 
