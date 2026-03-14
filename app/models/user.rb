@@ -1,6 +1,8 @@
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
+  has_secure_token :auth_token
+
   has_many :orders, dependent: :restrict_with_exception
   has_one_attached :avatar
   has_rich_text :bio

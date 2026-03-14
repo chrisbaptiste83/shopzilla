@@ -5,12 +5,20 @@ class CategoriesController < ApplicationController
 
   def index
     @categories = Category.all
+    respond_to do |format|
+      format.html
+      format.json { render json: @categories.map { |c| { id: c.id, name: c.name } } }
+    end
   end
 
   def show
     @products = @category.products.where(is_available: true)
                          .with_attached_images
                          .page(params[:page]).per(20)
+    respond_to do |format|
+      format.html
+      format.json { render json: { id: @category.id, name: @category.name } }
+    end
   end
 
   def new

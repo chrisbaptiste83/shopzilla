@@ -34,6 +34,5 @@
 !/app/assets/builds/.keep
 .DS_Store
 
-# Ignore deployment configuration and secrets
-config/deploy.yml
+# Ignore deployment secrets
 .kamal/secrets

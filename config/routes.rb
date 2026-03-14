@@ -1,6 +1,6 @@
 
 Rails.application.routes.draw do
-  resources :orders, only: [:index, :show]
+  resources :orders, only: [:index, :show, :create]
 
   post '/webhooks/stripe', to: 'webhooks#stripe'
 
@@ -22,7 +22,10 @@ Rails.application.routes.draw do
   resources :products
   resources :categories
   # Devise + Admin
-  devise_for :users
+  devise_for :users, controllers: {
+    sessions:      "users/sessions",
+    registrations: "users/registrations"
+  }
   ActiveAdmin.routes(self)
 
   resources :wishlist_items, only: [:index, :create, :destroy]

@@ -51,10 +51,20 @@ class ProductsController < ApplicationController
     per_page = 24 if per_page <= 0
     per_page = 48 if per_page > 48
     @products = @products.page(params[:page]).per(per_page)
+
+    respond_to do |format|
+      format.html
+      format.json { render :index }
+    end
   end
 
   # GET /products/1
-  def show; end
+  def show
+    respond_to do |format|
+      format.html
+      format.json { render :show }
+    end
+  end
 
   # GET /products/new
   def new

@@ -80,3 +80,6 @@ gem "aws-sdk-s3", "~> 1.48"
 
 # Pagination
 gem "kaminari", "~> 1.2"
+
+# Cross-Origin Resource Sharing for the embroidery-store frontend
+gem "rack-cors"
