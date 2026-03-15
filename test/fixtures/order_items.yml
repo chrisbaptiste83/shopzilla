@@ -1,13 +1,5 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  order: one
-  product: one
+rose_item:
+  order: alice_completed
+  product: rose_design
   quantity: 1
-  unit_price: 9.99
-
-two:
-  order: two
-  product: two
-  quantity: 1
-  unit_price: 9.99
+  unit_price: 5.99

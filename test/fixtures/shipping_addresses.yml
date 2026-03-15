@@ -1,19 +1,8 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  full_name: MyString
-  street_address: MyString
-  city: MyString
-  state: MyString
-  zip_code: MyString
-  country: MyString
-  order: one
-
-two:
-  full_name: MyString
-  street_address: MyString
-  city: MyString
-  state: MyString
-  zip_code: MyString
-  country: MyString
-  order: two
+alice_home:
+  order: alice_completed
+  full_name: Alice Smith
+  street_address: 123 Main Street
+  city: Austin
+  state: TX
+  zip_code: "78701"
+  country: United States

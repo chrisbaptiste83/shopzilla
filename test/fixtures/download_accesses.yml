@@ -1,0 +1,14 @@
+active_download:
+  user: alice
+  product: rose_design
+  order: alice_completed
+  access_token: active_token_test_abc123456789xyz
+  expires_at: <%= 30.days.from_now %>
+  download_count: 1
+
+expired_download:
+  user: alice
+  product: hoop_art
+  access_token: expired_token_test_xyz987654321abc
+  expires_at: <%= 1.day.ago %>
+  download_count: 0

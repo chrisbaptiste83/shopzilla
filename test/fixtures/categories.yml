@@ -1,7 +1,5 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+floral:
+  name: Floral Designs
 
-one:
-  name: MyString
-
-two:
-  name: MyString
+geometric:
+  name: Geometric Patterns

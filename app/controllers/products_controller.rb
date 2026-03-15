@@ -66,13 +66,15 @@ class ProductsController < ApplicationController
     end
   end
 
-  # GET /products/new
+  # GET /products/new — managed exclusively in the admin panel
   def new
-    @product = Product.new
+    redirect_to new_admin_product_path
   end
 
-  # GET /products/1/edit
-  def edit; end
+  # GET /products/1/edit — managed exclusively in the admin panel
+  def edit
+    redirect_to edit_admin_product_path(@product)
+  end
 
   # POST /products
   def create

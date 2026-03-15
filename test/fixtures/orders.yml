@@ -1,13 +1,11 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+alice_completed:
+  user: alice
+  total: 5.99
+  status: completed
+  stripe_session_id: cs_test_completed_fixture_001
 
-one:
-  user: one
-  total: 9.99
-  status: MyString
-  shipping_address: MyText
-
-two:
-  user: two
-  total: 9.99
-  status: MyString
-  shipping_address: MyText
+alice_pending:
+  user: alice
+  total: 12.99
+  status: pending
+  stripe_session_id: cs_test_pending_fixture_002

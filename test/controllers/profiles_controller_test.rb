@@ -1,18 +1,30 @@
 require "test_helper"
 
 class ProfilesControllerTest < ActionDispatch::IntegrationTest
-  test "should get show" do
-    get profiles_show_url
+  test "show redirects unauthenticated users to sign in" do
+    get profile_path, headers: @ua
+    assert_redirected_to new_user_session_path
+  end
+
+  test "show returns 200 for authenticated user" do
+    sign_in users(:alice)
+    get profile_path, headers: @ua
     assert_response :success
   end
 
-  test "should get edit" do
-    get profiles_edit_url
+  test "edit redirects unauthenticated users to sign in" do
+    get edit_profile_path, headers: @ua
+    assert_redirected_to new_user_session_path
+  end
+
+  test "edit returns 200 for authenticated user" do
+    sign_in users(:alice)
+    get edit_profile_path, headers: @ua
     assert_response :success
   end
 
-  test "should get update" do
-    get profiles_update_url
-    assert_response :success
+  test "update requires authentication" do
+    patch profile_path, params: { user: { bio: "Updated bio" } }, headers: @ua
+    assert_redirected_to new_user_session_path
   end
 end

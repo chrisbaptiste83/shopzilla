@@ -8,7 +8,7 @@ class Product < ApplicationRecord
   belongs_to :category
   has_many :wishlist_items, dependent: :destroy
 
-  before_save :create_category_from_name, if: -> { new_category_name.present? }
+  before_validation :create_category_from_name, if: -> { new_category_name.present? }
 
   validates :title, presence: true, length: { minimum: 3, maximum: 255 }
   validates :price, presence: true, numericality: { greater_than: 0 }
