@@ -2,17 +2,22 @@
 
 A full-featured e-commerce application for Gloria's embroidery studio — selling hand-crafted digital designs and physical embroidery products with Stripe-powered checkout.
 
+[![Ruby](https://img.shields.io/badge/Ruby-3.4.2-CC342D?logo=ruby&logoColor=white)](https://ruby-lang.org)
+[![Rails](https://img.shields.io/badge/Rails-8.0.2-CC0000?logo=rubyonrails&logoColor=white)](https://rubyonrails.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)](https://postgresql.org)
+[![Stripe](https://img.shields.io/badge/Stripe-Payments-635BFF?logo=stripe&logoColor=white)](https://stripe.com)
+
 ## Features
 
-- Product catalog with search, category/format/stitch-count filtering, and pagination
-- Digital downloads and physical (shippable) product support
-- Stripe Checkout with webhook-driven order fulfillment
-- Time-limited, token-authenticated secure download links
-- User dashboard with order history, active downloads, and wishlist
-- Wishlist management with Turbo Stream updates
-- User profiles with avatar and rich-text bio
-- Admin panel via ActiveAdmin (products, categories, orders, users)
-- Responsive aurora-themed UI with Tailwind CSS and DaisyUI
+- **Product catalog** — Search, category/format/stitch-count filtering, and pagination via Kaminari
+- **Digital downloads and physical products** — Dual fulfillment paths for shippable and downloadable items
+- **Stripe Checkout** — Webhook-driven order fulfillment with idempotent event processing
+- **Secure download links** — Time-limited, token-authenticated URLs (30-day expiry per `DownloadAccess` record)
+- **User dashboard** — Order history, active downloads, and wishlist management
+- **Wishlist** — Add/remove items with real-time Turbo Stream updates (no full-page reload)
+- **User profiles** — Avatar upload via Active Storage, rich-text bio via ActionText
+- **Admin panel** — Full CRUD for products, categories, orders, and users via ActiveAdmin (`/admin`)
+- **Responsive aurora-themed UI** — Tailwind CSS 4 + DaisyUI 5 with GSAP animations
 
 ## Tech Stack
 
@@ -20,50 +25,51 @@ A full-featured e-commerce application for Gloria's embroidery studio — sellin
 |---|---|
 | Language | Ruby 3.4.2 |
 | Framework | Rails 8.0.2 |
+| Database | PostgreSQL 16 |
 | Frontend | Hotwire (Turbo + Stimulus), esbuild |
-| Styling | Tailwind CSS 4, DaisyUI 5 |
-| Animations | GSAP |
-| Auth | Devise |
+| Styling | Tailwind CSS 4, DaisyUI 5, GSAP |
+| Auth | Devise 4.9 |
 | Payments | Stripe Checkout + Webhooks |
-| Admin | ActiveAdmin |
-| Storage | Active Storage (local / AWS S3 in production) |
-| Queue / Cache | Solid Queue, Solid Cache, Solid Cable |
-| Database | SQLite (development / test) |
-| Deployment | Kamal (Docker) |
+| Admin | ActiveAdmin 3.3 |
+| Storage | Active Storage — local disk (dev), AWS S3 (production) |
+| Background Jobs | Solid Queue |
+| Cache | Solid Cache |
+| Deployment | Kamal 2 (Docker) |
 | Testing | Minitest, Capybara |
 
 ## Getting Started
 
 ### Prerequisites
 
-- Ruby 3.4.2 (use `rbenv` or `asdf`)
-- Node.js 20+
-- SQLite3
+- Ruby 3.4.2 (use `rbenv` — see `.ruby-version`)
+- Node.js 20+ and npm
+- PostgreSQL 14+
 
 ### Installation
 
 ```bash
-git clone <repo-url>
+git clone git@github.com:chrisbaptiste83/shopzilla.git
 cd shopzilla
 
 bundle install
 npm install
 ```
 
-### Credentials
+### Environment Setup
 
-The app expects Stripe API keys in Rails encrypted credentials:
+The app uses Rails encrypted credentials for API keys and secrets:
 
 ```bash
-EDITOR=nano bin/rails credentials:edit
+EDITOR=nvim bin/rails credentials:edit
 ```
+
+Add the following structure:
 
 ```yaml
 stripe:
-  secret_key: sk_test_...
+  secret_key: sk_live_...
   webhook_secret: whsec_...
 
-# Production file storage (optional in development)
 aws:
   access_key_id: ...
   secret_access_key: ...
@@ -71,23 +77,30 @@ aws:
   bucket: shopzilla-production
 ```
 
+For local development, set PostgreSQL credentials if needed:
+
+```bash
+export PGUSER=your_pg_user
+export PGPASSWORD=your_pg_password
+```
+
 ### Database Setup
 
 ```bash
-bin/rails db:setup
+bin/rails db:create db:migrate db:seed
 ```
 
 ### Building Assets
 
 ```bash
-npm run build        # compiles JavaScript with esbuild
-npm run build:css    # generates Tailwind CSS
+npm run build        # compile JavaScript with esbuild
+npm run build:css    # generate Tailwind CSS
 ```
 
 For development with live reloading:
 
 ```bash
-bin/dev              # starts Rails, esbuild watch, and CSS watch concurrently
+bin/dev   # starts Rails, esbuild watcher, and CSS watcher via Foreman
 ```
 
 Visit `http://localhost:3000`.
@@ -105,7 +118,7 @@ User adds to cart
   → POST /checkout
       ├─ Physical items? → Render shipping address form
       │    └─ POST /checkout/process_shipping_address → Stripe session → redirect
-      └─ Digital only? → Stripe session → redirect
+      └─ Digital only?  → Stripe session → redirect
 
 Stripe → POST /webhooks/stripe (checkout.session.completed)
   → Creates Order, OrderItems, Payment
@@ -115,21 +128,32 @@ Stripe → POST /webhooks/stripe (checkout.session.completed)
 
 ### Download Tokens
 
-`DownloadAccess` stores a `SecureRandom.urlsafe_base64(32)` token with a 30-day expiry. `GET /downloads/:token` validates the token and expiry before streaming the file.
+`DownloadAccess` stores a `SecureRandom.urlsafe_base64(32)` token with a 30-day expiry. `GET /downloads/:token` validates the token and expiry before streaming the file — no signed URLs, no S3 presigned links; the Rails server controls delivery.
 
 ### Admin Access
 
 The `admin` boolean on `User` gates product/category CRUD. Non-admins are redirected to root with an alert. ActiveAdmin provides a management UI at `/admin`.
+
+## Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `RAILS_MASTER_KEY` | Yes | Decrypts `credentials.yml.enc` |
+| `DATABASE_URL` | Production | Full PostgreSQL connection URL |
+| `PGUSER` | Dev/Test | PostgreSQL user (default: `chris`) |
+| `PGPASSWORD` | Dev/Test | PostgreSQL password |
+| `KAMAL_REGISTRY_PASSWORD` | Deploy | Docker registry token |
+| `STRIPE_SECRET_KEY` | Production | Stripe live secret key |
 
 ## Testing
 
 The suite uses Rails' built-in Minitest. Controller tests use `Devise::Test::IntegrationHelpers` for authentication.
 
 ```bash
-bin/rails test                                  # all tests
-bin/rails test:models                           # model unit tests
-bin/rails test:controllers                      # controller integration tests
-bin/rails test test/models/product_test.rb      # single file
+bin/rails test                                   # all tests
+bin/rails test:models                            # model unit tests
+bin/rails test:controllers                       # controller integration tests
+bin/rails test test/models/product_test.rb       # single file
 ```
 
 ### Stripe Webhook Testing (development)
@@ -140,12 +164,14 @@ stripe listen --forward-to localhost:3000/webhooks/stripe
 
 ## Deployment
 
+Deployed via [Kamal 2](https://kamal-deploy.org) to `gloriasembroideryshop.com`:
+
 ```bash
-kamal setup      # first-time server provisioning
-kamal deploy     # deploy latest build
+kamal setup    # first-time server provisioning
+kamal deploy   # deploy latest build
 ```
 
-Deployment config lives in `config/deploy.yml`.
+Deployment config lives in `config/deploy.yml`. Secrets are managed in `.kamal/secrets` — never commit raw credentials to that file.
 
 ## License
 
