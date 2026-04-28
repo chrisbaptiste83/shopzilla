@@ -66,7 +66,7 @@ end
 
 gem "stripe", "~> 15.2"
 
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0"
 
 gem "importmap-rails", "~> 2.2"
 
