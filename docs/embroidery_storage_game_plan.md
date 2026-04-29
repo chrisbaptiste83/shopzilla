@@ -181,6 +181,11 @@ Completed:
 - removed success-page dependency on live Stripe lookups and line-item title matching:
   - success page now reads persisted `Order` and `DownloadAccess` records for the checkout session
   - added controller tests covering matching-order and missing-order behavior
+- hardened checkout and webhook order bookkeeping:
+  - checkout now sends `product_quantities` metadata into Stripe checkout sessions
+  - webhook now creates one `Payment` per order instead of one payment per product
+  - webhook now creates `OrderItem` quantities from metadata instead of assuming quantity `1`
+  - added webhook coverage for a mixed multi-item checkout path
 
 Observed blocker:
 

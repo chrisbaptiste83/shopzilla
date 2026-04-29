@@ -14,6 +14,8 @@ class CheckoutController < ApplicationController
       end
     end
 
+    quantities_by_product_id = build_quantities(@products)
+
     # Check if any product is physical
     if @products.any?(&:shippable)
       total = @products.sum(&:price)
@@ -23,7 +25,7 @@ class CheckoutController < ApplicationController
     else
       # Existing logic for digital products
       line_items = @products.map do |product|
-        quantity = params[:product_id].present? ? 1 : session[:cart][product.id.to_s].to_i
+        quantity = quantities_by_product_id.fetch(product.id.to_s)
         {
           price_data: {
             currency: "usd",
@@ -34,7 +36,7 @@ class CheckoutController < ApplicationController
         }
       end
 
-      metadata_products = @products.map(&:id).join(",")
+      metadata_products = quantities_by_product_id.keys.join(",")
       session[:cart] = {} unless params[:product_id].present?
 
       session_checkout = Stripe::Checkout::Session.create(
@@ -45,7 +47,8 @@ class CheckoutController < ApplicationController
         cancel_url: pages_cancel_url,
         metadata: {
           user_id: current_user.id,
-          product_ids: metadata_products
+          product_ids: metadata_products,
+          product_quantities: quantities_by_product_id.to_json
         }
       )
       redirect_to session_checkout.url, allow_other_host: true
@@ -87,7 +90,8 @@ class CheckoutController < ApplicationController
         metadata: {
           user_id: current_user.id,
           order_id: @order.id, # Pass order_id to webhook
-          product_ids: products.map(&:id).join(",")
+          product_ids: products.map(&:id).join(","),
+          product_quantities: products.index_with { 1 }.transform_keys(&:id).transform_keys(&:to_s).to_json
         }
       )
 
@@ -108,5 +112,11 @@ class CheckoutController < ApplicationController
       ]
     )
   end
-end
 
+  def build_quantities(products)
+    products.index_with do |product|
+      quantity = params[:product_id].present? ? 1 : session.dig(:cart, product.id.to_s).to_i
+      quantity.positive? ? quantity : 1
+    end.transform_keys(&:to_s)
+  end
+end

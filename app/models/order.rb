@@ -1,6 +1,7 @@
 class Order < ApplicationRecord
   belongs_to :user
   has_many :order_items, dependent: :destroy
+  has_many :download_accesses, dependent: :destroy
   has_one :payment, dependent: :destroy
   has_one :shipping_address, dependent: :destroy
   accepts_nested_attributes_for :shipping_address
@@ -11,7 +12,7 @@ class Order < ApplicationRecord
   validates :stripe_session_id, uniqueness: true, allow_nil: true
   
   def self.ransackable_associations(auth_object = nil)
-    ["order_items", "payment", "user", "shipping_address"]
+    ["download_accesses", "order_items", "payment", "user", "shipping_address"]
   end
 
   def self.ransackable_attributes(auth_object = nil)

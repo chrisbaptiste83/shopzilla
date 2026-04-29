@@ -46,23 +46,25 @@ class WebhooksController < ApplicationController
       )
     end
 
-    product_ids = session['metadata']['product_ids'].split(",").map(&:to_i)
+    quantities_by_product_id = extract_quantities(session['metadata'])
+    product_ids = quantities_by_product_id.keys.map(&:to_i)
+    product_ids = session['metadata']['product_ids'].split(",").map(&:to_i) if product_ids.empty? && session['metadata']['product_ids'].present?
     products = Product.where(id: product_ids)
 
+    Payment.create!(
+      order: order,
+      amount: session['amount_total'] / 100.0,
+      stripe_payment_id: session['payment_intent'],
+      status: 'completed'
+    )
+
     products.each do |product|
-      quantity = 1 # assume 1 for Buy Now; for cart we could store quantity metadata if needed
+      quantity = quantities_by_product_id.fetch(product.id.to_s, 1).to_i
       OrderItem.create!(
         order: order,
         product: product,
         quantity: quantity,
         unit_price: product.price
-      )
-
-      Payment.create!(
-        order: order,
-        amount: product.price * quantity,
-        stripe_payment_id: session['payment_intent'],
-        status: 'completed'
       )
 
       # Only create download access for digital products (non-shippable)
@@ -77,5 +79,13 @@ class WebhooksController < ApplicationController
       end
     end
   end
-end
 
+  def extract_quantities(metadata)
+    raw_quantities = metadata['product_quantities']
+    return {} if raw_quantities.blank?
+
+    JSON.parse(raw_quantities)
+  rescue JSON::ParserError
+    {}
+  end
+end
