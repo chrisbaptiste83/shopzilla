@@ -12,7 +12,7 @@ local:
 amazon:
   service: S3
   region: us-east-2
-  bucket: shopzilla-prod-assets
+  bucket: shopzilla-dev-assets
 
 # Remember not to checkin your GCS keyfile to a repository
 # google:
