@@ -21,7 +21,12 @@ class WebhooksControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    Stripe::Webhook.singleton_class.stub(:construct_event, event) do
+    original_construct_event = Stripe::Webhook.method(:construct_event)
+    Stripe::Webhook.define_singleton_method(:construct_event) do |_payload, _sig_header, _endpoint_secret|
+      event
+    end
+
+    begin
       assert_difference -> { Order.count }, 1 do
         assert_difference -> { Payment.count }, 1 do
           assert_difference -> { OrderItem.count }, 2 do
@@ -31,6 +36,8 @@ class WebhooksControllerTest < ActionDispatch::IntegrationTest
           end
         end
       end
+    ensure
+      Stripe::Webhook.define_singleton_method(:construct_event, original_construct_event)
     end
 
     assert_response :success

@@ -66,8 +66,8 @@
                   </div>
 
                   <div class="text-right">
-                    <p class="font-bold text-lg">$<%= '%.2f' % (item.price * item.quantity) %></p>
-                    <p class="text-sm text-base-content/70">$<%= '%.2f' % item.price %> each</p>
+                    <p class="font-bold text-lg">$<%= '%.2f' % (item.unit_price * item.quantity) %></p>
+                    <p class="text-sm text-base-content/70">$<%= '%.2f' % item.unit_price %> each</p>
                   </div>
                 </div>
               <% end %>
