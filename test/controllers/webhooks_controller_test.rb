@@ -21,7 +21,7 @@ class WebhooksControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    Stripe::Webhook.stub(:construct_event, event) do
+    Stripe::Webhook.singleton_class.stub(:construct_event, event) do
       assert_difference -> { Order.count }, 1 do
         assert_difference -> { Payment.count }, 1 do
           assert_difference -> { OrderItem.count }, 2 do
@@ -42,7 +42,7 @@ class WebhooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "pi_test_webhook_multi_item", order.payment.stripe_payment_id
     assert_equal 2, order.order_items.find_by(product: products(:rose_design)).quantity
     assert_equal 1, order.order_items.find_by(product: products(:hoop_art)).quantity
-    assert_equal [products(:rose_design).id], order.download_accesses.pluck(:product_id)
+    assert_equal [ products(:rose_design).id ], order.download_accesses.pluck(:product_id)
   end
 
   private

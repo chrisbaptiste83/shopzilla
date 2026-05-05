@@ -1,14 +1,11 @@
 require "test_helper"
 require "fileutils"
+require "tmpdir"
 
 class Embroidery::SourceCleanupTest < ActiveSupport::TestCase
   setup do
-    @source_root = Rails.root.join("tmp", "source_cleanup_source_test")
-    @package_dir = Rails.root.join("tmp", "source_cleanup_package_test")
-    FileUtils.rm_rf(@source_root)
-    FileUtils.rm_rf(@package_dir)
-    FileUtils.mkdir_p(@source_root)
-    FileUtils.mkdir_p(@package_dir)
+    @source_root = Pathname.new(Dir.mktmpdir("source_cleanup_source_test", Rails.root.join("tmp")))
+    @package_dir = Pathname.new(Dir.mktmpdir("source_cleanup_package_test", Rails.root.join("tmp")))
   end
 
   teardown do

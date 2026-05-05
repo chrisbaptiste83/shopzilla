@@ -1,11 +1,10 @@
 require "test_helper"
 require "fileutils"
+require "tmpdir"
 
 class Embroidery::CatalogAuditorTest < ActiveSupport::TestCase
   setup do
-    @tmp_root = Rails.root.join("tmp", "catalog_auditor_test")
-    FileUtils.rm_rf(@tmp_root)
-    FileUtils.mkdir_p(@tmp_root)
+    @tmp_root = Pathname.new(Dir.mktmpdir("catalog_auditor_test", Rails.root.join("tmp")))
   end
 
   teardown do
