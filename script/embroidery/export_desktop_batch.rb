@@ -130,7 +130,7 @@ class DesktopEmbroideryBatchExporter
   def prioritize_images(files)
     files.sort_by do |file|
       name = file.basename.to_s.downcase
-      [name.include?("grid") ? 1 : 0, name]
+      [ name.include?("grid") ? 1 : 0, name ]
     end
   end
 
@@ -172,7 +172,7 @@ class DesktopEmbroideryBatchExporter
   end
 
   def stage_product_assets(product, upload_rows)
-    files = [product[:primary_embroidery_file], *product[:preview_images]]
+    files = [ product[:primary_embroidery_file], *product[:preview_images] ]
 
     files.each do |entry|
       destination = @out_dir.join("package", entry[:s3_key])
@@ -216,7 +216,7 @@ class DesktopEmbroideryBatchExporter
     end
 
     filtered = products.reject { |product| collision_paths.include?(product[:source_relative_path]) }
-    [filtered, issues]
+    [ filtered, issues ]
   end
 
   def write_outputs(products, upload_rows, issues, scanned_count)

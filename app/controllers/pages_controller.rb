@@ -1,5 +1,5 @@
 class PagesController < ApplicationController
-  before_action :authenticate_user!, only: [:success]
+  before_action :authenticate_user!, only: [ :success ]
 
   def success
     return @download_accesses = [] unless current_user && params[:session_id].present?

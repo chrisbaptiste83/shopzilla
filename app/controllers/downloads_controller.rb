@@ -7,13 +7,13 @@ class DownloadsController < ApplicationController
 
     # Check if expired
     if @download_access.expired?
-      redirect_to root_path, alert: 'Download link has expired'
+      redirect_to root_path, alert: "Download link has expired"
       return
     end
 
     # Check if current user owns this download
     if @download_access.user != current_user
-      redirect_to root_path, alert: 'Unauthorized access'
+      redirect_to root_path, alert: "Unauthorized access"
       return
     end
 
@@ -25,9 +25,7 @@ class DownloadsController < ApplicationController
       # Generate signed URL for S3
       redirect_to rails_blob_url(@download_access.product.embroidery_file, disposition: "attachment", only_path: false)
     else
-      redirect_to root_path, alert: 'File not available'
+      redirect_to root_path, alert: "File not available"
     end
   end
 end
-
-

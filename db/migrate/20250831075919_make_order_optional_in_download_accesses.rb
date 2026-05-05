@@ -3,4 +3,3 @@ class MakeOrderOptionalInDownloadAccesses < ActiveRecord::Migration[8.0]
     change_column_null :download_accesses, :order_id, true
   end
 end
-

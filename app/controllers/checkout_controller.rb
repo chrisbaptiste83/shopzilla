@@ -4,7 +4,7 @@ class CheckoutController < ApplicationController
   def create
     # Determine products to checkout
     if params[:product_id].present?
-      @products = [Product.find(params[:product_id])]
+      @products = [ Product.find(params[:product_id]) ]
     else
       cart = session[:cart] || {}
       @products = Product.where(id: cart.keys)
@@ -19,7 +19,7 @@ class CheckoutController < ApplicationController
     # Check if any product is physical
     if @products.any?(&:shippable)
       total = @products.sum(&:price)
-      @order = Order.new(user: current_user, status: 'pending', total: total) # Temporary order
+      @order = Order.new(user: current_user, status: "pending", total: total) # Temporary order
       @order.build_shipping_address
       render :shipping
     else
@@ -40,7 +40,7 @@ class CheckoutController < ApplicationController
       session[:cart] = {} unless params[:product_id].present?
 
       session_checkout = Stripe::Checkout::Session.create(
-        payment_method_types: ['card'],
+        payment_method_types: [ "card" ],
         line_items: line_items,
         mode: "payment",
         success_url: pages_success_url + "?session_id={CHECKOUT_SESSION_ID}",
@@ -58,7 +58,7 @@ class CheckoutController < ApplicationController
   def process_shipping_address
     @order = Order.new(order_params)
     @order.user = current_user
-    @order.status = 'pending'
+    @order.status = "pending"
 
     # Manually re-associate products from IDs
     product_ids = params[:order][:product_ids].reject(&:blank?)
@@ -82,7 +82,7 @@ class CheckoutController < ApplicationController
 
       # Create Stripe Checkout session
       session_checkout = Stripe::Checkout::Session.create(
-        payment_method_types: ['card'],
+        payment_method_types: [ "card" ],
         line_items: line_items,
         mode: "payment",
         success_url: pages_success_url + "?session_id={CHECKOUT_SESSION_ID}",
