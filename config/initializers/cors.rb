@@ -9,22 +9,22 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
 
     resource "/products*",
       headers: :any,
-      methods: [:get, :options],
+      methods: [ :get, :options ],
       credentials: false
 
     resource "/categories*",
       headers: :any,
-      methods: [:get, :options],
+      methods: [ :get, :options ],
       credentials: false
 
     resource "/orders*",
       headers: :any,
-      methods: [:get, :post, :options],
+      methods: [ :get, :post, :options ],
       credentials: false
 
     resource "/users*",
       headers: :any,
-      methods: [:get, :post, :delete, :options],
+      methods: [ :get, :post, :delete, :options ],
       credentials: false
   end
 end

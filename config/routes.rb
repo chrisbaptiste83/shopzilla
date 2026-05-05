@@ -1,18 +1,18 @@
 
 Rails.application.routes.draw do
-  resources :orders, only: [:index, :show, :create]
+  resources :orders, only: [ :index, :show, :create ]
 
-  post '/webhooks/stripe', to: 'webhooks#stripe'
+  post "/webhooks/stripe", to: "webhooks#stripe"
 
-  get '/downloads/:token', to: 'downloads#show', as: :secure_download
+  get "/downloads/:token", to: "downloads#show", as: :secure_download
 
-  resource :checkout, only: [:create], controller: "checkout"
-  post 'checkout/process_shipping_address', to: 'checkout#process_shipping_address', as: :process_shipping_address
+  resource :checkout, only: [ :create ], controller: "checkout"
+  post "checkout/process_shipping_address", to: "checkout#process_shipping_address", as: :process_shipping_address
 
   get "pages/success"
   get "pages/cancel"
 
-  resource :profile, only: [:show, :edit, :update]
+  resource :profile, only: [ :show, :edit, :update ]
 
   get "dashboard", to: "dashboard#show", as: :dashboard
   get "dashboard/orders", to: "dashboard#orders", as: :dashboard_orders
@@ -28,13 +28,13 @@ Rails.application.routes.draw do
   }
   ActiveAdmin.routes(self)
 
-  resources :wishlist_items, only: [:index, :create, :destroy]
+  resources :wishlist_items, only: [ :index, :create, :destroy ]
 
   get "about", to: "home#about"
   get "contact", to: "home#contact"
   post "contact", to: "home#contact"
 
-  resource :cart, only: [:show] do
+  resource :cart, only: [ :show ] do
     collection do
       post :add
       delete :remove
@@ -49,4 +49,3 @@ Rails.application.routes.draw do
   # Root
   root to: "home#index"
 end
-

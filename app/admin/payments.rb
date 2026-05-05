@@ -1,6 +1,6 @@
 ActiveAdmin.register Payment do
   permit_params :order_id, :amount, :stripe_payment_id, :status
-  
+
   index do
     selectable_column
     id_column
@@ -13,13 +13,13 @@ ActiveAdmin.register Payment do
     column :created_at
     actions
   end
-  
+
   filter :order
   filter :amount
   filter :status
   filter :stripe_payment_id
   filter :created_at
-  
+
   show do
     attributes_table do
       row :order

@@ -6,13 +6,13 @@ local:
   service: Disk
   root: <%= Rails.root.join("storage") %>
 
-# Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
+# On ECS the EC2 instance role provides credentials automatically.
+# No access_key_id / secret_access_key needed — the AWS SDK falls back to
+# the instance metadata service (IMDS) when those keys are absent.
 amazon:
   service: S3
-  access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
-  secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
   region: us-east-2
-  bucket: embroidery-files-667
+  bucket: shopzilla-prod-assets
 
 # Remember not to checkin your GCS keyfile to a repository
 # google:
@@ -28,7 +28,7 @@ amazon:
 #   storage_access_key: <%= Rails.application.credentials.dig(:azure_storage, :storage_access_key) %>
 #   container: your_container_name-<%= Rails.env %>
 
-# mirror:
-#   service: Mirror
-#   primary: local
-#   mirrors: [ amazon, google, microsoft ]
+local_mirror_s3:
+  service: Mirror
+  primary: local
+  mirrors: [ amazon ]

@@ -14,12 +14,10 @@ class HomeController < ApplicationController
                                .order(Arel.sql(random_order))
                                .limit(5)
   end
-  
+
   def about
   end
 
   def contact
   end
-
-
 end

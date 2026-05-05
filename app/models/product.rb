@@ -6,6 +6,7 @@ class Product < ApplicationRecord
   has_one_attached :embroidery_file
   has_many_attached :images
   belongs_to :category
+  has_many :download_accesses, dependent: :destroy
   has_many :wishlist_items, dependent: :destroy
 
   before_validation :create_category_from_name, if: -> { new_category_name.present? }
@@ -34,18 +35,17 @@ class Product < ApplicationRecord
     return unless images.attached?
 
     if images.count > 2
-      errors.add(:images, 'maximum of 2 images allowed per product')
+      errors.add(:images, "maximum of 2 images allowed per product")
     end
 
     images.each do |image|
-      unless image.content_type.start_with?('image/')
-        errors.add(:images, 'must be an image file')
+      unless image.content_type.start_with?("image/")
+        errors.add(:images, "must be an image file")
       end
 
       if image.byte_size > 10.megabytes
-        errors.add(:images, 'must be less than 10MB')
+        errors.add(:images, "must be less than 10MB")
       end
     end
   end
-
 end

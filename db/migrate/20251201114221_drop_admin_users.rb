@@ -21,9 +21,9 @@ class DropAdminUsers < ActiveRecord::Migration[8.0]
       t.integer :author_id
       t.datetime :created_at, null: false
       t.datetime :updated_at, null: false
-      t.index [:author_type, :author_id]
+      t.index [ :author_type, :author_id ]
       t.index :namespace
-      t.index [:resource_type, :resource_id]
+      t.index [ :resource_type, :resource_id ]
     end
   end
 end

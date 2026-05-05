@@ -43,7 +43,7 @@ ActiveAdmin.register Product do
       row(:images) do |p|
         if p.images.attached?
           p.images.map { |img|
-            image_tag img.variant(resize_to_fill: [80, 80]),
+            image_tag img.variant(resize_to_fill: [ 80, 80 ]),
                       style: "margin:2px;border-radius:6px;"
           }.join.html_safe
         else
@@ -102,7 +102,7 @@ ActiveAdmin.register Product do
         f.inputs "Category" do
           f.input :category,
                   as: :select,
-                  collection: Category.order(:name).map { |c| [c.name, c.id] },
+                  collection: Category.order(:name).map { |c| [ c.name, c.id ] },
                   include_blank: "— Select existing category —",
                   hint: "Pick an existing category, or create one below"
 
@@ -135,7 +135,7 @@ ActiveAdmin.register Product do
             f.inputs "Current Images — check box to remove" do
               f.object.images.each do |image|
                 li do
-                  image_tag image.variant(resize_to_fill: [80, 80]),
+                  image_tag image.variant(resize_to_fill: [ 80, 80 ]),
                             style: "border-radius:8px;vertical-align:middle;margin-right:8px;"
                   span image.filename.to_s, style: "font-size:0.85rem;color:#555;"
                   check_box_tag "product[purge_images][]", image.id, false,

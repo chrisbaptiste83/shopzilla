@@ -4,7 +4,7 @@ class CheckoutController < ApplicationController
   def create
     # Determine products to checkout
     if params[:product_id].present?
-      @products = [Product.find(params[:product_id])]
+      @products = [ Product.find(params[:product_id]) ]
     else
       cart = session[:cart] || {}
       @products = Product.where(id: cart.keys)
@@ -14,16 +14,18 @@ class CheckoutController < ApplicationController
       end
     end
 
+    quantities_by_product_id = build_quantities(@products)
+
     # Check if any product is physical
     if @products.any?(&:shippable)
       total = @products.sum(&:price)
-      @order = Order.new(user: current_user, status: 'pending', total: total) # Temporary order
+      @order = Order.new(user: current_user, status: "pending", total: total) # Temporary order
       @order.build_shipping_address
       render :shipping
     else
       # Existing logic for digital products
       line_items = @products.map do |product|
-        quantity = params[:product_id].present? ? 1 : session[:cart][product.id.to_s].to_i
+        quantity = quantities_by_product_id.fetch(product.id.to_s)
         {
           price_data: {
             currency: "usd",
@@ -34,18 +36,19 @@ class CheckoutController < ApplicationController
         }
       end
 
-      metadata_products = @products.map(&:id).join(",")
+      metadata_products = quantities_by_product_id.keys.join(",")
       session[:cart] = {} unless params[:product_id].present?
 
       session_checkout = Stripe::Checkout::Session.create(
-        payment_method_types: ['card'],
+        payment_method_types: [ "card" ],
         line_items: line_items,
         mode: "payment",
         success_url: pages_success_url + "?session_id={CHECKOUT_SESSION_ID}",
         cancel_url: pages_cancel_url,
         metadata: {
           user_id: current_user.id,
-          product_ids: metadata_products
+          product_ids: metadata_products,
+          product_quantities: quantities_by_product_id.to_json
         }
       )
       redirect_to session_checkout.url, allow_other_host: true
@@ -55,7 +58,7 @@ class CheckoutController < ApplicationController
   def process_shipping_address
     @order = Order.new(order_params)
     @order.user = current_user
-    @order.status = 'pending'
+    @order.status = "pending"
 
     # Manually re-associate products from IDs
     product_ids = params[:order][:product_ids].reject(&:blank?)
@@ -79,7 +82,7 @@ class CheckoutController < ApplicationController
 
       # Create Stripe Checkout session
       session_checkout = Stripe::Checkout::Session.create(
-        payment_method_types: ['card'],
+        payment_method_types: [ "card" ],
         line_items: line_items,
         mode: "payment",
         success_url: pages_success_url + "?session_id={CHECKOUT_SESSION_ID}",
@@ -87,7 +90,8 @@ class CheckoutController < ApplicationController
         metadata: {
           user_id: current_user.id,
           order_id: @order.id, # Pass order_id to webhook
-          product_ids: products.map(&:id).join(",")
+          product_ids: products.map(&:id).join(","),
+          product_quantities: products.index_with { 1 }.transform_keys(&:id).transform_keys(&:to_s).to_json
         }
       )
 
@@ -108,5 +112,11 @@ class CheckoutController < ApplicationController
       ]
     )
   end
-end
 
+  def build_quantities(products)
+    products.index_with do |product|
+      quantity = params[:product_id].present? ? 1 : session.dig(:cart, product.id.to_s).to_i
+      quantity.positive? ? quantity : 1
+    end.transform_keys(&:to_s)
+  end
+end

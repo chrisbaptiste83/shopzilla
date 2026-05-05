@@ -50,7 +50,7 @@
                   <% if item.product.images.attached? %>
                     <%= image_tag item.product.images.first.variant(resize_to_fill: [80, 80]),
                         class: "w-20 h-20 object-cover rounded-lg",
-                        alt: item.product.name %>
+                        alt: item.product.title %>
                   <% else %>
                     <div class="w-20 h-20 bg-base-300 rounded-lg flex items-center justify-center">
                       <span class="text-3xl">✂️</span>
@@ -58,7 +58,7 @@
                   <% end %>
 
                   <div class="flex-grow">
-                    <h4 class="font-semibold"><%= item.product.name %></h4>
+                    <h4 class="font-semibold"><%= item.product.title %></h4>
                     <p class="text-sm text-base-content/70">Quantity: <%= item.quantity %></p>
                     <% if item.product.category %>
                       <span class="badge badge-sm badge-outline mt-1"><%= item.product.category.name %></span>
@@ -66,8 +66,8 @@
                   </div>
 
                   <div class="text-right">
-                    <p class="font-bold text-lg">$<%= '%.2f' % (item.price * item.quantity) %></p>
-                    <p class="text-sm text-base-content/70">$<%= '%.2f' % item.price %> each</p>
+                    <p class="font-bold text-lg">$<%= '%.2f' % (item.unit_price * item.quantity) %></p>
+                    <p class="text-sm text-base-content/70">$<%= '%.2f' % item.unit_price %> each</p>
                   </div>
                 </div>
               <% end %>

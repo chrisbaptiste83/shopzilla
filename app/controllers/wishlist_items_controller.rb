@@ -2,7 +2,7 @@ class WishlistItemsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @wishlist_items = current_user.wishlist_items.includes(product: [:category, :rich_text_description, { images_attachments: :blob }]).order(created_at: :desc)
+    @wishlist_items = current_user.wishlist_items.includes(product: [ :category, :rich_text_description, { images_attachments: :blob } ]).order(created_at: :desc)
   end
 
   def create

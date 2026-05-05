@@ -7,6 +7,6 @@ class CreateWishlistItems < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :wishlist_items, [:user_id, :product_id], unique: true
+    add_index :wishlist_items, [ :user_id, :product_id ], unique: true
   end
 end

@@ -2,7 +2,7 @@ class OrdersController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @orders = current_user.orders.includes(order_items: { product: [:images_attachments, :category] }).order(created_at: :desc)
+    @orders = current_user.orders.includes(order_items: { product: [ :images_attachments, :category ] }).order(created_at: :desc)
     respond_to do |format|
       format.html
       format.json { render json: @orders.map { |o| order_json(o) } }
@@ -10,7 +10,7 @@ class OrdersController < ApplicationController
   end
 
   def show
-    @order = current_user.orders.includes(order_items: { product: [:images_attachments, :category] }).find(params[:id])
+    @order = current_user.orders.includes(order_items: { product: [ :images_attachments, :category ] }).find(params[:id])
     respond_to do |format|
       format.html
       format.json { render json: order_json(@order) }
@@ -42,7 +42,7 @@ class OrdersController < ApplicationController
   private
 
   def order_params
-    params.require(:order).permit(line_items_attributes: [:product_id, :quantity])
+    params.require(:order).permit(line_items_attributes: [ :product_id, :quantity ])
   end
 
   def order_json(order)

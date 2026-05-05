@@ -7,11 +7,11 @@ class DownloadAccess < ApplicationRecord
 
   validates :access_token, presence: true, uniqueness: true
   validates :expires_at, presence: true
-  
-  before_create :generate_access_token
-  
-  scope :active, -> { where('expires_at > ?', Time.current) }
-  
+
+  before_validation :generate_access_token, on: :create
+
+  scope :active, -> { where("expires_at > ?", Time.current) }
+
   def expired?
     expires_at < Time.current
   end
@@ -22,5 +22,3 @@ class DownloadAccess < ApplicationRecord
     self.access_token ||= SecureRandom.urlsafe_base64(32)
   end
 end
-
-

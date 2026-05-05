@@ -13,10 +13,10 @@ class User < ApplicationRecord
 
 
   def self.ransackable_associations(auth_object = nil)
-    ["orders"]
+    [ "orders" ]
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["id", "email", "created_at", "updated_at", "admin"]
+    [ "id", "email", "created_at", "updated_at", "admin" ]
   end
 end
