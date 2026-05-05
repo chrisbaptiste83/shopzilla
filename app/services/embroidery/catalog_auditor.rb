@@ -1,4 +1,5 @@
 require "digest"
+require "json"
 
 module Embroidery
   class CatalogAuditor
@@ -34,7 +35,7 @@ module Embroidery
 
         product = build_product_entry(design_dir)
         products << product
-        issues.concat(build_status_issues(product))
+        issues.concat(build_product_issues(product))
       end
 
       issues.concat(build_collision_issues(products))
@@ -72,6 +73,7 @@ module Embroidery
     def build_product_entry(design_dir)
       size_dir = design_dir.parent
       category_dir = size_dir.parent
+      metadata = read_metadata(design_dir)
 
       embroidery_files = sorted_files(design_dir).select { |file| embroidery_file?(file) && file.size.positive? }
       image_files = sorted_files(design_dir).select { |file| image_file?(file) && file.size.positive? }
@@ -106,6 +108,7 @@ module Embroidery
           slug: design_slug,
           title: build_title(normalized_design_name, size_name)
         },
+        metadata: metadata,
         status: build_status(embroidery_files, image_files),
         embroidery_files: serialize_files(embroidery_files, proposed_prefix, "download"),
         preview_images: serialize_files(image_files, proposed_prefix, "preview"),
@@ -121,16 +124,27 @@ module Embroidery
       "ready"
     end
 
-    def build_status_issues(product)
-      return [] if product[:status] == "ready"
+    def build_product_issues(product)
+      issues = []
 
-      [
-        {
+      if product[:status] != "ready"
+        issues << {
           type: product[:status],
           source_relative_path: product[:source_relative_path],
           proposed_s3_prefix: product[:proposed_s3_prefix]
         }
-      ]
+      end
+
+      if product.dig(:metadata, :error).present?
+        issues << {
+          type: "invalid_metadata_json",
+          source_relative_path: product[:source_relative_path],
+          proposed_s3_prefix: product[:proposed_s3_prefix],
+          metadata_path: product.dig(:metadata, :source_relative_path)
+        }
+      end
+
+      issues
     end
 
     def build_collision_issues(products)
@@ -154,6 +168,7 @@ module Embroidery
         ready_products: products.count { |product| product[:status] == "ready" },
         products_missing_embroidery_file: products.count { |product| product[:status] == "missing_embroidery_file" },
         products_missing_preview_image: products.count { |product| product[:status] == "missing_preview_image" },
+        products_with_invalid_metadata: products.count { |product| product.dig(:metadata, :error).present? },
         duplicate_s3_prefixes: issues.count { |issue| issue[:type] == "duplicate_s3_prefix" },
         issue_count: issues.size
       }
@@ -175,16 +190,44 @@ module Embroidery
       path.relative_path_from(@root).to_s
     end
 
+    def read_metadata(design_dir)
+      metadata_file = design_dir.join("metadata.json")
+      return empty_metadata unless metadata_file.file?
+
+      parsed = JSON.parse(metadata_file.read)
+
+      {
+        source_relative_path: relative_path(metadata_file),
+        stitch_count: parsed["stitch_count"],
+        raw: parsed
+      }
+    rescue JSON::ParserError => error
+      {
+        source_relative_path: relative_path(metadata_file),
+        stitch_count: nil,
+        raw: nil,
+        error: error.message
+      }
+    end
+
+    def empty_metadata
+      {
+        source_relative_path: nil,
+        stitch_count: nil,
+        raw: nil
+      }
+    end
+
     def normalize_design_name(name)
       name.sub(/__\d+\z/, "").tr("_", " ").squish
     end
 
     def normalize_slug(value)
-      value.to_s.parameterize(separator: "-")
+      value.to_s.tr("_", "-").parameterize(separator: "-")
     end
 
     def build_title(design_name, size_name)
-      "#{design_name} (#{size_name.tr('_', ' ')})"
+      "#{design_name.capitalize} (#{size_name.tr('_', ' ')})"
     end
 
     def embroidery_file?(file)

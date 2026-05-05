@@ -1,7 +1,7 @@
 # Embroidery Storage Redesign Game Plan
 
-Last updated: 2026-04-28
-Owner: Codex working session
+Last updated: 2026-04-30
+Owner: Codex + Claude Code working sessions
 
 ## Purpose
 
@@ -92,10 +92,14 @@ Why this layout:
 Goal:
 Turn a chosen raw folder subset into a reviewed manifest before any migration work touches the live catalog.
 
-Deliverable added in this session:
+Deliverables across sessions:
 
-- `Embroidery::CatalogAuditor`
-- `rake embroidery_catalog:audit`
+- `Embroidery::CatalogAuditor` — `rake embroidery_catalog:audit`
+- `Embroidery::PackageBuilder` — `rake embroidery_catalog:package`
+- `Embroidery::CatalogImporter` — `rake embroidery_catalog:import`
+- `Embroidery::SourceCleanup` — `rake embroidery_catalog:cleanup`
+- `Embroidery::S3Uploader` — `rake embroidery_catalog:upload`
+- `rake active_storage:s3:migrate` and `rake active_storage:s3:verify`
 
 What it does:
 
@@ -134,6 +138,25 @@ Generated files:
 - `products.csv`
 - `issues.csv`
 
+Packaging flow now available:
+
+```bash
+bin/rails embroidery_catalog:package SOURCE_ROOT=/absolute/path/to/sample_batch OUT_DIR=/absolute/path/to/package_dir
+```
+
+Cleanup defaults to dry run and requires an explicit delete confirmation:
+
+```bash
+bin/rails embroidery_catalog:cleanup MANIFEST_PATH=/absolute/path/to/package_dir/manifest.json
+bin/rails embroidery_catalog:cleanup MANIFEST_PATH=/absolute/path/to/package_dir/manifest.json DRY_RUN=false CONFIRM=DELETE
+```
+
+Import from the reviewed package into Rails and Active Storage:
+
+```bash
+bin/rails embroidery_catalog:import MANIFEST_PATH=/absolute/path/to/package_dir/manifest.json IMPORT_PRICE_CENTS=500
+```
+
 ### Phase 2: Curate and fix the sample batch
 
 For the first batch only:
@@ -147,9 +170,10 @@ For the first batch only:
 
 After the manifest is reviewed:
 
-- upload files to the exact proposed keys
-- attach/import only reviewed files
-- verify downloads work through Rails and Active Storage against S3
+- build the reviewed package directory with deterministic keys
+- import only from the reviewed package manifest
+- let Active Storage write the attached bytes to the currently configured storage service
+- verify downloads work through Rails and Active Storage against S3 once the service is switched
 
 ### Phase 4: Refactor backend ownership
 
@@ -157,7 +181,7 @@ After the small batch proves out:
 
 - remove success-page download creation logic based on Stripe line items
 - make webhook-created order/download records the canonical source
-- add a dedicated import/migration service that reads the reviewed manifest instead of raw server directories
+- keep the reviewed manifest as the only import contract instead of raw server directories
 
 ## Work Log
 
@@ -189,11 +213,80 @@ Completed:
 
 Observed blocker:
 
-- local bundle is incomplete in this workspace, so Rails commands that boot the app could not be executed yet
+- local bundle was incomplete in this workspace, so Rails commands that boot the app could not be executed yet
+
+### 2026-04-30
+
+Completed (Claude Code continuation — annotation session):
+
+- resolved the bundle blocker: ran `bundle install` to completion (159 gems now installed including rails 8.0.5 and pg 1.6.3)
+- confirmed source catalog structure at `/Users/christopherbaptiste/Desktop/Embroidery Catalog/Bundles`:
+  - 55 top-level category directories
+  - layout confirmed as `<category>/<size>/<design>` matching the auditor's expected depth
+- ran the first live execution of `embroidery_catalog:audit` against the full Bundles root, LIMIT=20:
+  - `bin/rails embroidery_catalog:audit SOURCE_ROOT="…/Bundles" LIMIT=20 OUT_DIR=tmp/embroidery_audit_sample`
+  - scanned 20 products, all 20 status=ready
+  - 5 issues flagged — all `duplicate_s3_prefix` type:
+    - `animals/4x4/Bird`, `Bird__2`, `Bird__3` → all collapse to `embroidery/animals/bird/4x4`
+    - `animals/10x14/Eo 181 F Here A Chicken There A Chicken__13` and `__20` → same prefix
+  - 0 missing embroidery files, 0 missing previews, 0 invalid metadata
+  - output at `tmp/embroidery_audit_sample/` (manifest.json, products.csv, issues.csv)
+- ran `embroidery_catalog:package` against the same sample:
+  - `bin/rails embroidery_catalog:package SOURCE_ROOT="…/Bundles" LIMIT=20 OUT_DIR=tmp/embroidery_package_sample READY_ONLY=true`
+  - 20 products packaged, 0 skipped, 72 total files
+  - S3-layout directory written to `tmp/embroidery_package_sample/`
+  - each design slot has `download/<n>-<filename>.pes` and `preview/<n>-<image>` plus `metadata.json`
+  - duplicate prefix designs (Bird variants, Eo 181 duplicates) all landed in same S3 prefix — last-write-wins; those slots need manual curation before S3 upload
+
+Known issues in this batch requiring human review before Phase 3:
+
+- `embroidery/animals/bird/4x4` — three source folders (`Bird`, `Bird__2`, `Bird__3`) map to one prefix; need to decide which is canonical or create distinct slugs
+- `embroidery/animals/eo-181-f-here-a-chicken-there-a-chicken/10x14` — two numbered variants (`__13`, `__20`) collapse to one prefix; same decision needed
+
+Known issues in `tmp/embroidery_package_v2` (resolved via duplicate-skip fix):
+
+- `Bird`, `Bird__2`, `Bird__3` → only `Bird` packaged; `Bird__2` and `Bird__3` skipped with reason `duplicate_s3_prefix`
+- `Eo 181 F…__13` and `__20` → only `__13` packaged; `__20` skipped
+
+### 2026-04-30 (second pass — Claude Code continued)
+
+Completed:
+
+- fixed `Embroidery::PackageBuilder` to track seen S3 prefixes and skip duplicates (first occurrence wins, rest go to `skipped_products` with reason `duplicate_s3_prefix`)
+- built `Embroidery::S3Uploader`:
+  - reads `packaged_products` from the package manifest
+  - collects embroidery files, preview images, and `metadata.json` for each product
+  - uploads each file to S3 under the exact `proposed_s3_key` path
+  - supports `DRY_RUN=true` (default), `OVERWRITE=false` (skips existing keys), and server-side encryption (`AES256`)
+  - writes `upload_report.json` beside the manifest
+  - reads bucket and region from `config/storage.yml` automatically, or accepts `S3_BUCKET=` / `S3_REGION=` overrides
+- added `rake embroidery_catalog:upload` task wrapping S3Uploader
+- added `rake active_storage:s3:migrate` and `rake active_storage:s3:verify` tasks for migrating existing ActiveStorage blobs to S3 post-import
+- enabled `local_mirror_s3` service in `config/storage.yml` (primary: local, mirrors: [amazon]) for the mirror-mode cutover phase
+- re-ran package with `OUT_DIR=tmp/embroidery_package_v2`: 17 packaged, 3 skipped (duplicate prefixes correctly excluded)
+- ran `embroidery_catalog:upload DRY_RUN=true` against v2 manifest: 68 files, 3.63 MB, bucket `embroidery-files-667`, 0 errors
+- current agreed bucket for this pipeline is `shopzilla-dev-assets`; any future dry runs or live uploads should target that bucket instead of `embroidery-files-667`
+
+S3 upload format (the canonical key shape written to S3):
+
+```text
+embroidery/<category-slug>/<design-slug>/<size-slug>/download/01-<filename>.pes
+embroidery/<category-slug>/<design-slug>/<size-slug>/preview/01-<image>.png
+embroidery/<category-slug>/<design-slug>/<size-slug>/preview/02-<image>_grid.png
+embroidery/<category-slug>/<design-slug>/<size-slug>/metadata.json
+```
+
+All upload keys are stable and deterministic — derived from the normalized slug pipeline in `CatalogAuditor`.
 
 Next recommended step:
 
-- run the new audit task against a deliberately small sample directory, ideally 20 to 50 designs from one category
+- run the full pipeline end-to-end on the dev database:
+  1. `bin/rails embroidery_catalog:import MANIFEST_PATH=tmp/embroidery_package_v2/manifest.json IMPORT_PRICE_CENTS=500`
+  2. verify products and attachments in Rails dev DB
+  3. when credentials are available: `bin/rails embroidery_catalog:upload MANIFEST_PATH=tmp/embroidery_package_v2/manifest.json DRY_RUN=false`
+  4. verify with `bin/rails active_storage:s3:verify LIMIT=100`
+- scale up: run audit + package on the full 55-category Bundles root, resolve any new duplicate prefix issues found, then import + upload in batches
+- cutover production: deploy with `ACTIVE_STORAGE_SERVICE=local_mirror_s3`, run `active_storage:s3:migrate`, verify, then switch to `ACTIVE_STORAGE_SERVICE=amazon`
 
 ## Decision Record
 

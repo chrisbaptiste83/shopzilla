@@ -31,10 +31,10 @@ A full-featured e-commerce application for Gloria's embroidery studio — sellin
 | Auth | Devise 4.9 |
 | Payments | Stripe Checkout + Webhooks |
 | Admin | ActiveAdmin 3.3 |
-| Storage | Active Storage — local disk (dev), AWS S3 (production) |
+| Storage | Active Storage — local disk (dev), AWS S3 via instance profile (production) |
 | Background Jobs | Solid Queue |
 | Cache | Solid Cache |
-| Deployment | Kamal 2 (Docker) |
+| Deployment | AWS ECS on EC2 + ECR + ALB |
 | Testing | Minitest, Capybara |
 
 ## Getting Started
@@ -70,12 +70,9 @@ stripe:
   secret_key: sk_live_...
   webhook_secret: whsec_...
 
-aws:
-  access_key_id: ...
-  secret_access_key: ...
-  region: us-east-1
-  bucket: shopzilla-production
 ```
+
+Production on ECS does not use static AWS access keys in Rails credentials. Active Storage uses the EC2 instance profile automatically, and the bucket is configured in `config/storage.yml`.
 
 For local development, set PostgreSQL credentials if needed:
 
@@ -128,7 +125,7 @@ Stripe → POST /webhooks/stripe (checkout.session.completed)
 
 ### Download Tokens
 
-`DownloadAccess` stores a `SecureRandom.urlsafe_base64(32)` token with a 30-day expiry. `GET /downloads/:token` validates the token and expiry before streaming the file — no signed URLs, no S3 presigned links; the Rails server controls delivery.
+`DownloadAccess` stores a `SecureRandom.urlsafe_base64(32)` token with a 30-day expiry. `GET /downloads/:token` validates the token and expiry, then redirects through Active Storage to the backing file in S3.
 
 ### Admin Access
 
@@ -142,7 +139,7 @@ The `admin` boolean on `User` gates product/category CRUD. Non-admins are redire
 | `DATABASE_URL` | Production | Full PostgreSQL connection URL |
 | `PGUSER` | Dev/Test | PostgreSQL user (default: `chris`) |
 | `PGPASSWORD` | Dev/Test | PostgreSQL password |
-| `KAMAL_REGISTRY_PASSWORD` | Deploy | Docker registry token |
+| `ACTIVE_STORAGE_SERVICE` | Production | Active Storage backend (`amazon`) |
 | `STRIPE_SECRET_KEY` | Production | Stripe live secret key |
 
 ## Testing
@@ -164,14 +161,14 @@ stripe listen --forward-to localhost:3000/webhooks/stripe
 
 ## Deployment
 
-Deployed via [Kamal 2](https://kamal-deploy.org) to `gloriasembroideryshop.com`:
+Deployed to AWS ECS (EC2 launch type) behind an ALB at `gloriasembroideryshop.com`.
 
-```bash
-kamal setup    # first-time server provisioning
-kamal deploy   # deploy latest build
-```
+- App images are built in GitHub Actions and pushed to ECR.
+- ECS runs the Rails container on port `3000` with dynamic host ports.
+- Production secrets are injected from AWS Secrets Manager.
+- Active Storage uses the `amazon` service and stores files in `shopzilla-dev-assets`.
 
-Deployment config lives in `config/deploy.yml`. Secrets are managed in `.kamal/secrets` — never commit raw credentials to that file.
+The current deployment reference lives in `docs/ecs_deployment.md`.
 
 ## License
 
