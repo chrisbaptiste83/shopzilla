@@ -206,7 +206,8 @@ module Embroidery
         source_relative_path: relative_path(metadata_file),
         stitch_count: nil,
         raw: nil,
-        error: error.message
+        error: "invalid_json",
+        error_message: error.message
       }
     end
 
