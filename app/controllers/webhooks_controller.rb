@@ -67,8 +67,8 @@ class WebhooksController < ApplicationController
         unit_price: product.price
       )
 
-      # Only create download access for digital products (non-shippable)
-      unless product.shippable
+      # Download access is only for digital products.
+      unless product.physical_product
         DownloadAccess.create!(
           user: user,
           product: product,

@@ -1,13 +1,11 @@
 require "test_helper"
 require "fileutils"
+require "tmpdir"
 
 class Embroidery::PackageBuilderTest < ActiveSupport::TestCase
   setup do
-    @tmp_root = Rails.root.join("tmp", "package_builder_source_test")
-    @out_dir = Rails.root.join("tmp", "package_builder_output_test")
-    FileUtils.rm_rf(@tmp_root)
-    FileUtils.rm_rf(@out_dir)
-    FileUtils.mkdir_p(@tmp_root)
+    @tmp_root = Pathname.new(Dir.mktmpdir("package_builder_source_test", Rails.root.join("tmp")))
+    @out_dir = Pathname.new(Dir.mktmpdir("package_builder_output_test", Rails.root.join("tmp")))
   end
 
   teardown do
