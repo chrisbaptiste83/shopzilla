@@ -14,8 +14,19 @@ class DownloadAccessTest < ActiveSupport::TestCase
     assert valid_download_access.valid?
   end
 
-  test "invalid without access_token" do
+  test "generates an access token on create when one is not provided" do
+    da = DownloadAccess.create!(
+      user: users(:alice),
+      product: products(:rose_design),
+      expires_at: 30.days.from_now
+    )
+
+    assert da.access_token.present?
+  end
+
+  test "invalid when an existing record loses its access_token" do
     da = valid_download_access
+    da.save!
     da.access_token = nil
     assert_not da.valid?
     assert da.errors[:access_token].any?
