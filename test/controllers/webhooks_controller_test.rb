@@ -2,6 +2,15 @@ require "test_helper"
 
 class WebhooksControllerTest < ActionDispatch::IntegrationTest
   test "checkout session webhook creates one payment per order and respects quantities" do
+    digital_product = Product.create!(
+      title: "Webhook Digital Design",
+      price: 799,
+      category: categories(:floral),
+      is_available: true,
+      physical_product: false,
+      shippable: false
+    )
+
     event = {
       "type" => "checkout.session.completed",
       "data" => {
@@ -11,9 +20,9 @@ class WebhooksControllerTest < ActionDispatch::IntegrationTest
           "payment_intent" => "pi_test_webhook_multi_item",
           "metadata" => {
             "user_id" => users(:alice).id.to_s,
-            "product_ids" => "#{products(:rose_design).id},#{products(:hoop_art).id}",
+            "product_ids" => "#{digital_product.id},#{products(:hoop_art).id}",
             "product_quantities" => {
-              products(:rose_design).id.to_s => 2,
+              digital_product.id.to_s => 2,
               products(:hoop_art).id.to_s => 1
             }.to_json
           }
@@ -47,9 +56,9 @@ class WebhooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "completed", order.status
     assert_equal 24.97, order.payment.amount.to_f
     assert_equal "pi_test_webhook_multi_item", order.payment.stripe_payment_id
-    assert_equal 2, order.order_items.find_by(product: products(:rose_design)).quantity
+    assert_equal 2, order.order_items.find_by(product: digital_product).quantity
     assert_equal 1, order.order_items.find_by(product: products(:hoop_art)).quantity
-    assert_equal [ products(:rose_design).id ], order.download_accesses.pluck(:product_id)
+    assert_equal [ digital_product.id ], order.download_accesses.pluck(:product_id)
   end
 
   private
