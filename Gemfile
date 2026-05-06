@@ -89,3 +89,5 @@ gem "cloudinary", "~> 2.4"
 gem "omniauth-google-oauth2", "~> 1.2"
 gem "omniauth-github", "~> 2.0"
 gem "aws-sdk-ses", "~> 1.97"
+
+gem "rack-attack", "~> 6.8"
