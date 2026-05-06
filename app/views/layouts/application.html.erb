@@ -35,7 +35,7 @@
             <details>
               <summary>Categories</summary>
               <ul class="p-2">
-                <% Category.all.each do |category| %>
+                <% Category.with_available_products.each do |category| %>
                   <li><%= link_to category.name, category_path(category) %></li>
                 <% end %>
               </ul>
@@ -79,7 +79,7 @@
           <details>
             <summary class="font-medium">Categories</summary>
             <ul class="p-2 rounded-t-none">
-              <% Category.all.each do |category| %>
+              <% Category.with_available_products.each do |category| %>
                 <li><%= link_to category.name, category_path(category), class: "block px-2 py-1" %></li>
               <% end %>
             </ul>
@@ -211,7 +211,7 @@
     <nav>
       <h6 class="footer-title">Shop</h6>
       <a class="link link-hover" href="<%= products_path %>">All Products</a>
-      <% Category.limit(4).each do |category| %>
+      <% Category.with_available_products.limit(4).each do |category| %>
         <a class="link link-hover" href="<%= category_path(category) %>"><%= category.name %></a>
       <% end %>
     </nav>
