@@ -166,7 +166,7 @@ Deployed to AWS ECS (EC2 launch type) behind an ALB at `gloriasembroideryshop.co
 - App images are built in GitHub Actions and pushed to ECR.
 - ECS runs the Rails container on port `3000` with dynamic host ports.
 - Production secrets are injected from AWS Secrets Manager.
-- Active Storage uses the `amazon` service and stores files in `shopzilla-dev-assets`.
+- Active Storage uses the `amazon` service and stores files in `shopzilla-prod-assets`.
 
 The current deployment reference lives in `docs/ecs_deployment.md`.
 

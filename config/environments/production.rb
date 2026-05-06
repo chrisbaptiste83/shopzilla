@@ -90,7 +90,8 @@ Rails.application.configure do
   # Enable DNS rebinding protection and other `Host` header attacks.
   config.hosts = [
     "gloriasembroideryshop.com",     # Allow requests from gloriasembroideryshop.com
-    /.*\.gloriasembroideryshop\.com/ # Allow requests from subdomains like `www.gloriasembroideryshop.com`
+    /.*\.gloriasembroideryshop\.com/, # Allow requests from subdomains like `www.gloriasembroideryshop.com`
+    "shopzilla-alb-1941235061.us-east-2.elb.amazonaws.com" # Allow requests from the AWS ALB DNS
   ]
   #
   # Skip DNS rebinding protection for the default health check endpoint.

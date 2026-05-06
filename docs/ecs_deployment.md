@@ -195,6 +195,9 @@ aws iam put-role-policy \
 
 ### 6. Create ECS Cluster
 
+The target Shopzilla cluster is named `shopzilla`. The previous shared cluster was named
+`default`; Shopzilla production traffic now runs from the dedicated `shopzilla` cluster.
+
 ```bash
 aws ecs create-cluster \
   --cluster-name shopzilla \
@@ -288,6 +291,9 @@ The `docker-entrypoint` script also runs `db:prepare` on each web container star
 ## Routine Deploys
 
 All routine deploys are automated via GitHub Actions:
+
+> Migration note: `.github/workflows/deploy.yml` now deploys to `ECS_CLUSTER=shopzilla`.
+> The old `default` cluster should not run the Shopzilla web service.
 
 1. Open a PR against `main`
 2. CI runs (tests, security scan, lint)

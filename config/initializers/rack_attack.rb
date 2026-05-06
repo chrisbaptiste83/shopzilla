@@ -4,7 +4,8 @@ class Rack::Attack
   end
 
   throttle("logins/email", limit: 5, period: 20.seconds) do |req|
-    if req.path == "/users/sign_in" and req.post?:
-        req.params.get("user", {}).get("email", "").lower().strip()
+    if req.path == "/users/sign_in" && req.post?
+      req.params.dig("user", "email").to_s.downcase.strip
+    end
   end
 end
