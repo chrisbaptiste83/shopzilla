@@ -83,3 +83,5 @@ gem "kaminari", "~> 1.2"
 
 # Cross-Origin Resource Sharing for the embroidery-store frontend
 gem "rack-cors"
+
+gem "cloudinary", "~> 2.4"
