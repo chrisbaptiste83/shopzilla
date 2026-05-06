@@ -1,23 +1,20 @@
-# Use SQLite for development and test
-sqlite: &sqlite
-  adapter: sqlite3
+default: &default
+  adapter: postgresql
+  encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  timeout: 5000
 
 development:
-  <<: *sqlite
-  database: storage/development.sqlite3
+  <<: *default
+  database: shopzilla_development
 
 test:
-  <<: *sqlite
-  database: storage/test.sqlite3
+  <<: *default
+  database: shopzilla_test
 
-# Use PostgreSQL for production
 production:
   primary: &primary_production
-    adapter: postgresql
+    <<: *default
     url: <%= ENV["DATABASE_URL"] %>
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
     prepared_statements: false
   cache:
     <<: *primary_production

@@ -491,13 +491,6 @@ GEM
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
-    sqlite3 (2.9.4-aarch64-linux-gnu)
-    sqlite3 (2.9.4-aarch64-linux-musl)
-    sqlite3 (2.9.4-arm-linux-gnu)
-    sqlite3 (2.9.4-arm-linux-musl)
-    sqlite3 (2.9.4-arm64-darwin)
-    sqlite3 (2.9.4-x86_64-linux-gnu)
-    sqlite3 (2.9.4-x86_64-linux-musl)
     sshkit (1.24.0)
       base64
       logger
@@ -586,7 +579,6 @@ DEPENDENCIES
   solid_cache
   solid_queue
   sprockets-rails (~> 3.5)
-  sqlite3 (~> 2.9)
   stimulus-rails
   stripe (~> 15.2)
   thruster
