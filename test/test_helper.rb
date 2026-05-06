@@ -2,6 +2,12 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
 require "bcrypt"
+require "fileutils"
+
+builds_path = Rails.root.join("app/assets/builds")
+FileUtils.mkdir_p(builds_path)
+File.write(builds_path.join("application.css"), "") unless builds_path.join("application.css").exist?
+File.write(builds_path.join("bundle.js"), "") unless builds_path.join("bundle.js").exist?
 
 module ActiveSupport
   class TestCase

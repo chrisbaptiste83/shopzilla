@@ -117,6 +117,6 @@ class CheckoutController < ApplicationController
     products.index_with do |product|
       quantity = params[:product_id].present? ? 1 : session.dig(:cart, product.id.to_s).to_i
       quantity.positive? ? quantity : 1
-    end.transform_keys(&:to_s)
+    end.transform_keys { |product| product.id.to_s }
   end
 end
