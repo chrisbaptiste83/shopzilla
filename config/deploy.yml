@@ -1,6 +1,6 @@
 # Kamal 2 deploy config — https://kamal-deploy.org
 service: shopzilla
-image: chrisbaptiste83/shopzilla
+image: 570823560193.dkr.ecr.us-east-2.amazonaws.com/shopzilla
 
 servers:
   web:
@@ -12,7 +12,8 @@ proxy:
   host: gloriasembroideryshop.com
 
 registry:
-  username: chrisbaptiste83
+  server: 570823560193.dkr.ecr.us-east-2.amazonaws.com
+  username: AWS
   password:
     - KAMAL_REGISTRY_PASSWORD
 
@@ -25,10 +26,18 @@ env:
     SOLID_QUEUE_IN_PUMA: true
     STRIPE_PUBLISHABLE_KEY: pk_live_51RpoJNRvD8xPSLFB5jDzQn6LOleyWHoc3ehv2h8ArfVZAIdG4sjBnS2DVfz7q9f49R9u1m4OB1gwlr9rfYSjhvdP00nV9YXhS4
     FRONTEND_URL: https://chrisbaptiste83.github.io
+    AWS_REGION: us-east-2
   secret:
     - RAILS_MASTER_KEY
     - DATABASE_URL
     - STRIPE_SECRET_KEY
+    - CLOUDINARY_URL
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - GOOGLE_CLIENT_ID
+    - GOOGLE_CLIENT_SECRET
+    - GITHUB_CLIENT_ID
+    - GITHUB_CLIENT_SECRET
 
 volumes:
   - shopzilla_storage:/rails/storage

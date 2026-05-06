@@ -85,3 +85,9 @@ gem "kaminari", "~> 1.2"
 gem "rack-cors"
 
 gem "cloudinary", "~> 2.4"
+
+gem "omniauth-google-oauth2", "~> 1.2"
+gem "omniauth-github", "~> 2.0"
+gem "aws-sdk-ses", "~> 1.97"
+
+gem "sqlite3", "~> 2.9", :groups => [:development, :test]
