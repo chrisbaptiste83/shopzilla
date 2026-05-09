@@ -94,15 +94,16 @@
   <div class="sz-divider my-4"></div>
 
   <% if @random_categories.any? %>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       <% @random_categories.each do |category| %>
-        <%= link_to category_path(category), class: "sz-category-card group" do %>
-          <div class="sz-category-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" style="color:#0f766e" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-            </svg>
-          </div>
-          <span class="text-sm font-semibold text-gray-700 group-hover:text-teal-700 transition-colors"><%= category.name %></span>
+        <%= link_to category_path(category), class: "group relative overflow-hidden rounded-2xl aspect-[4/3] block" do %>
+          <%= image_tag category_banner_image(category),
+                class: "absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105",
+                alt: category.name %>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent"></div>
+          <span class="absolute bottom-3 left-3 right-3 text-white font-bold text-sm leading-snug drop-shadow-sm">
+            <%= category.name %>
+          </span>
         <% end %>
       <% end %>
     </div>

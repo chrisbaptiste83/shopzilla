@@ -11,15 +11,21 @@
 <div class="max-w-4xl mx-auto mb-16 px-1">
 
   <!-- Story -->
-  <div class="sz-product-card p-8 mb-6">
-    <p class="sz-section-label mb-1">Welcome</p>
-    <h2 class="sz-section-title mb-5">About Gloria's Embroidery Shop</h2>
-    <p class="text-gray-600 leading-relaxed mb-4">
-      Welcome to Gloria's Embroidery Shop! We specialize in high-quality, downloadable embroidery files designed for professionals and hobbyists alike.
-    </p>
-    <p class="text-gray-500 leading-relaxed">
-      Our mission is to provide unique, creative, and affordable designs that help bring your stitching projects to life. Each design is crafted with care and tested to ensure the best results on your embroidery machine.
-    </p>
+  <div class="sz-product-card overflow-hidden mb-6">
+    <div class="relative h-56 sm:h-72">
+      <%= image_tag "categories/studio.jpg", class: "w-full h-full object-cover", alt: "Gloria's studio" %>
+      <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+    </div>
+    <div class="p-8">
+      <p class="sz-section-label mb-1">Welcome</p>
+      <h2 class="sz-section-title mb-5">About Gloria's Embroidery Shop</h2>
+      <p class="text-gray-600 leading-relaxed mb-4">
+        Welcome to Gloria's Embroidery Shop! We specialize in high-quality, downloadable embroidery files designed for professionals and hobbyists alike.
+      </p>
+      <p class="text-gray-500 leading-relaxed">
+        Our mission is to provide unique, creative, and affordable designs that help bring your stitching projects to life. Each design is crafted with care and tested to ensure the best results on your embroidery machine.
+      </p>
+    </div>
   </div>
 
   <!-- Values -->
