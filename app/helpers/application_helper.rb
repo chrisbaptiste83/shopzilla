@@ -16,7 +16,7 @@ module ApplicationHelper
     [ /holiday|christmas|seasonal/i, "categories/holiday.jpg"     ],
     [ /baby|nursery/i,             "categories/baby.jpg"          ],
     [ /floral.+nature|nature.+floral/i, "categories/floral_nature.jpg" ],
-    [ /floral|flower|botanical/i,  "categories/floral.jpg"        ],
+    [ /floral|flower|botanical/i,  "categories/floral.jpg"        ]
   ].freeze
 
   def category_banner_image(category)
