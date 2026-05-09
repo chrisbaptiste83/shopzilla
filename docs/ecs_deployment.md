@@ -389,7 +389,7 @@ aws ecs update-service \
 
 Completed:
 
-- migrated from Kamal/Docker Hub to ECS EC2 + ECR deployment
+- deployed on ECS EC2 + ECR via GitHub Actions
 - removed stored AWS credentials from `storage.yml` — ECS EC2 instance IAM role provides S3 access automatically
 - updated `config/environments/production.rb` to use `ACTIVE_STORAGE_SERVICE` env var (was hardcoded `:local`)
 - updated `config/storage.yml` bucket from `embroidery-files-667` to `shopzilla-prod-assets`

@@ -29,7 +29,7 @@
 
 ## 1. Executive Summary
 
-This document describes the cloud security architecture implemented during the migration of the Shopzilla Rails application from a single-server Kamal deployment to AWS Elastic Container Service (ECS) with an EC2 launch type. The migration introduced significant security improvements across five domains: identity and access management, secrets handling, network isolation, container hardening, and CI/CD pipeline integrity.
+This document describes the cloud security architecture implemented during the Shopzilla Rails application deployed on AWS Elastic Container Service (ECS) with an EC2 launch type. The migration introduced significant security improvements across five domains: identity and access management, secrets handling, network isolation, container hardening, and CI/CD pipeline integrity.
 
 The central security principle guiding all design decisions was **defense in depth** — no single control is relied upon exclusively, and the compromise of any one layer does not result in total system compromise.
 
