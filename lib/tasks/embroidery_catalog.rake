@@ -48,6 +48,7 @@ namespace :embroidery_catalog do
     require_preview = ActiveModel::Type::Boolean.new.cast(ENV.fetch("REQUIRE_PREVIEW", "false"))
     ready_only = ActiveModel::Type::Boolean.new.cast(ENV.fetch("READY_ONLY", "true"))
     overwrite = ActiveModel::Type::Boolean.new.cast(ENV.fetch("OVERWRITE", "false"))
+    render_previews = ActiveModel::Type::Boolean.new.cast(ENV.fetch("RENDER_PREVIEWS", "true"))
 
     result = Embroidery::PackageBuilder.new(
       root: source_root,
@@ -55,7 +56,8 @@ namespace :embroidery_catalog do
       limit: limit,
       require_preview: require_preview,
       ready_only: ready_only,
-      overwrite: overwrite
+      overwrite: overwrite,
+      render_previews: render_previews
     ).call
 
     puts "Embroidery catalog package complete"
@@ -66,6 +68,43 @@ namespace :embroidery_catalog do
     puts "  Skipped products: #{result.summary[:skipped_products]}"
     puts "  Issues: #{result.summary[:issue_count]}"
     puts "  Manifest: #{out_dir.join("manifest.json")}"
+  end
+
+  desc "Render product preview images from PES files directly into an existing package directory"
+  task render_previews: :environment do
+    manifest_path = ENV["MANIFEST_PATH"]
+    raise "MANIFEST_PATH is required" if manifest_path.blank?
+
+    manifest = JSON.parse(File.read(manifest_path))
+    out_dir   = Pathname.new(File.dirname(manifest_path))
+    products  = manifest["packaged_products"] || []
+
+    rendered = 0
+    failed   = 0
+
+    products.each do |product|
+      pes_file = (product["embroidery_files"] || []).find { |f| f["filename"]&.downcase&.end_with?(".pes") }
+      next unless pes_file
+
+      source_root = manifest["source_root"]
+      pes_path    = File.join(source_root, pes_file["source_relative_path"] || "")
+      next unless File.exist?(pes_path)
+
+      prefix      = product["proposed_s3_prefix"]
+      s3_key      = File.join(prefix, "preview", "01-preview.png")
+      output_path = out_dir.join(s3_key)
+
+      begin
+        Embroidery::PreviewRenderer.new(pes_path: pes_path, output_path: output_path).call
+        rendered += 1
+        puts "  rendered: #{s3_key}"
+      rescue => error
+        failed += 1
+        warn "  FAILED #{s3_key}: #{error.message}"
+      end
+    end
+
+    puts "Render previews complete: #{rendered} rendered, #{failed} failed"
   end
 
   desc "Delete packaged source directories from a reviewed package manifest; defaults to DRY_RUN=true"

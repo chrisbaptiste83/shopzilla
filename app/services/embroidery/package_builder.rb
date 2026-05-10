@@ -25,13 +25,14 @@ module Embroidery
       end
     end
 
-    def initialize(root:, out_dir:, limit: nil, require_preview: false, ready_only: true, overwrite: false)
+    def initialize(root:, out_dir:, limit: nil, require_preview: false, ready_only: true, overwrite: false, render_previews: true)
       @root = Pathname.new(root).expand_path
       @out_dir = Pathname.new(out_dir).expand_path
       @limit = limit
       @require_preview = require_preview
       @ready_only = ready_only
       @overwrite = overwrite
+      @render_previews = render_previews
     end
 
     def call
@@ -90,13 +91,40 @@ module Embroidery
 
     def package_product(product)
       copy_assets(product[:embroidery_files])
-      copy_assets(product[:preview_images])
-      write_metadata(product)
+      preview_images = build_preview_images(product)
+      write_metadata(product.merge(preview_images: preview_images))
 
       product.merge(
+        preview_images: preview_images,
         packaged_at: Time.current.iso8601,
-        packaged_file_count: product[:embroidery_files].size + product[:preview_images].size + 1
+        packaged_file_count: product[:embroidery_files].size + preview_images.size + 1
       )
+    end
+
+    def build_preview_images(product)
+      return copy_preview_assets(product[:preview_images]) unless @render_previews
+
+      pes_file = product[:embroidery_files].find { |f| f[:filename].downcase.end_with?(".pes") }
+      return copy_preview_assets(product[:preview_images]) if pes_file.nil?
+
+      render_preview(product, pes_file)
+    rescue => error
+      Rails.logger.warn("PreviewRenderer failed for #{product[:source_relative_path]}: #{error.message} — falling back to bundled images")
+      copy_preview_assets(product[:preview_images])
+    end
+
+    def render_preview(product, pes_file)
+      pes_path     = @root.join(pes_file[:source_relative_path])
+      s3_key       = File.join(product[:proposed_s3_prefix], "preview", "01-preview.png")
+      output_path  = @out_dir.join(s3_key)
+
+      result = PreviewRenderer.new(pes_path: pes_path, output_path: output_path).call
+      [ result.merge(proposed_s3_key: s3_key) ]
+    end
+
+    def copy_preview_assets(preview_images)
+      copy_assets(preview_images)
+      preview_images
     end
 
     def copy_assets(files)

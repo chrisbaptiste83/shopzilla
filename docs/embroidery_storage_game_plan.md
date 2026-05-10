@@ -1,6 +1,6 @@
 # Embroidery Storage Redesign Game Plan
 
-Last updated: 2026-04-30
+Last updated: 2026-05-10
 Owner: Codex + Claude Code working sessions
 
 ## Purpose
@@ -52,7 +52,7 @@ Each importable design should become one normalized product unit with:
 - design name
 - size
 - one canonical embroidery file payload
-- zero to two preview images
+- one high-quality rendered preview image (generated from the PES file)
 - optional metadata such as stitch count
 
 ### Purchase and delivery
@@ -73,8 +73,7 @@ Proposed contents:
 
 ```text
 embroidery/<category>/<design>/<size>/download/01-original-file.pes
-embroidery/<category>/<design>/<size>/preview/01-cover.jpg
-embroidery/<category>/<design>/<size>/preview/02-alt.jpg
+embroidery/<category>/<design>/<size>/preview/01-preview.png     ← rendered from PES (not a bundled image)
 embroidery/<category>/<design>/<size>/metadata.json
 ```
 
@@ -85,77 +84,60 @@ Why this layout:
 - easy to diff against a manifest
 - avoids dumping thousands of unrelated files into one prefix
 
+## Preview Image Generation
+
+As of 2026-05-10, the pipeline renders product preview images directly from the PES embroidery file rather than copying the low-quality bundled PNGs that come with the source directories.
+
+### How it works
+
+`bin/render_embroidery_preview.py` (called by `Embroidery::PreviewRenderer`) uses:
+
+- `pyembroidery` — parses the PES file, extracts thread color list and stitch coordinates
+- `Pillow` — renders stitches as colored line segments on a gray canvas at 3× resolution, then downscales (LANCZOS) for anti-aliasing
+
+Output per design: a single `955×778px` PNG with:
+
+- **Design area** — stitches drawn in their actual thread colors on a `#525252` gray background
+- **Right panel** — Brother thread color swatches with name and catalog number (e.g. `1. Lime Green (519)`)
+- **Bottom bar** — filename, dimensions in mm, stitch count, jump count, color count
+
+Rendering is the default behavior (`render_previews: true`). If rendering fails for any design, the packager falls back to copying the bundled source PNG and logs a warning.
+
+### Opting out
+
+```bash
+# Skip rendering, copy bundled source PNGs instead
+bin/rails embroidery_catalog:package SOURCE_ROOT=... OUT_DIR=... RENDER_PREVIEWS=false
+```
+
 ## Migration Strategy
 
-### Phase 1: Audit a small batch
+### Phase 1: Audit and package ✅
 
 Goal:
 Turn a chosen raw folder subset into a reviewed manifest before any migration work touches the live catalog.
 
-Deliverables across sessions:
+Deliverables (all complete):
 
-- `Embroidery::CatalogAuditor` — `rake embroidery_catalog:audit`
-- `Embroidery::PackageBuilder` — `rake embroidery_catalog:package`
-- `Embroidery::CatalogImporter` — `rake embroidery_catalog:import`
-- `Embroidery::SourceCleanup` — `rake embroidery_catalog:cleanup`
-- `Embroidery::S3Uploader` — `rake embroidery_catalog:upload`
-- `rake active_storage:s3:migrate` and `rake active_storage:s3:verify`
+| Service | Rake task |
+|---|---|
+| `Embroidery::CatalogAuditor` | `embroidery_catalog:audit` |
+| `Embroidery::PackageBuilder` | `embroidery_catalog:package` |
+| `Embroidery::PreviewRenderer` | (called by package; standalone via `embroidery_catalog:render_previews`) |
+| `Embroidery::CatalogImporter` | `embroidery_catalog:import` |
+| `Embroidery::SourceCleanup` | `embroidery_catalog:cleanup` |
+| `Embroidery::S3Uploader` | `embroidery_catalog:upload` |
+| — | `active_storage:s3:migrate` |
+| — | `active_storage:s3:verify` |
 
-What it does:
+What the audit does:
 
 - scans folders in `<category>/<size>/<design>` form
 - identifies embroidery files and preview images
 - normalizes slugs and human-readable titles
 - proposes deterministic S3 keys
 - exports JSON and CSV for review
-- flags obvious issues:
-  - missing embroidery files
-  - missing preview images when required
-  - duplicate normalized S3 prefixes
-
-Example run:
-
-```bash
-cd shopzilla
-bin/rails embroidery_catalog:audit SOURCE_ROOT=/absolute/path/to/sample_batch LIMIT=50
-```
-
-Optional strict preview requirement:
-
-```bash
-bin/rails embroidery_catalog:audit SOURCE_ROOT=/absolute/path/to/sample_batch REQUIRE_PREVIEW=true
-```
-
-Default output directory:
-
-```text
-shopzilla/tmp/embroidery_catalog_audit
-```
-
-Generated files:
-
-- `manifest.json`
-- `products.csv`
-- `issues.csv`
-
-Packaging flow now available:
-
-```bash
-bin/rails embroidery_catalog:package SOURCE_ROOT=/absolute/path/to/sample_batch OUT_DIR=/absolute/path/to/package_dir
-```
-
-Cleanup defaults to dry run and requires an explicit delete confirmation:
-
-```bash
-bin/rails embroidery_catalog:cleanup MANIFEST_PATH=/absolute/path/to/package_dir/manifest.json
-bin/rails embroidery_catalog:cleanup MANIFEST_PATH=/absolute/path/to/package_dir/manifest.json DRY_RUN=false CONFIRM=DELETE
-```
-
-Import from the reviewed package into Rails and Active Storage:
-
-```bash
-bin/rails embroidery_catalog:import MANIFEST_PATH=/absolute/path/to/package_dir/manifest.json IMPORT_PRICE_CENTS=500
-```
+- flags obvious issues: missing embroidery files, missing previews (when required), duplicate normalized S3 prefixes
 
 ### Phase 2: Curate and fix the sample batch
 
@@ -170,7 +152,7 @@ For the first batch only:
 
 After the manifest is reviewed:
 
-- build the reviewed package directory with deterministic keys
+- build the reviewed package directory with deterministic keys (previews rendered from PES)
 - import only from the reviewed package manifest
 - let Active Storage write the attached bytes to the currently configured storage service
 - verify downloads work through Rails and Active Storage against S3 once the service is switched
@@ -182,6 +164,57 @@ After the small batch proves out:
 - remove success-page download creation logic based on Stripe line items
 - make webhook-created order/download records the canonical source
 - keep the reviewed manifest as the only import contract instead of raw server directories
+
+## Command Reference
+
+```bash
+# Audit a batch
+bin/rails embroidery_catalog:audit \
+  "SOURCE_ROOT=/Users/christopherbaptiste/Desktop/Embroidery Files/Embroidery Catalog/Bundles" \
+  LIMIT=20 OUT_DIR=tmp/embroidery_audit_sample
+
+# Package with rendered previews (default)
+bin/rails embroidery_catalog:package \
+  "SOURCE_ROOT=/Users/christopherbaptiste/Desktop/Embroidery Files/Embroidery Catalog/Bundles" \
+  LIMIT=20 OUT_DIR=tmp/embroidery_package_v3 READY_ONLY=true
+
+# Package without rendering (copy bundled PNGs)
+bin/rails embroidery_catalog:package \
+  "SOURCE_ROOT=..." OUT_DIR=... RENDER_PREVIEWS=false
+
+# Re-render previews into an existing package
+bin/rails embroidery_catalog:render_previews \
+  MANIFEST_PATH=tmp/embroidery_package_v3/manifest.json
+
+# Upload dry-run
+bin/rails embroidery_catalog:upload \
+  MANIFEST_PATH=tmp/embroidery_package_v3/manifest.json DRY_RUN=true
+
+# Live upload to dev
+bin/rails embroidery_catalog:upload \
+  MANIFEST_PATH=tmp/embroidery_package_v3/manifest.json DRY_RUN=false \
+  S3_BUCKET=shopzilla-dev-assets
+
+# Live upload to prod
+bin/rails embroidery_catalog:upload \
+  MANIFEST_PATH=tmp/embroidery_package_v3/manifest.json DRY_RUN=false \
+  S3_BUCKET=shopzilla-prod-assets
+
+# Import into Rails DB + ActiveStorage
+bin/rails embroidery_catalog:import \
+  MANIFEST_PATH=tmp/embroidery_package_v3/manifest.json IMPORT_PRICE_CENTS=500
+
+# Migrate existing ActiveStorage blobs to S3
+bin/rails active_storage:s3:migrate DRY_RUN=1 LIMIT=500
+bin/rails active_storage:s3:migrate LIMIT=2000
+bin/rails active_storage:s3:verify
+
+# Cleanup source dirs (after import confirmed good)
+bin/rails embroidery_catalog:cleanup \
+  MANIFEST_PATH=tmp/embroidery_package_v3/manifest.json
+bin/rails embroidery_catalog:cleanup \
+  MANIFEST_PATH=tmp/embroidery_package_v3/manifest.json DRY_RUN=false CONFIRM=DELETE
+```
 
 ## Work Log
 
@@ -219,74 +252,67 @@ Observed blocker:
 
 Completed (Claude Code continuation — annotation session):
 
-- resolved the bundle blocker: ran `bundle install` to completion (159 gems now installed including rails 8.0.5 and pg 1.6.3)
-- confirmed source catalog structure at `/Users/christopherbaptiste/Desktop/Embroidery Catalog/Bundles`:
-  - 55 top-level category directories
-  - layout confirmed as `<category>/<size>/<design>` matching the auditor's expected depth
-- ran the first live execution of `embroidery_catalog:audit` against the full Bundles root, LIMIT=20:
-  - `bin/rails embroidery_catalog:audit SOURCE_ROOT="…/Bundles" LIMIT=20 OUT_DIR=tmp/embroidery_audit_sample`
-  - scanned 20 products, all 20 status=ready
-  - 5 issues flagged — all `duplicate_s3_prefix` type:
-    - `animals/4x4/Bird`, `Bird__2`, `Bird__3` → all collapse to `embroidery/animals/bird/4x4`
-    - `animals/10x14/Eo 181 F Here A Chicken There A Chicken__13` and `__20` → same prefix
-  - 0 missing embroidery files, 0 missing previews, 0 invalid metadata
-  - output at `tmp/embroidery_audit_sample/` (manifest.json, products.csv, issues.csv)
-- ran `embroidery_catalog:package` against the same sample:
-  - `bin/rails embroidery_catalog:package SOURCE_ROOT="…/Bundles" LIMIT=20 OUT_DIR=tmp/embroidery_package_sample READY_ONLY=true`
-  - 20 products packaged, 0 skipped, 72 total files
-  - S3-layout directory written to `tmp/embroidery_package_sample/`
-  - each design slot has `download/<n>-<filename>.pes` and `preview/<n>-<image>` plus `metadata.json`
-  - duplicate prefix designs (Bird variants, Eo 181 duplicates) all landed in same S3 prefix — last-write-wins; those slots need manual curation before S3 upload
+- resolved the bundle blocker: ran `bundle install` to completion (159 gems)
+- confirmed source catalog structure: 55 top-level category directories
+- ran first live `embroidery_catalog:audit` (LIMIT=20): 20 ready, 5 `duplicate_s3_prefix` issues
+- ran `embroidery_catalog:package` (LIMIT=20): 20 packaged, 72 files → `tmp/embroidery_package_sample/`
 
-Known issues in this batch requiring human review before Phase 3:
-
-- `embroidery/animals/bird/4x4` — three source folders (`Bird`, `Bird__2`, `Bird__3`) map to one prefix; need to decide which is canonical or create distinct slugs
-- `embroidery/animals/eo-181-f-here-a-chicken-there-a-chicken/10x14` — two numbered variants (`__13`, `__20`) collapse to one prefix; same decision needed
-
-Known issues in `tmp/embroidery_package_v2` (resolved via duplicate-skip fix):
-
-- `Bird`, `Bird__2`, `Bird__3` → only `Bird` packaged; `Bird__2` and `Bird__3` skipped with reason `duplicate_s3_prefix`
-- `Eo 181 F…__13` and `__20` → only `__13` packaged; `__20` skipped
-
-### 2026-04-30 (second pass — Claude Code continued)
+### 2026-04-30 (second pass)
 
 Completed:
 
-- fixed `Embroidery::PackageBuilder` to track seen S3 prefixes and skip duplicates (first occurrence wins, rest go to `skipped_products` with reason `duplicate_s3_prefix`)
-- built `Embroidery::S3Uploader`:
-  - reads `packaged_products` from the package manifest
-  - collects embroidery files, preview images, and `metadata.json` for each product
-  - uploads each file to S3 under the exact `proposed_s3_key` path
-  - supports `DRY_RUN=true` (default), `OVERWRITE=false` (skips existing keys), and server-side encryption (`AES256`)
-  - writes `upload_report.json` beside the manifest
-  - reads bucket and region from `config/storage.yml` automatically, or accepts `S3_BUCKET=` / `S3_REGION=` overrides
-- added `rake embroidery_catalog:upload` task wrapping S3Uploader
-- added `rake active_storage:s3:migrate` and `rake active_storage:s3:verify` tasks for migrating existing ActiveStorage blobs to S3 post-import
-- enabled `local_mirror_s3` service in `config/storage.yml` (primary: local, mirrors: [amazon]) for the mirror-mode cutover phase
-- re-ran package with `OUT_DIR=tmp/embroidery_package_v2`: 17 packaged, 3 skipped (duplicate prefixes correctly excluded)
-- ran `embroidery_catalog:upload DRY_RUN=true` against v2 manifest: 68 files, 3.63 MB, bucket `embroidery-files-667`, 0 errors
-- current agreed bucket for this pipeline is `shopzilla-dev-assets`; any future dry runs or live uploads should target that bucket instead of `embroidery-files-667`
+- fixed `PackageBuilder` duplicate handling: first-occurrence-wins using `Set`
+- built `Embroidery::S3Uploader` with AES256 SSE, dry-run, overwrite check, `upload_report.json`
+- added `rake embroidery_catalog:upload`, `rake active_storage:s3:migrate`, `rake active_storage:s3:verify`
+- enabled `local_mirror_s3` in `config/storage.yml`
+- re-ran package → `tmp/embroidery_package_v2/`: 17 packaged, 3 skipped (duplicate prefixes excluded)
+- dry-run upload: 68 files, 3.63 MB, 0 errors ✅
 
-S3 upload format (the canonical key shape written to S3):
+### 2026-05-04
 
-```text
-embroidery/<category-slug>/<design-slug>/<size-slug>/download/01-<filename>.pes
-embroidery/<category-slug>/<design-slug>/<size-slug>/preview/01-<image>.png
-embroidery/<category-slug>/<design-slug>/<size-slug>/preview/02-<image>_grid.png
-embroidery/<category-slug>/<design-slug>/<size-slug>/metadata.json
-```
+Completed:
 
-All upload keys are stable and deterministic — derived from the normalized slug pipeline in `CatalogAuditor`.
+- import run: 17/17 products updated in dev DB, 0 errors ✅ (`tmp/embroidery_package_v2/import_report.json`)
+- live upload blocked: `embroidery-files-667` bucket no longer exists
 
-Next recommended step:
+### 2026-05-09
 
-- run the full pipeline end-to-end on the dev database:
-  1. `bin/rails embroidery_catalog:import MANIFEST_PATH=tmp/embroidery_package_v2/manifest.json IMPORT_PRICE_CENTS=500`
-  2. verify products and attachments in Rails dev DB
-  3. when credentials are available: `bin/rails embroidery_catalog:upload MANIFEST_PATH=tmp/embroidery_package_v2/manifest.json DRY_RUN=false`
-  4. verify with `bin/rails active_storage:s3:verify LIMIT=100`
-- scale up: run audit + package on the full 55-category Bundles root, resolve any new duplicate prefix issues found, then import + upload in batches
-- cutover production: deploy with `ACTIVE_STORAGE_SERVICE=local_mirror_s3`, run `active_storage:s3:migrate`, verify, then switch to `ACTIVE_STORAGE_SERVICE=amazon`
+Completed:
+
+- confirmed active buckets: `shopzilla-dev-assets`, `shopzilla-prod-assets`
+- dev upload succeeded: 68/68 files, 3.63 MB → `s3://shopzilla-dev-assets/embroidery/` ✅
+
+### 2026-05-10 — Preview rendering
+
+Problem: bundled source PNGs are mostly black-and-white sketches with no thread color information.
+Goal: generate StitchMaster Pro-style renders (colored stitches on gray background, thread panel, metadata bar) from the PES files directly.
+
+Completed:
+
+- built `bin/render_embroidery_preview.py`:
+  - reads PES with `pyembroidery`; renders stitch segments in actual thread colors (3× canvas, LANCZOS downscale)
+  - composites: design area on gray bg | right panel with color swatches + thread name + catalog number | bottom bar with filename, mm size, stitch count
+  - outputs `955×778px` PNG
+  - system deps already present: `pyembroidery 1.5.1`, `Pillow 12.1.1`, Python 3.14.4
+- built `app/services/embroidery/preview_renderer.rb`: Ruby service that shells to the Python script; raises on non-zero exit; returns file metadata hash
+- updated `Embroidery::PackageBuilder`:
+  - new option `render_previews: true` (default)
+  - renders from PES file → `preview/01-preview.png` in the output package
+  - falls back to copying bundled source PNG on any render error
+- updated `lib/tasks/embroidery_catalog.rake`:
+  - `package` task gains `RENDER_PREVIEWS=true/false` env var
+  - new `render_previews` task: re-renders previews into an existing package from its manifest
+- updated `test/services/embroidery/package_builder_test.rb`:
+  - existing tests now explicit with `render_previews: false`
+  - new test validates real render against a live PES file (skipped if source unavailable)
+- live test: 5 designs packaged, all 5 previews rendered successfully
+
+All 3 PackageBuilder tests pass ✅
+
+Next steps:
+
+1. Scale to full 55-category Bundles catalog: audit → review issues → package (with rendering) → upload to `shopzilla-dev-assets`
+2. Production cutover: upload to `shopzilla-prod-assets`, deploy mirror service, migrate, verify, switch
 
 ## Decision Record
 
@@ -304,3 +330,11 @@ Reason:
 
 - Direct purchase downloads already fit the current app shape reasonably well through `DownloadAccess` and Active Storage.
 - The immediate failure is not the existence of Active Storage. The failure is the lack of an explicit catalog normalization layer.
+
+### Decision: Render previews from PES, not bundled images
+
+Reason:
+
+- Bundled PNGs vary wildly in quality; most are monochrome sketches with no color information.
+- Rendering directly from the PES file via `pyembroidery` produces consistent, color-accurate previews across all designs.
+- The render also encodes thread metadata (color name, catalog number) and design dimensions, which are useful to customers before purchase.

@@ -20,7 +20,7 @@ class Embroidery::PackageBuilderTest < ActiveSupport::TestCase
     File.binwrite(design_dir.join("preview.jpg"), "image-binary")
     File.write(design_dir.join("metadata.json"), JSON.generate({ stitch_count: 8123, notes: "sample" }))
 
-    result = Embroidery::PackageBuilder.new(root: @tmp_root, out_dir: @out_dir).call
+    result = Embroidery::PackageBuilder.new(root: @tmp_root, out_dir: @out_dir, render_previews: false).call
 
     assert_equal 1, result.summary[:packaged_products]
     assert @out_dir.join("embroidery/floral-bundle/rose-design/4x4/download/01-rose.pes").file?
@@ -38,10 +38,33 @@ class Embroidery::PackageBuilderTest < ActiveSupport::TestCase
     FileUtils.mkdir_p(design_dir)
     File.binwrite(design_dir.join("preview.png"), "image-binary")
 
-    result = Embroidery::PackageBuilder.new(root: @tmp_root, out_dir: @out_dir).call
+    result = Embroidery::PackageBuilder.new(root: @tmp_root, out_dir: @out_dir, render_previews: false).call
 
     assert_equal 0, result.summary[:packaged_products]
     assert_equal 1, result.summary[:skipped_products]
     refute @out_dir.join("embroidery").exist?
+  end
+
+  test "renders preview from PES when render_previews is true" do
+    pes_src = Dir.glob(
+      File.join(
+        "/Users/christopherbaptiste/Desktop/Embroidery Files/Embroidery Catalog/Bundles",
+        "**", "*.pes"
+      )
+    ).first
+
+    skip "No PES source available for render test" if pes_src.nil?
+
+    design_dir = @tmp_root.join("test_cat", "4x4", "test_design")
+    FileUtils.mkdir_p(design_dir)
+    FileUtils.cp(pes_src, design_dir.join("design.pes"))
+    File.write(design_dir.join("metadata.json"), JSON.generate({ stitch_count: 100 }))
+
+    result = Embroidery::PackageBuilder.new(root: @tmp_root, out_dir: @out_dir, render_previews: true).call
+
+    assert_equal 1, result.summary[:packaged_products]
+    rendered = @out_dir.join("embroidery/test-cat/test-design/4x4/preview/01-preview.png")
+    assert rendered.file?, "expected rendered preview at #{rendered}"
+    assert rendered.size > 10_000, "rendered PNG should be a real image (>10KB)"
   end
 end
