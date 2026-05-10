@@ -57,7 +57,7 @@
         <%= link_to product_path(product) do %>
           <div class="relative overflow-hidden rounded-xl bg-base-200 mb-3">
             <% if product.images.attached? %>
-              <% _ik = imagekit_url(product.images.first, width: 600, height: 600, format: "auto", quality: 80) %>
+              <% _ik = imagekit_url(product.images.first, width: 600, height: 600, crop: "at_max", format: "auto", quality: 80, sharpen: 30) %>
               <%= image_tag(_ik || product.images.first.variant(resize_to_limit: [600, 600]),
                     class: "w-full h-48 object-contain group-hover:scale-105 transition-transform duration-300") %>
             <% else %>

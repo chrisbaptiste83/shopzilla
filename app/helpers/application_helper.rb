@@ -39,11 +39,12 @@ module ApplicationHelper
 
     tr = transforms.map do |k, v|
       case k
-      when :width  then "w-#{v}"
-      when :height then "h-#{v}"
+      when :width   then "w-#{v}"
+      when :height  then "h-#{v}"
       when :quality then "q-#{v}"
-      when :format then "f-#{v}"
-      when :crop   then "c-#{v}"
+      when :format  then "f-#{v}"
+      when :crop    then "c-#{v}"
+      when :sharpen then "e-sharpen-#{v}"
       else "#{k}-#{v}"
       end
     end.join(",")

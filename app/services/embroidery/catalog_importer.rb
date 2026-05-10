@@ -93,9 +93,16 @@ module Embroidery
       path = package_root.join(file_entry.fetch(:proposed_s3_key))
       raise ArgumentError, "missing packaged embroidery file: #{path}" unless path.file?
 
-      record.embroidery_file.purge if @overwrite_attachments && record.embroidery_file.attached?
-      blob = build_blob(path, file_entry, destination_key_for(file_entry, kind: :download))
-      record.embroidery_file.attach(blob)
+      destination_key = destination_key_for(file_entry, kind: :download)
+
+      # Only purge the existing attachment when the S3 key is actually changing.
+      # If the key is the same the file content hasn't changed — reuse the blob.
+      if @overwrite_attachments && record.embroidery_file.attached?
+        record.embroidery_file.purge if record.embroidery_file.blob.key != destination_key
+      end
+
+      blob = find_or_build_blob(path, file_entry, destination_key)
+      record.embroidery_file.attach(blob) unless record.embroidery_file.blob&.key == destination_key
     end
 
     def replace_preview_attachments(record, files)
@@ -106,12 +113,15 @@ module Embroidery
         path = package_root.join(file_entry.fetch(:proposed_s3_key))
         raise ArgumentError, "missing packaged preview image: #{path}" unless path.file?
 
-        blob = build_blob(path, file_entry, destination_key_for(file_entry, kind: :preview))
+        blob = find_or_build_blob(path, file_entry, destination_key_for(file_entry, kind: :preview))
         record.images.attach(blob)
       end
     end
 
-    def build_blob(path, file_entry, destination_key)
+    def find_or_build_blob(path, file_entry, destination_key)
+      existing = ActiveStorage::Blob.find_by(key: destination_key)
+      return existing if existing.present?
+
       path.open("rb") do |io|
         ActiveStorage::Blob.create_and_upload!(
           key: destination_key,
