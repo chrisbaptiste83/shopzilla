@@ -55,7 +55,7 @@
               <li><%= link_to "Admin Panel", admin_root_path if defined?(admin_root_path) %></li>
             <% end %>
             <li class="mt-2">
-              <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
+              <%= form_with url: destroy_user_session_path, method: :delete, data: { turbo: false } do %>
                 <%= button_tag "Logout", type: "submit", class: "btn btn-ghost btn-sm text-error w-full text-left" %>
               <% end %>
             </li>
@@ -174,7 +174,7 @@
             <li><%= link_to "Downloads", dashboard_downloads_path %></li>
             <li><%= link_to "Wishlist", dashboard_wishlist_path %></li>
             <li>
-              <%= form_with url: destroy_user_session_path, method: :delete, local: true do %>
+              <%= form_with url: destroy_user_session_path, method: :delete, data: { turbo: false } do %>
                 <%= button_tag "Logout", type: "submit", class: "btn btn-ghost text-error w-full text-left" %>
               <% end %>
             </li>
