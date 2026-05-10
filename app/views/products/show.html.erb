@@ -12,9 +12,10 @@
   <!-- Product Images -->
   <div data-controller="product-gallery">
     <% if @product.images.attached? %>
-      <%= image_tag @product.images.first.variant(resize_to_limit: [1200, 1200]),
+      <% _ik_main = imagekit_url(@product.images.first, width: 1200, height: 1200, format: "auto", quality: 85) %>
+      <%= image_tag(_ik_main || @product.images.first.variant(resize_to_limit: [1200, 1200]),
             class: "rounded-2xl w-full h-96 object-contain bg-base-200",
-            data: { product_gallery_target: "mainImage" } %>
+            data: { product_gallery_target: "mainImage" }) %>
     <% else %>
       <div class="rounded-2xl w-full h-96 bg-base-200 flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -27,13 +28,16 @@
     <% if @product.images.attached? && @product.images.count > 1 %>
       <div class="grid grid-cols-5 gap-2 mt-3">
         <% @product.images.each do |image| %>
-          <%= image_tag image.variant(resize_to_limit: [200, 200]),
+          <% _ik_thumb = imagekit_url(image, width: 200, height: 200, format: "auto", quality: 80) %>
+          <% _ik_full  = imagekit_url(image, width: 1200, height: 1200, format: "auto", quality: 85) ||
+                           url_for(image.variant(resize_to_limit: [1200, 1200])) %>
+          <%= image_tag(_ik_thumb || image.variant(resize_to_limit: [200, 200]),
                 class: "rounded-lg w-full h-16 object-contain bg-base-200 cursor-pointer opacity-50 hover:opacity-100 transition-opacity",
                 data: {
                   action: "click->product-gallery#select",
-                  product_gallery_full_src: url_for(image.variant(resize_to_limit: [1200, 1200])),
+                  product_gallery_full_src: _ik_full,
                   product_gallery_target: "thumbnail"
-                } %>
+                }) %>
         <% end %>
       </div>
     <% end %>
@@ -147,7 +151,8 @@
       <% related_products.each do |related| %>
         <%= link_to product_path(related), class: "group block" do %>
           <% if related.images.attached? %>
-            <%= image_tag related.images.first, class: "rounded-xl w-full h-36 object-contain bg-base-200 group-hover:opacity-80 transition-opacity mb-3" %>
+            <% _ik_rel = imagekit_url(related.images.first, width: 400, height: 400, format: "auto", quality: 80) %>
+            <%= image_tag(_ik_rel || related.images.first, class: "rounded-xl w-full h-36 object-contain bg-base-200 group-hover:opacity-80 transition-opacity mb-3") %>
           <% else %>
             <div class="rounded-xl w-full h-36 bg-base-200 mb-3"></div>
           <% end %>

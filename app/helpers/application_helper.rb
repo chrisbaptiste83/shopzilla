@@ -24,4 +24,31 @@ module ApplicationHelper
     matched = CATEGORY_IMAGE_MAP.find { |pattern, _| name.match?(pattern) }
     matched ? matched[1] : "categories/hero.jpg"
   end
+
+  def imagekit_url(blob_or_attachment, transforms = {})
+    endpoint = ENV.fetch("IMAGEKIT_URL_ENDPOINT", nil)
+    return nil unless endpoint
+
+    key = if blob_or_attachment.respond_to?(:blob)
+      blob_or_attachment.blob.key
+    elsif blob_or_attachment.respond_to?(:key)
+      blob_or_attachment.key
+    else
+      blob_or_attachment.to_s
+    end
+
+    tr = transforms.map do |k, v|
+      case k
+      when :width  then "w-#{v}"
+      when :height then "h-#{v}"
+      when :quality then "q-#{v}"
+      when :format then "f-#{v}"
+      when :crop   then "c-#{v}"
+      else "#{k}-#{v}"
+      end
+    end.join(",")
+
+    url = "#{endpoint}/#{key}"
+    tr.present? ? "#{url}?tr=#{tr}" : url
+  end
 end
