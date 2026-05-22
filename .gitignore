@@ -37,3 +37,4 @@
 
 # Ignore deployment secrets
 .kamal/secrets
+.aider*
