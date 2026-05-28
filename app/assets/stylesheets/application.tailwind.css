@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 @import "trix/dist/trix.css";
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Parisienne&family=Josefin+Sans:wght@300;400;500;600;700&display=swap");
 
 /* ========================================
    Custom Base Styles & Variables
@@ -38,7 +38,7 @@
   body {
     color: var(--text-primary);
     background: linear-gradient(180deg, #f7f7f2 0%, #f2f3ee 100%);
-    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-family: "Josefin Sans", "Segoe UI", sans-serif;
     min-height: 100vh;
     position: relative;
   }
@@ -48,14 +48,19 @@
     z-index: 1;
   }
 
-  h1,
+  h1, .sz-headline, .sz-display {
+    font-family: "Parisienne", cursive;
+    letter-spacing: 0.01em;
+    color: var(--text-primary);
+  }
+
   h2,
   h3,
   h4,
   h5,
   h6,
   .card-title {
-    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-family: "Josefin Sans", "Segoe UI", sans-serif;
     letter-spacing: -0.01em;
     color: var(--text-primary);
   }
