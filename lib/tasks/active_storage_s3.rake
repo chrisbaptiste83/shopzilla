@@ -7,7 +7,11 @@ namespace :active_storage do
       limit      = ENV["LIMIT"]&.to_i
 
       local_service = ActiveStorage::Blob.service
-      s3_service    = ActiveStorage::Service.configure(:amazon, Rails.configuration.active_storage.service_configurations)
+      storage_yaml  = YAML.safe_load(
+        ERB.new(Rails.root.join("config/storage.yml").read).result,
+        permitted_classes: [], permitted_symbols: [], aliases: true
+      )
+      s3_service = ActiveStorage::Service.configure(:amazon, storage_yaml)
 
       scope = ActiveStorage::Blob.where("id > ?", start_id).order(:id)
       scope = scope.limit(limit) if limit
@@ -56,7 +60,11 @@ namespace :active_storage do
       start_id = ENV.fetch("START_ID", "0").to_i
       limit    = ENV["LIMIT"]&.to_i
 
-      s3_service = ActiveStorage::Service.configure(:amazon, Rails.configuration.active_storage.service_configurations)
+      storage_yaml = YAML.safe_load(
+        ERB.new(Rails.root.join("config/storage.yml").read).result,
+        permitted_classes: [], permitted_symbols: [], aliases: true
+      )
+      s3_service = ActiveStorage::Service.configure(:amazon, storage_yaml)
 
       scope = ActiveStorage::Blob.where("id > ?", start_id).order(:id)
       scope = scope.limit(limit) if limit
