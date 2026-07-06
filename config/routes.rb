@@ -42,6 +42,5 @@ Rails.application.routes.draw do
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
-
   root to: "home#index"
 end
