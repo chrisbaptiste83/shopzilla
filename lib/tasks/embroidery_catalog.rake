@@ -242,4 +242,180 @@ namespace :embroidery_catalog do
       end
     end
   end
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Import directly from the flat Embroidery Catalog folder on disk.
+  #
+  # Expected structure:
+  #   SOURCE_ROOT/
+  #     <Design Name>/
+  #       metadata.json   (source_path, stitch_count, clean_name, categories, threads)
+  #       <Design Name>.png
+  #       <Design Name>_grid.png   (optional)
+  #
+  # Usage:
+  #   SOURCE_ROOT="~/Desktop/Embroidery Files/Embroidery Catalog" \
+  #   LIMIT=5 rails embroidery_catalog:import_flat
+  #
+  # Optional env vars:
+  #   LIMIT              max designs to import (default: all)
+  #   RENDER_PREVIEW     true/false — render new isolated previews from PES (default: true)
+  #   PRICE_CENTS        product price in cents (default: 500)
+  #   CATEGORY_MAP_JSON  JSON object overriding category label mapping
+  # ─────────────────────────────────────────────────────────────────────────
+  desc "Import from a flat Embroidery Catalog directory (metadata.json + PES per design)"
+  task import_flat: :environment do
+    require "json"
+    require "open3"
+
+    source_root   = ENV["SOURCE_ROOT"]
+    raise "SOURCE_ROOT is required" if source_root.blank?
+
+    catalog_root  = Pathname.new(source_root).expand_path
+    raise "SOURCE_ROOT does not exist: #{catalog_root}" unless catalog_root.directory?
+
+    limit          = ENV["LIMIT"]&.to_i
+    render_preview = ActiveModel::Type::Boolean.new.cast(ENV.fetch("RENDER_PREVIEW", "true"))
+    price_cents    = ENV.fetch("PRICE_CENTS", "500").to_i
+    preview_script = Rails.root.join("bin", "render_embroidery_preview.py")
+
+    default_category_labels = {
+      "misc"        => "Miscellaneous",
+      "animals"     => "Animals",
+      "baby"        => "Baby & Kids",
+      "religious"   => "Religious",
+      "alesandro"   => "Alesandro",
+      "flowermono"  => "Floral & Monogram",
+      "clown"       => "Clowns & Circus",
+      "christmas"   => "Christmas",
+      "holiday"     => "Holidays",
+      "sports"      => "Sports",
+      "alphabet"    => "Alphabet",
+      "border"      => "Borders",
+      "butterfly"   => "Butterflies",
+      "bird"        => "Birds",
+      "flower"      => "Flowers",
+      "nature"      => "Nature",
+      "cartoon"     => "Cartoons",
+      "seasonal"    => "Seasonal"
+    }.freeze
+
+    category_labels = if ENV["CATEGORY_MAP_JSON"].present?
+      default_category_labels.merge(JSON.parse(ENV["CATEGORY_MAP_JSON"]))
+    else
+      default_category_labels
+    end
+
+    design_dirs = catalog_root.children.select(&:directory?).sort_by { |d| d.basename.to_s.downcase }
+    design_dirs = design_dirs.first(limit) if limit&.positive?
+
+    created  = 0
+    updated  = 0
+    skipped  = 0
+    errors   = []
+
+    design_dirs.each do |design_dir|
+      meta_file = design_dir.join("metadata.json")
+      next unless meta_file.file?
+
+      begin
+        meta        = JSON.parse(meta_file.read)
+        raw_name    = (meta["clean_name"].presence || design_dir.basename.to_s).strip
+        clean_name  = raw_name.length < 3 ? "#{raw_name} Design" : raw_name
+        pes_path    = meta["source_path"].presence
+        stitch_count = meta["stitch_count"]
+        cats        = Array(meta["categories"]).reject { |c| c == "misc" }
+        cat_key     = cats.first || "misc"
+        cat_label   = category_labels.fetch(cat_key) { cat_key.tr("_", " ").humanize }
+
+        category = Category.find_or_create_by!(name: cat_label)
+        product  = Product.find_or_initialize_by(title: clean_name, category: category)
+        is_new   = product.new_record?
+
+        product.price            = price_cents if product.price.blank? || product.price.to_i <= 0
+        product.stitch_count     = stitch_count if stitch_count.present?
+        product.is_available     = true  if product.is_available.nil?
+        product.physical_product = false if product.physical_product.nil?
+        product.shippable        = false if product.shippable.nil?
+
+        if product.file_format.blank? && pes_path.present?
+          product.file_format = File.extname(pes_path).delete_prefix(".").upcase
+        end
+
+        if product.description.blank?
+          product.description = build_flat_description(clean_name, cat_label, stitch_count)
+        end
+
+        product.save!
+
+        # ── Preview image ────────────────────────────────────────────────
+        if !product.images.attached? || is_new
+          preview_attached = false
+
+          if render_preview && pes_path.present? && File.exist?(pes_path)
+            tmp = Tempfile.new(["preview", ".png"])
+            begin
+              _out, err, status = Open3.capture3("python3", preview_script.to_s, pes_path, tmp.path, "--style", "isolated")
+              if status.success? && File.size(tmp.path) > 0
+                product.images.attach(
+                  io:           File.open(tmp.path, "rb"),
+                  filename:     "#{clean_name.parameterize}-isolated.png",
+                  content_type: "image/png"
+                )
+                preview_attached = true
+              else
+                warn "  preview render failed for #{clean_name}: #{err.strip}"
+              end
+            ensure
+              tmp.close
+              tmp.unlink
+            end
+          end
+
+          # Fall back to existing catalog PNG if render failed or skipped
+          unless preview_attached
+            existing_png = design_dir.glob("*.png").reject { |f| f.basename.to_s.include?("_grid") }.first
+            if existing_png&.file?
+              product.images.attach(
+                io:           File.open(existing_png, "rb"),
+                filename:     existing_png.basename.to_s,
+                content_type: "image/png"
+              )
+            end
+          end
+        end
+
+        # ── Embroidery file ──────────────────────────────────────────────
+        if !product.embroidery_file.attached? && pes_path.present? && File.exist?(pes_path)
+          product.embroidery_file.attach(
+            io:           File.open(pes_path, "rb"),
+            filename:     File.basename(pes_path),
+            content_type: "application/octet-stream"
+          )
+        end
+
+        is_new ? (created += 1) : (updated += 1)
+        puts "  #{is_new ? '+' : '~'} #{clean_name} [#{cat_label}]#{stitch_count ? " (#{stitch_count.to_s.reverse.scan(/\d{1,3}/).join(',').reverse} stitches)" : ''}"
+
+      rescue => e
+        errors << { design: design_dir.basename.to_s, error: e.message }
+        warn "  ERROR #{design_dir.basename}: #{e.message}"
+      end
+    end
+
+    puts "\nDone."
+    puts "  Created: #{created} | Updated: #{updated} | Skipped: #{skipped} | Errors: #{errors.size}"
+    puts "  Total products in DB: #{Product.count}"
+  end
+
+  def build_flat_description(name, category_label, stitch_count)
+    lines = ["#{name} embroidery design."]
+    if stitch_count.present?
+      formatted = stitch_count.to_s.reverse.scan(/\d{1,3}/).join(",").reverse
+      lines << "Features #{formatted} stitches for a detailed, professional finish."
+    end
+    lines << "Part of the #{category_label} collection." if category_label.present?
+    lines << "Works with most home and commercial embroidery machines. Instant digital download included."
+    lines.join(" ")
+  end
 end

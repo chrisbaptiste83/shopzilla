@@ -1,36 +1,38 @@
 #!/usr/bin/env python3
 """
-Render an embroidery PES file as a styled product preview image.
+Render an embroidery PES file as a product preview image.
 
 Usage:
-  python3 render_embroidery_preview.py <pes_file> <output_png>
+  python3 render_embroidery_preview.py <pes_file> <output_png> [--style=isolated|detail]
 
-Produces a PNG with the design rendered in thread colors on a gray background,
-a thread color swatch panel on the right, and a metadata bar at the bottom.
+Styles:
+  isolated  Clean white background, design only — for product listings (default)
+  detail    Dark background + thread color panel + metadata bar — for technicians
 """
 
+import argparse
 import os
 import sys
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import pyembroidery
 from pyembroidery import STITCH, JUMP, TRIM, COLOR_CHANGE, END
 
 # ── Layout ──────────────────────────────────────────────────────────────────
-DESIGN_W      = 700   # px – design canvas width  (final image)
-DESIGN_H      = 700   # px – design canvas height (final image)
-PANEL_W       = 255   # px – right thread-color panel
-META_H        = 78    # px – bottom metadata bar
-DESIGN_PAD    = 36    # px – padding around stitches inside design canvas
+DESIGN_W      = 700   # px – design canvas (both styles)
+DESIGN_H      = 700   # px – design canvas (both styles)
+PANEL_W       = 255   # px – right panel (detail style only)
+META_H        = 78    # px – bottom bar  (detail style only)
+DESIGN_PAD    = 36    # px – padding around stitches
 SWATCH_SIZE   = 18    # px – thread color square
 SWATCH_GAP    = 7     # px – gap between swatches
 PANEL_INDENT  = 14    # px – left indent inside panel
-RENDER_SCALE  = 3     # render at 3× then downscale (anti-aliasing)
+RENDER_SCALE  = 5     # render at 5× then downscale for smooth anti-aliasing
 
 TOTAL_W = DESIGN_W + PANEL_W
 TOTAL_H = DESIGN_H + META_H
 
-# ── Colors ───────────────────────────────────────────────────────────────────
+# ── Colors — detail style ─────────────────────────────────────────────────
 BG        = (82, 82, 82)
 PANEL_BG  = (66, 66, 66)
 META_BG   = (52, 52, 52)
@@ -39,11 +41,17 @@ TEXT_MAIN = (220, 220, 220)
 TEXT_DIM  = (160, 160, 160)
 PANEL_HDR = (200, 200, 200)
 
+# ── Colors — isolated style ───────────────────────────────────────────────
+ISOLATED_BG     = (248, 248, 248)
+ISOLATED_SHADOW = (220, 220, 220)
+
 # ── Fonts ────────────────────────────────────────────────────────────────────
 _FONT_PATHS = [
     "/System/Library/Fonts/SFNS.ttf",
     "/System/Library/Fonts/HelveticaNeue.ttc",
     "/System/Library/Fonts/Helvetica.ttc",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
 ]
 
 def _load_font(size):
@@ -60,7 +68,67 @@ def _int_to_rgb(color_int):
     return ((color_int >> 16) & 0xFF, (color_int >> 8) & 0xFF, color_int & 0xFF)
 
 
-def render(pes_path: str, output_path: str) -> None:
+def _draw_stitches(draw, pattern, min_x, min_y, scale, off_x, off_y, rs, stitch_w=None):
+    """Draw all stitches onto `draw` using thread colors from the pattern."""
+    threads = pattern.threadlist
+    thread_idx = 0
+    sw = stitch_w if stitch_w is not None else max(1, rs)
+    px, py = None, None
+
+    for sx, sy, cmd in pattern.stitches:
+        if cmd in (STITCH, JUMP, TRIM):
+            cx = int((sx - min_x) * scale + off_x) * rs
+            cy = int((sy - min_y) * scale + off_y) * rs
+
+            if cmd == STITCH and px is not None:
+                color = _int_to_rgb(threads[thread_idx].color) if thread_idx < len(threads) else (180, 180, 180)
+                draw.line([px, py, cx, cy], fill=color, width=sw)
+
+            px, py = cx, cy
+
+        elif cmd == COLOR_CHANGE:
+            thread_idx = min(thread_idx + 1, len(threads) - 1)
+            px, py = None, None
+
+        elif cmd == END:
+            break
+
+
+def render_isolated(pes_path: str, output_path: str) -> None:
+    """Clean white-background image with soft thread rendering — no panel or metadata."""
+    pattern = pyembroidery.read(pes_path)
+
+    bounds = pattern.extents()
+    min_x, min_y, max_x, max_y = bounds
+    design_w = max_x - min_x or 1
+    design_h = max_y - min_y or 1
+
+    avail_w = DESIGN_W - 2 * DESIGN_PAD
+    avail_h = DESIGN_H - 2 * DESIGN_PAD
+    scale = min(avail_w / design_w, avail_h / design_h)
+
+    rendered_w = design_w * scale
+    rendered_h = design_h * scale
+    off_x = (DESIGN_W - rendered_w) / 2
+    off_y = (DESIGN_H - rendered_h) / 2
+
+    RS = RENDER_SCALE
+    img = Image.new("RGB", (DESIGN_W * RS, DESIGN_H * RS), ISOLATED_BG)
+    draw = ImageDraw.Draw(img)
+
+    # Draw stitches at 5× scale with thread-width lines (RS+1 gives softer edges than RS alone)
+    _draw_stitches(draw, pattern, min_x, min_y, scale, off_x, off_y, RS, stitch_w=RS + 1)
+
+    # Soften stitch edges with a small blur — simulates actual thread texture before downscaling
+    img = img.filter(ImageFilter.GaussianBlur(radius=RS * 0.4))
+
+    final = img.resize((DESIGN_W, DESIGN_H), Image.LANCZOS)
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    final.save(output_path, "PNG")
+
+
+def render_detail(pes_path: str, output_path: str) -> None:
+    """Dark technical view with thread color panel and metadata bar."""
     pattern = pyembroidery.read(pes_path)
 
     bounds = pattern.extents()
@@ -95,32 +163,10 @@ def render(pes_path: str, output_path: str) -> None:
     draw.line([DESIGN_W * RS, 0, DESIGN_W * RS, DESIGN_H * RS], fill=DIVIDER, width=RS)
     draw.line([0, DESIGN_H * RS, TOTAL_W * RS, DESIGN_H * RS], fill=DIVIDER, width=RS)
 
-    # ── Draw stitches ────────────────────────────────────────────────────────
-    threads = pattern.threadlist
-    thread_idx = 0
-    stitch_w = max(1, RS)
-
-    px, py = None, None
-
-    for sx, sy, cmd in pattern.stitches:
-        if cmd in (STITCH, JUMP, TRIM):
-            cx = int((sx - min_x) * scale + off_x) * RS
-            cy = int((sy - min_y) * scale + off_y) * RS
-
-            if cmd == STITCH and px is not None:
-                color = _int_to_rgb(threads[thread_idx].color) if thread_idx < len(threads) else (200, 200, 200)
-                draw.line([px, py, cx, cy], fill=color, width=stitch_w)
-
-            px, py = cx, cy
-
-        elif cmd == COLOR_CHANGE:
-            thread_idx = min(thread_idx + 1, len(threads) - 1)
-            px, py = None, None
-
-        elif cmd == END:
-            break
+    _draw_stitches(draw, pattern, min_x, min_y, scale, off_x, off_y, RS)
 
     # ── Thread color panel ───────────────────────────────────────────────────
+    threads = pattern.threadlist
     font_hdr  = _load_font(13 * RS)
     font_item = _load_font(12 * RS)
 
@@ -160,10 +206,10 @@ def render(pes_path: str, output_path: str) -> None:
 
     w_mm = round(design_w * 0.1, 1)
     h_mm = round(design_h * 0.1, 1)
-    stitch_count  = sum(1 for _, _, c in pattern.stitches if c == STITCH)
-    jump_count    = sum(1 for _, _, c in pattern.stitches if c == JUMP)
-    color_count   = len(threads)
-    filename      = Path(pes_path).name
+    stitch_count = sum(1 for _, _, c in pattern.stitches if c == STITCH)
+    jump_count   = sum(1 for _, _, c in pattern.stitches if c == JUMP)
+    color_count  = len(threads)
+    filename     = Path(pes_path).name
 
     line1 = f"Format: PES  ·  {filename}  ·  {w_mm} × {h_mm} mm  ·  Colors: {color_count}"
     line2 = f"Stitches: {stitch_count:,}  ·  Jump Stitches: {jump_count:,}"
@@ -181,13 +227,23 @@ def render(pes_path: str, output_path: str) -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print(f"Usage: {sys.argv[0]} <pes_file> <output_png>", file=sys.stderr)
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Render an embroidery PES file as a preview image.")
+    parser.add_argument("pes_file", help="Path to the .pes file")
+    parser.add_argument("output_png", help="Path for the output PNG")
+    parser.add_argument(
+        "--style",
+        choices=["isolated", "detail"],
+        default="isolated",
+        help="isolated: clean white bg (default); detail: dark bg + thread panel + metadata",
+    )
+    args = parser.parse_args()
 
     try:
-        render(sys.argv[1], sys.argv[2])
-        print(f"OK: {sys.argv[2]}")
+        if args.style == "detail":
+            render_detail(args.pes_file, args.output_png)
+        else:
+            render_isolated(args.pes_file, args.output_png)
+        print(f"OK: {args.output_png}")
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(1)

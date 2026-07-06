@@ -114,12 +114,21 @@ module Embroidery
     end
 
     def render_preview(product, pes_file)
-      pes_path     = @root.join(pes_file[:source_relative_path])
-      s3_key       = File.join(product[:proposed_s3_prefix], "preview", "01-preview.png")
-      output_path  = @out_dir.join(s3_key)
+      pes_path = @root.join(pes_file[:source_relative_path])
+      prefix   = product[:proposed_s3_prefix]
 
-      result = PreviewRenderer.new(pes_path: pes_path, output_path: output_path).call
-      [ result.merge(proposed_s3_key: s3_key) ]
+      [
+        { filename: "01-preview.png", style: :isolated },
+        { filename: "02-detail.png",  style: :detail }
+      ].filter_map do |spec|
+        s3_key      = File.join(prefix, "preview", spec[:filename])
+        output_path = @out_dir.join(s3_key)
+        result      = PreviewRenderer.new(pes_path: pes_path, output_path: output_path, style: spec[:style]).call
+        result.merge(proposed_s3_key: s3_key)
+      rescue => error
+        Rails.logger.warn("PreviewRenderer #{spec[:style]} failed for #{product[:source_relative_path]}: #{error.message}")
+        nil
+      end
     end
 
     def copy_preview_assets(preview_images)

@@ -5,7 +5,7 @@ namespace :embroidery_catalog do
   task import_from_s3: :environment do
     require "aws-sdk-s3"
 
-    bucket            = "shopzilla-prod-assets"
+    bucket            = "shopzilla-prod-assets-na"
     images_prefix     = "products/images/"
     embroidery_prefix = "downloads/embroidery/"
     service_name      = "amazon"

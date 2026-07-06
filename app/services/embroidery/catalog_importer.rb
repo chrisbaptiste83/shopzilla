@@ -150,10 +150,28 @@ module Embroidery
     end
 
     def build_description(entry)
-      stitch_count = entry.dig(:metadata, :stitch_count)
-      return nil if stitch_count.blank?
+      design_name    = entry.dig(:design, :normalized)
+      category_label = entry.dig(:category, :label)
+      size_label     = entry.dig(:size, :label)
+      stitch_count   = entry.dig(:metadata, :stitch_count)
 
-      "Stitch count: #{stitch_count}"
+      lines = []
+
+      if design_name.present? && size_label.present?
+        lines << "#{design_name.capitalize} embroidery design, available in #{size_label}."
+      elsif design_name.present?
+        lines << "#{design_name.capitalize} embroidery design."
+      end
+
+      if stitch_count.present?
+        formatted = ActiveSupport::NumberHelper.number_to_delimited(stitch_count)
+        lines << "Features #{formatted} stitches for a detailed, professional finish."
+      end
+
+      lines << "Part of the #{category_label} collection." if category_label.present?
+      lines << "Works with most home and commercial embroidery machines. Instant digital download included."
+
+      lines.join(" ").presence
     end
 
     def primary_file_extension(entry)
