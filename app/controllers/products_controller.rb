@@ -95,8 +95,7 @@ class ProductsController < ApplicationController
   def update
     # Purge selected images before updating the product
     if params[:purge_images].present?
-      attachments = ActiveStorage::Attachment.find(params[:purge_images])
-      attachments.each(&:purge)
+      @product.images.where(id: params[:purge_images]).each(&:purge)
     end
 
     respond_to do |format|

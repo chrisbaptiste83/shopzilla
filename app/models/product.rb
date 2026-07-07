@@ -15,6 +15,7 @@ class Product < ApplicationRecord
   validates :price, presence: true, numericality: { greater_than: 0 }
   validates :category_id, presence: true, unless: -> { new_category_name.present? }
   validate :acceptable_images
+  validate :acceptable_embroidery_file
 
   def self.ransackable_attributes(auth_object = nil)
     %w[id title price file_format is_available dimensions stitch_count created_at updated_at]
@@ -31,6 +32,8 @@ class Product < ApplicationRecord
     self.category_id = created_category.id
   end
 
+  EMBROIDERY_EXTENSIONS = %w[.pes .dst .jef .exp .vp3 .hus .pcs .xxx .sew .shv .csd .emd].freeze
+
   def acceptable_images
     return unless images.attached?
 
@@ -46,6 +49,19 @@ class Product < ApplicationRecord
       if image.byte_size > 10.megabytes
         errors.add(:images, "must be less than 10MB")
       end
+    end
+  end
+
+  def acceptable_embroidery_file
+    return unless embroidery_file.attached?
+
+    ext = File.extname(embroidery_file.filename.to_s).downcase
+    unless EMBROIDERY_EXTENSIONS.include?(ext)
+      errors.add(:embroidery_file, "must be a supported embroidery format (#{EMBROIDERY_EXTENSIONS.join(', ')})")
+    end
+
+    if embroidery_file.byte_size > 25.megabytes
+      errors.add(:embroidery_file, "must be less than 25MB")
     end
   end
 end

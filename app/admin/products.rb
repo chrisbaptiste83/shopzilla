@@ -36,7 +36,7 @@ ActiveAdmin.register Product do
       row :is_available
       row :physical_product
       row :shippable
-      row(:description) { |p| p.description.to_s.html_safe }
+      row(:description) { |p| sanitize(p.description.to_s) }
       row(:embroidery_file) do |p|
         p.embroidery_file.attached? ? p.embroidery_file.filename.to_s : "—"
       end

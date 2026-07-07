@@ -8,7 +8,7 @@ class Users::SessionsController < Devise::SessionsController
     respond_to do |format|
       format.html { respond_with resource, location: after_sign_in_path_for(resource) }
       format.json do
-        resource.regenerate_auth_token if resource.auth_token.blank?
+        resource.regenerate_auth_token
         render json: {
           token: resource.auth_token,
           user:  { id: resource.id, email: resource.email }
