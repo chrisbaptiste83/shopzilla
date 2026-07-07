@@ -1,0 +1,13 @@
+<% content_for :page_title, "Page Not Found" %>
+
+<div class="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 py-20">
+  <p class="text-8xl font-bold text-primary/20 mb-4" style="font-family:'Parisienne',cursive;">404</p>
+  <h1 class="text-3xl font-bold mb-3">This design wandered off</h1>
+  <p class="text-base-content/60 max-w-md mb-8">
+    The page you're looking for doesn't exist or may have been moved. Let's get you back to the good stuff.
+  </p>
+  <div class="flex gap-4 flex-wrap justify-center">
+    <%= link_to "Browse Designs", products_path, class: "btn btn-primary" %>
+    <%= link_to "Go Home", root_path, class: "btn btn-ghost" %>
+  </div>
+</div>

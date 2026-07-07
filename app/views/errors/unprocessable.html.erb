@@ -1,0 +1,13 @@
+<% content_for :page_title, "Request Not Accepted" %>
+
+<div class="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 py-20">
+  <p class="text-8xl font-bold text-primary/20 mb-4" style="font-family:'Parisienne',cursive;">422</p>
+  <h1 class="text-3xl font-bold mb-3">Something didn't look right</h1>
+  <p class="text-base-content/60 max-w-md mb-8">
+    The request couldn't be processed — it may have expired or contained invalid data. Please try again.
+  </p>
+  <div class="flex gap-4 flex-wrap justify-center">
+    <%= link_to "Back to Shop", products_path, class: "btn btn-primary" %>
+    <%= link_to "Go Home", root_path, class: "btn btn-ghost" %>
+  </div>
+</div>

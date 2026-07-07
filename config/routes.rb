@@ -43,4 +43,8 @@ Rails.application.routes.draw do
 
   get "up" => "rails/health#show", as: :rails_health_check
   root to: "home#index"
+
+  match "/404", to: "errors#not_found",    via: :all
+  match "/422", to: "errors#unprocessable", via: :all
+  match "/500", to: "errors#server_error",  via: :all
 end

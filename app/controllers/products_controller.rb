@@ -13,7 +13,9 @@ class ProductsController < ApplicationController
     # 🔎 Search (title + description if present)
     if params[:search].present?
       search_term = "%#{params[:search].downcase}%"
-      @products = @products.where("LOWER(title) LIKE ? OR LOWER(description) LIKE ?", search_term, search_term)
+      @products = @products
+        .left_joins(:rich_text_description)
+        .where("LOWER(products.title) LIKE ? OR LOWER(action_text_rich_texts.body) LIKE ?", search_term, search_term)
     end
 
     # 🎨 Filter by category
