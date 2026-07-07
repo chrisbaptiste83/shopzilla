@@ -1,0 +1,152 @@
+image: ruby:3.4.2
+
+variables:
+  AWS_REGION: us-east-2
+  ECR_REGISTRY: "673588459621.dkr.ecr.us-east-2.amazonaws.com"
+  ECR_REPOSITORY: shopzilla
+  ECS_CLUSTER: default
+  ECS_SERVICE: shopzilla-web
+  CONTAINER_NAME: shopzilla
+  POSTGRES_USER: rails
+  POSTGRES_PASSWORD: password
+  POSTGRES_DB: shopzilla_test
+  RAILS_ENV: test
+  PGHOST: postgres
+  PGUSER: rails
+  PGPASSWORD: password
+
+stages:
+  - test
+  - build
+  - deploy
+
+# ── Test ──────────────────────────────────────────────────────────────────────
+
+.ruby_setup: &ruby_setup
+  before_script:
+    - apt-get update -qq && apt-get install -y libpq-dev libvips nodejs yarn
+    - gem install bundler --no-document
+    - bundle install --jobs 4 --retry 3
+
+brakeman:
+  stage: test
+  <<: *ruby_setup
+  script:
+    - bundle exec brakeman --no-pager
+  only:
+    - merge_requests
+    - main
+
+rubocop:
+  stage: test
+  <<: *ruby_setup
+  script:
+    - bundle exec rubocop --format gitlab
+  only:
+    - merge_requests
+    - main
+
+rspec:
+  stage: test
+  services:
+    - name: postgres:16-alpine
+      alias: postgres
+  variables:
+    DATABASE_URL: postgres://rails:password@postgres/shopzilla_test
+  <<: *ruby_setup
+  script:
+    - bundle exec rails db:test:prepare
+    - bundle exec rails test
+  artifacts:
+    when: on_failure
+    paths:
+      - tmp/screenshots/
+    expire_in: 1 week
+  only:
+    - merge_requests
+    - main
+
+# ── Build ─────────────────────────────────────────────────────────────────────
+
+build:
+  stage: build
+  image: docker:26
+  services:
+    - docker:26-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - apk add --no-cache aws-cli
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+  script:
+    - |
+      docker build \
+        --platform linux/amd64 \
+        --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+        -t $ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHA \
+        -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+        .
+    - docker push $ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHA
+    - docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+  only:
+    - main
+
+# ── Deploy ────────────────────────────────────────────────────────────────────
+
+deploy:
+  stage: deploy
+  image: python:3.12-alpine
+  before_script:
+    - pip install awscli --quiet
+  script:
+    - |
+      # Pull current task definition, update image, register new revision
+      TASK_DEF=$(aws ecs describe-task-definition \
+        --task-definition $ECS_SERVICE \
+        --region $AWS_REGION \
+        --query 'taskDefinition' \
+        --output json)
+
+      NEW_TASK_DEF=$(echo $TASK_DEF | python3 -c "
+      import sys, json
+      d = json.load(sys.stdin)
+      for c in d['containerDefinitions']:
+          if c['name'] == '$CONTAINER_NAME':
+              c['image'] = '$ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHA'
+      # Strip read-only fields
+      for k in ['taskDefinitionArn','revision','status','requiresAttributes',
+                'compatibilities','registeredAt','registeredBy','deregisteredAt']:
+          d.pop(k, None)
+      print(json.dumps(d))
+      ")
+
+      NEW_TASK_ARN=$(aws ecs register-task-definition \
+        --region $AWS_REGION \
+        --cli-input-json "$NEW_TASK_DEF" \
+        --query 'taskDefinition.taskDefinitionArn' \
+        --output text)
+
+      echo "Registered new task definition: $NEW_TASK_ARN"
+
+      aws ecs update-service \
+        --cluster $ECS_CLUSTER \
+        --service $ECS_SERVICE \
+        --task-definition $NEW_TASK_ARN \
+        --region $AWS_REGION \
+        --query 'service.deployments[0].status' \
+        --output text
+
+      echo "Waiting for service to stabilize..."
+      aws ecs wait services-stable \
+        --cluster $ECS_CLUSTER \
+        --services $ECS_SERVICE \
+        --region $AWS_REGION
+
+      echo "Deploy complete."
+  environment:
+    name: production
+    url: http://ecs-apps-alb-1089245167.us-east-2.elb.amazonaws.com
+  only:
+    - main
+  needs:
+    - build
