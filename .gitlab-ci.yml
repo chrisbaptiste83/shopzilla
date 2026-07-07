@@ -41,7 +41,7 @@ rubocop:
   stage: test
   <<: *ruby_setup
   script:
-    - bundle exec rubocop --format gitlab
+    - bundle exec rubocop --format progress
   only:
     - merge_requests
     - main
