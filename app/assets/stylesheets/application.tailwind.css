@@ -6,7 +6,15 @@
 @tailwind utilities;
 
 @import "trix/dist/trix.css";
-@import url("https://fonts.googleapis.com/css2?family=Parisienne&family=Josefin+Sans:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Parisienne&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap");
+
+@font-face {
+  font-family: "Hello Honey";
+  src: url("/assets/HelloHoney.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ========================================
    Custom Base Styles & Variables
@@ -38,7 +46,7 @@
   body {
     color: var(--text-primary);
     background: linear-gradient(180deg, #f7f7f2 0%, #f2f3ee 100%);
-    font-family: "Josefin Sans", "Segoe UI", sans-serif;
+    font-family: "DM Sans", "Segoe UI", sans-serif;
     min-height: 100vh;
     position: relative;
   }
@@ -60,8 +68,8 @@
   h5,
   h6,
   .card-title {
-    font-family: "Josefin Sans", "Segoe UI", sans-serif;
-    letter-spacing: -0.01em;
+    font-family: "Hello Honey", Georgia, serif;
+    letter-spacing: 0.02em;
     color: var(--text-primary);
   }
 
@@ -1338,7 +1346,7 @@ main.page-surface {
 
 /* Main headline */
 .sz-headline {
-  font-family: "Fraunces", Georgia, "Times New Roman", serif;
+  font-family: "Hello Honey", Georgia, serif;
   font-size: clamp(2.6rem, 4.2vw, 4.25rem);
   line-height: 1.08;
   letter-spacing: -0.025em;
@@ -1543,7 +1551,7 @@ main.page-surface {
 }
 
 .sz-section-title {
-  font-family: "Fraunces", Georgia, serif;
+  font-family: "Hello Honey", Georgia, serif;
   font-size: 1.75rem;
   font-weight: 700;
   color: #0c1a1a;
