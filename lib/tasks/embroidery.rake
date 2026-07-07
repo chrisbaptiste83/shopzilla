@@ -99,7 +99,7 @@ namespace :embroidery do
 
     product.save!
 
-    # Attach embroidery file (always — or only when missing without FORCE)
+    # Attach embroidery file
     if force || !product.embroidery_file.attached?
       product.embroidery_file.attach(
         io: File.open(pes_path),
@@ -108,26 +108,32 @@ namespace :embroidery do
       )
     end
 
-    # Render preview image
+    # Render 3 preview images (dark, light, detail)
     if force || !product.images.attached?
-      png_path = File.join(tmpdir, "#{title.parameterize}.png")
-      rendered = system("python3", RENDER_SCRIPT.to_s, pes_path, png_path)
+      slug = title.parameterize
+      renders = %w[dark light detail].filter_map do |style|
+        path = File.join(tmpdir, "#{slug}-#{style}.png")
+        ok   = system("python3", RENDER_SCRIPT.to_s, pes_path, path, "--style", style)
+        ok && File.exist?(path) ? { style: style, path: path } : nil
+      end
 
-      if rendered && File.exist?(png_path)
+      if renders.any?
         product.images.purge if force && product.images.attached?
-        product.images.attach(
-          io: File.open(png_path),
-          filename: "#{title.parameterize}.png",
-          content_type: "image/png"
-        )
-        puts "  #{"CREATE" if created}#{"UPDATE" unless created}  #{title}"
+        renders.each do |r|
+          product.images.attach(
+            io: File.open(r[:path]),
+            filename: "#{slug}-#{r[:style]}.png",
+            content_type: "image/png"
+          )
+        end
+        puts "  #{"CREATE" if created}#{"UPDATE" unless created}  #{title} (#{renders.size} images)"
       else
-        msg = "#{title}: render failed"
+        msg = "#{title}: all renders failed"
         puts "  ERROR  #{msg}"
         results[:errors] << msg
       end
     else
-      puts "  SKIP   #{title} (already has image — use FORCE=1 to re-render)"
+      puts "  SKIP   #{title} (already has images — use FORCE=1 to re-render)"
       results[:skipped] += 1
       return
     end
