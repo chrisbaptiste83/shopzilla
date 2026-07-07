@@ -32,7 +32,7 @@
           <% _ik_full  = imagekit_url(image, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85, sharpen: 30) ||
                            url_for(image.variant(resize_to_limit: [1200, 1200])) %>
           <%= image_tag(_ik_thumb || image.variant(resize_to_limit: [200, 200]),
-                class: "rounded-lg w-full h-16 object-contain bg-base-200 cursor-pointer opacity-50 hover:opacity-100 transition-opacity",
+                class: "rounded-xl w-full h-16 object-contain bg-base-200 cursor-pointer opacity-50 hover:opacity-100 transition-opacity",
                 data: {
                   action: "click->product-gallery#select",
                   product_gallery_full_src: _ik_full,
@@ -152,9 +152,9 @@
         <%= link_to product_path(related), class: "group block" do %>
           <% if related.images.attached? %>
             <% _ik_rel = imagekit_url(related.images.first, width: 400, height: 400, crop: "at_max", format: "auto", quality: 80, sharpen: 30) %>
-            <%= image_tag(_ik_rel || related.images.first, class: "rounded-xl w-full h-36 object-contain bg-base-200 group-hover:opacity-80 transition-opacity mb-3") %>
+            <%= image_tag(_ik_rel || related.images.first, class: "rounded-2xl w-full h-36 object-contain bg-base-200 group-hover:opacity-80 transition-opacity mb-3") %>
           <% else %>
-            <div class="rounded-xl w-full h-36 bg-base-200 mb-3"></div>
+            <div class="rounded-2xl w-full h-36 bg-base-200 mb-3"></div>
           <% end %>
           <div class="text-sm font-medium group-hover:text-primary transition-colors"><%= related.title %></div>
           <div class="text-sm text-base-content/50 mt-0.5"><%= number_to_currency(related.price) %></div>
