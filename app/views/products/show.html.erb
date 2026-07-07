@@ -53,7 +53,7 @@
         </span>
       <% end %>
       <h1 class="text-3xl font-bold mt-2 mb-5"><%= @product.title %></h1>
-      <div class="text-3xl font-bold text-primary">$<%= @product.price %></div>
+      <div class="text-3xl font-bold text-primary"><%= number_to_currency(@product.price) %></div>
     </div>
 
     <!-- Stitch Count — Primary Attribute -->
@@ -157,7 +157,7 @@
             <div class="rounded-xl w-full h-36 bg-base-200 mb-3"></div>
           <% end %>
           <div class="text-sm font-medium group-hover:text-primary transition-colors"><%= related.title %></div>
-          <div class="text-sm text-base-content/50 mt-0.5">$<%= related.price %></div>
+          <div class="text-sm text-base-content/50 mt-0.5"><%= number_to_currency(related.price) %></div>
         <% end %>
       <% end %>
     </div>

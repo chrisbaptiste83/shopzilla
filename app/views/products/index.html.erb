@@ -109,7 +109,7 @@
             <%= link_to product.title, product_path(product) %>
           </h3>
           <div class="flex items-center justify-between">
-            <span class="font-bold text-primary">$<%= product.price %></span>
+            <span class="font-bold text-primary"><%= number_to_currency(product.price) %></span>
             <% if product.stitch_count.present? %>
               <span class="text-xs text-base-content/45"><%= number_with_delimiter(product.stitch_count) %> sts</span>
             <% end %>
