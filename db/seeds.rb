@@ -7,16 +7,16 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
-# Create categories
-categories = [
-  "Floral Designs",
-  "Animal Patterns",
-  "Holidays",
-  "Monograms",
-  "Cooking",
-  "Celebrations"
-]
+require "yaml"
 
-categories.each do |category_name|
-  Category.find_or_create_by!(name: category_name)
+catalog = YAML.load_file(Rails.root.join("db/seeds/catalog.yml"))
+
+catalog.fetch("categories", []).each do |name|
+  Category.find_or_create_by!(name: name)
+end
+
+# Run full product import in development; skip in CI/test (no PES files available)
+if Rails.env.development?
+  puts "Seeding products from catalog..."
+  Rake::Task["embroidery:import"].invoke
 end

@@ -1,0 +1,241 @@
+categories:
+  - Animal Patterns
+  - Floral Designs
+  - Holidays
+  - Characters
+  - Monograms
+  - Miscellaneous
+
+products:
+  # ── Animals ──────────────────────────────────────────────────────────────────
+
+  - title: "Paradise Bird"
+    category: "Animal Patterns"
+    pes_file: "Paradijs Vogel Lg.pes"
+    stitch_count: 65910
+    price: "19.99"
+    description: >
+      A magnificent tropical bird rendered in 38 thread colors, with sweeping
+      plumage and vivid detail that makes this design a true showpiece. Stunning
+      on pillow covers, tote bags, and tropical home décor. One of our most
+      complex and rewarding designs to stitch.
+
+  - title: "Tiger"
+    category: "Animal Patterns"
+    pes_file: "Tiger A.pes"
+    stitch_count: 46174
+    price: "19.99"
+    description: >
+      A bold, powerful tiger head with a commanding expression, worked in rich
+      orange, black, and ivory tones. Perfect for sports gear, backpacks, and
+      statement apparel. The strong contrast makes this design pop on both light
+      and dark fabrics.
+
+  - title: "Larry the Laid-Back Frog"
+    category: "Animal Patterns"
+    pes_file: "Larry The Laid Back Frog.pes"
+    stitch_count: 32514
+    price: "19.99"
+    description: >
+      Everyone's favorite relaxed amphibian, kicking back with a big grin and an
+      easy attitude. Bright, cheerful colors make this perfect for kids' tees,
+      towels, and casual summer gear. Larry brings good vibes wherever he lands.
+
+  - title: "Flamingo Flo"
+    category: "Animal Patterns"
+    pes_file: "Flamingo Flo I__3.pes"
+    stitch_count: 20276
+    price: "19.99"
+    description: >
+      An elegant flamingo in graceful profile, rendered in warm pinks and coral
+      tones with delicate feather detail. A natural fit for beach bags, summer
+      apparel, linen napkins, and resort-style décor. Sophisticated and
+      effortlessly stylish.
+
+  - title: "Giraffe"
+    category: "Animal Patterns"
+    pes_file: "Giraffe.pes"
+    stitch_count: 20612
+    price: "19.99"
+    description: >
+      A charming giraffe portrait with warm golden and amber tones and a gentle
+      expression. Clean lines and a friendly feel make this ideal for nursery
+      items, children's clothing, and safari-themed home accessories. A family
+      favorite for all ages.
+
+  # ── Floral Designs ────────────────────────────────────────────────────────────
+
+  - title: "Pink Flower Fairy"
+    category: "Floral Designs"
+    pes_file: "Ppink Flower Fairy.pes"
+    stitch_count: 21308
+    price: "19.99"
+    description: >
+      A delicate fairy nestled among blooming flowers, worked in 47 thread colors
+      with extraordinary detail. The richness of color and intricate stitching
+      make this ideal for framed display pieces, special garments, and heirloom
+      projects. A true labor of love with a magical result.
+
+  - title: "Decorative Frame Border"
+    category: "Floral Designs"
+    pes_file: "Frame.pes"
+    stitch_count: 38777
+    price: "19.99"
+    description: >
+      An ornate decorative border with flowing scrollwork and classical elegance.
+      Versatile and refined — use it to frame monograms on towels, dress up
+      pillowcases, or add a formal flourish to table linens. Pairs beautifully
+      with any center design or text.
+
+  - title: "Mushroom Border"
+    category: "Floral Designs"
+    pes_file: "Mushroom Border Lg__2.pes"
+    stitch_count: 26953
+    price: "19.99"
+    description: >
+      A whimsical woodland border featuring charming mushrooms with rich earth
+      tones and playful detail. Perfect for kitchen towels, tote bags, aprons,
+      and napkins. Brings a cozy, fairy-tale warmth to any everyday item.
+
+  # ── Monograms ─────────────────────────────────────────────────────────────────
+
+  - title: "Flower Monogram — A"
+    category: "Monograms"
+    pes_file: "A Flowermono.pes"
+    stitch_count: 4692
+    price: "19.99"
+    description: >
+      A beautiful floral letter A surrounded by delicate botanical detail in soft,
+      natural tones. Perfect for personalizing towels, tote bags, apparel, and
+      keepsakes. Clean and elegant — a timeless monogram style that works on
+      nearly any fabric.
+
+  # ── Holidays ──────────────────────────────────────────────────────────────────
+
+  - title: "Christmas Teddy Bear"
+    category: "Holidays"
+    pes_file: "Xmas Teddy__2.pes"
+    stitch_count: 53789
+    price: "19.99"
+    description: >
+      A festive teddy bear dressed for the season, carrying gifts and wearing a
+      warm holiday expression. Rich detail and classic Christmas colors make this
+      a perennial favorite for stockings, holiday pillows, seasonal apparel, and
+      gift bags. A must-stitch for the holiday collection.
+
+  - title: "Easter Eeyore"
+    category: "Holidays"
+    pes_file: "Easter Eeyore Large.pes"
+    stitch_count: 36792
+    price: "19.99"
+    description: >
+      The loveable donkey dressed up for Easter in soft pastels and springtime
+      cheer. A crowd-pleaser that works beautifully on kids' apparel, Easter
+      baskets, seasonal tote bags, and holiday décor. Warm and familiar — sure
+      to bring a smile.
+
+  - title: "Halloween Pumpkin Mouse"
+    category: "Holidays"
+    pes_file: "Pumpkin Mouse.pes"
+    stitch_count: 15402
+    price: "19.99"
+    description: >
+      A spooky-cute little mouse in a carved pumpkin costume, ready for
+      trick-or-treat. Worked in 27 thread colors with expressive detail. Perfect
+      for Halloween tote bags, seasonal shirts, and festive home décor that's
+      more cute than scary.
+
+  - title: "Snow Globe"
+    category: "Holidays"
+    pes_file: "Snow Globe__3.pes"
+    stitch_count: 15640
+    price: "19.99"
+    description: >
+      A magical winter scene captured inside a shimmering snow globe, with
+      delicate snowflakes and warm light. Elegant and timeless — works
+      beautifully on holiday stockings, winter scarves, gift wrap, and seasonal
+      home accents. A quiet, beautiful design for the winter season.
+
+  # ── Characters ────────────────────────────────────────────────────────────────
+
+  - title: "Pierrot the Clown"
+    category: "Characters"
+    pes_file: "Pierrot.pes"
+    stitch_count: 31186
+    price: "19.99"
+    description: >
+      A classic Pierrot clown in full theatrical costume — the melancholy
+      romantic of the commedia dell'arte tradition. Worked in 18 colors with
+      expressive detail, this is a sophisticated character piece that looks
+      stunning framed, on a statement garment, or as a display cushion. Unique
+      and unforgettable.
+
+  - title: "Granny Embroidering"
+    category: "Characters"
+    pes_file: "Granny Embroidering__6.pes"
+    stitch_count: 33437
+    price: "19.99"
+    description: >
+      A charming cartoon grandmother bent over her embroidery hoop, stitching
+      away with joyful concentration. The perfect gift for any embroidery
+      enthusiast — a warm, funny, and deeply relatable design. Works on tote
+      bags, aprons, tea towels, and anywhere a crafter might keep their
+      supplies.
+
+  - title: "Rhinestone Cowgirl"
+    category: "Characters"
+    pes_file: "Ftdrhinestone Cowgirl__2.pes"
+    stitch_count: 32202
+    price: "19.99"
+    description: >
+      A sassy, confident cowgirl with big personality and western flair. Bold
+      lines and vibrant colors make this design pop on denim jackets, tote bags,
+      country-style apparel, and accessories. She's got attitude to spare — and
+      the stitching to match.
+
+  - title: "Clown in Spotlight"
+    category: "Characters"
+    pes_file: "Clown Xl.pes"
+    stitch_count: 37402
+    price: "19.99"
+    description: >
+      A larger-than-life clown character with oversized features and vibrant
+      circus colors, designed for maximum impact on big hoop sizes. Playful and
+      eye-catching — great for kids' rooms, carnival-themed décor, and statement
+      pieces that demand attention.
+
+  - title: "Chef with Pasta"
+    category: "Characters"
+    pes_file: "Chef With Pasta.pes"
+    stitch_count: 24096
+    price: "19.99"
+    description: >
+      A jolly chef mid-toss with a steaming plate of pasta, full of warmth and
+      appetite. A natural for kitchen towels, aprons, oven mitts, and
+      food-lover gifts. Rich earth tones and expressive linework make this
+      one of the most cheerful kitchen designs in our collection.
+
+  # ── Miscellaneous ─────────────────────────────────────────────────────────────
+
+  - title: "Art Nouveau Aria"
+    category: "Miscellaneous"
+    pes_file: "Art Nouveau Aria Lg__2.pes"
+    stitch_count: 56335
+    price: "19.99"
+    description: >
+      An Art Nouveau-inspired figure in flowing organic lines and rich jewel
+      tones — 23 thread colors woven into a design that feels like wearable
+      fine art. Ideal as a framed embroidery display, on an heirloom cushion,
+      or as a statement piece on formal garments. One of our most striking
+      and technically demanding designs.
+
+  - title: "Wine Bottle"
+    category: "Miscellaneous"
+    pes_file: "Wine Bottle.pes"
+    stitch_count: 48807
+    price: "19.99"
+    description: >
+      An elegant wine bottle rendered in 30 thread colors with rich, deep tones
+      and fine label detail. Perfect for kitchen décor, wine-themed gifts, linen
+      bags, and entertaining accessories. Sophisticated without being fussy —
+      the kind of design that looks right at home in any well-appointed kitchen.
