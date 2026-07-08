@@ -37,8 +37,8 @@ class Product < ApplicationRecord
   def acceptable_images
     return unless images.attached?
 
-    if images.count > 2
-      errors.add(:images, "maximum of 2 images allowed per product")
+    if images.count > 10
+      errors.add(:images, "maximum of 10 images allowed per product")
     end
 
     images.each do |image|

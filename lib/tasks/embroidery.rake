@@ -119,14 +119,13 @@ namespace :embroidery do
 
       if renders.any?
         product.images.purge if force && product.images.attached?
-        renders.each do |r|
-          product.images.attach(
-            io: File.open(r[:path]),
-            filename: "#{slug}-#{r[:style]}.png",
-            content_type: "image/png"
-          )
+        attachables = renders.map do |r|
+          { io: File.open(r[:path]), filename: "#{slug}-#{r[:style]}.png", content_type: "image/png" }
         end
-        puts "  #{"CREATE" if created}#{"UPDATE" unless created}  #{title} (#{renders.size} images)"
+        product.images.attach(attachables)
+        product.reload
+        attached = product.images.count
+        puts "  #{"CREATE" if created}#{"UPDATE" unless created}  #{title} (#{attached}/#{renders.size} images)"
       else
         msg = "#{title}: all renders failed"
         puts "  ERROR  #{msg}"
