@@ -19,11 +19,18 @@ end
 if Rails.env.development?
   puts "Seeding products from catalog..."
   Rake::Task["embroidery:import"].invoke
-elsif Rails.env.production? && Product.count.zero?
-  puts "Production: loading pre-rendered product data..."
+elsif Rails.env.production?
+  puts "Production: syncing pre-rendered product data..."
 
   data_file = Rails.root.join("db/seeds/production_data.json")
   data = JSON.parse(File.read(data_file))
+
+  valid_titles = data["products"].map { |p| p["title"] }
+  obsolete = Product.where.not(title: valid_titles)
+  if obsolete.exists?
+    puts "Removing #{obsolete.count} obsolete legacy products..."
+    obsolete.destroy_all
+  end
 
   cat_id_map = {}
   data["categories"].each do |c|
