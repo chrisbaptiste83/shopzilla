@@ -71,15 +71,25 @@ rspec:
 
 build:
   stage: build
-  image: docker:26
+  image: ubuntu:22.04
   services:
     - docker:26-dind
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs/client"
+    DEBIAN_FRONTEND: noninteractive
   before_script:
-    - apk add --no-cache gcompat unzip curl
-    - ARCH=$(uname -m) && curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o /tmp/awscliv2.zip
-    - unzip -q /tmp/awscliv2.zip -d /tmp && /tmp/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli
+    - apt-get update -qq && apt-get install -y --no-install-recommends curl unzip ca-certificates
+    - |
+      ARCH=$(uname -m)
+      curl -fsSL "https://download.docker.com/linux/static/stable/${ARCH}/docker-26.1.4.tgz" \
+        | tar xz --strip-components=1 -C /usr/local/bin docker/docker
+    - |
+      ARCH=$(uname -m)
+      curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o /tmp/awscliv2.zip
+      unzip -q /tmp/awscliv2.zip -d /tmp && /tmp/aws/install
     - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
   script:
     - |
