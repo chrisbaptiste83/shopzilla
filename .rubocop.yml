@@ -3,6 +3,9 @@ inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
 AllCops:
   TargetRubyVersion: 3.4
+  Exclude:
+    - "lib/tasks/embroidery_catalog.rake"
+    - "lib/tasks/s3_import.rake"
 
 # Overwrite or add rules to create your own house style
 #

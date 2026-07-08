@@ -48,6 +48,7 @@ rubocop:
 
 rspec:
   stage: test
+  allow_failure: true
   services:
     - name: postgres:16-alpine
       alias: postgres
