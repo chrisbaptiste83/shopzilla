@@ -8,8 +8,12 @@ class WebhooksController < ApplicationController
 
     begin
       event = Stripe::Webhook.construct_event(payload, sig_header, endpoint_secret)
-    rescue JSON::ParserError, Stripe::SignatureVerificationError
-      return render json: { error: "Invalid payload or signature" }, status: 400
+    rescue JSON::ParserError => e
+      Rails.logger.error "Webhook JSON error: #{e.message}"
+      return render json: { error: "Invalid payload" }, status: 400
+    rescue Stripe::SignatureVerificationError => e
+      Rails.logger.error "Webhook signature error: #{e.message}"
+      return render json: { error: "Invalid signature" }, status: 400
     end
 
     case event["type"]

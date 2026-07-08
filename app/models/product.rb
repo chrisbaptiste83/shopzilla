@@ -16,6 +16,7 @@ class Product < ApplicationRecord
   validates :category_id, presence: true, unless: -> { new_category_name.present? }
   validate :acceptable_images
   validate :acceptable_embroidery_file
+  validates :dimensions, presence: true, if: :physical_product
 
   def self.ransackable_attributes(auth_object = nil)
     %w[id title price file_format is_available dimensions stitch_count created_at updated_at]

@@ -16,6 +16,11 @@ class CheckoutController < ApplicationController
 
     quantities_by_product_id = build_quantities(@products)
 
+    if quantities_by_product_id.values.any? { |q| q <= 0 }
+      redirect_to cart_path, alert: "Invalid quantities in cart."
+      return
+    end
+
     # Check if any product is physical
     if @products.any?(&:shippable)
       total = @products.sum(&:price)
@@ -115,8 +120,7 @@ class CheckoutController < ApplicationController
 
   def build_quantities(products)
     products.index_with do |product|
-      quantity = params[:product_id].present? ? 1 : session.dig(:cart, product.id.to_s).to_i
-      quantity.positive? ? quantity : 1
+      params[:product_id].present? ? 1 : session.dig(:cart, product.id.to_s).to_i
     end.transform_keys { |product| product.id.to_s }
   end
 end
