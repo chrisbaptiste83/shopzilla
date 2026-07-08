@@ -1,6 +1,8 @@
 image: ruby:3.4.2
 
 variables:
+  GIT_STRATEGY: clone
+  FF_NETWORK_PER_BUILD: "true"
   AWS_REGION: us-east-2
   ECR_REGISTRY: "673588459621.dkr.ecr.us-east-2.amazonaws.com"
   ECR_REPOSITORY: shopzilla
