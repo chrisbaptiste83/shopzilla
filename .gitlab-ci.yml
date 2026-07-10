@@ -85,21 +85,31 @@ build:
       curl -fsSL "https://download.docker.com/linux/static/stable/${ARCH}/docker-26.1.4.tgz" \
         | tar xz --strip-components=1 -C /usr/local/bin docker/docker
     - |
+      case "$(uname -m)" in aarch64) BUILDX_ARCH=arm64 ;; *) BUILDX_ARCH=amd64 ;; esac
+      mkdir -p ~/.docker/cli-plugins
+      curl -fsSL "https://github.com/docker/buildx/releases/download/v0.16.2/buildx-v0.16.2.linux-${BUILDX_ARCH}" \
+        -o ~/.docker/cli-plugins/docker-buildx
+      chmod +x ~/.docker/cli-plugins/docker-buildx
+    - |
       ARCH=$(uname -m)
       curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o /tmp/awscliv2.zip
       unzip -q /tmp/awscliv2.zip -d /tmp && /tmp/aws/install
     - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
   script:
+    # The legacy builder resolves FROM against the host's (arm64) image cache
+    # even with --platform; a docker-container BuildKit builder does not.
+    - docker rm -f buildx_buildkit_ci-builder0 2>/dev/null || true
+    - docker buildx create --name ci-builder --driver docker-container --use
     - |
-      docker build \
-        --pull \
+      docker buildx build \
         --platform linux/amd64 \
-        --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+        --push \
+        --provenance=false \
+        --cache-from type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY:latest \
         -t $ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHA \
         -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
         .
-    - docker push $ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHA
-    - docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+    - docker buildx rm ci-builder || true
   only:
     - main
 
