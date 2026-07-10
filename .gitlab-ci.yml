@@ -92,6 +92,7 @@ build:
   script:
     - |
       docker build \
+        --pull \
         --platform linux/amd64 \
         --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:latest \
         -t $ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHA \
