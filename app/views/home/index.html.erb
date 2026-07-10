@@ -116,7 +116,7 @@
           <%= link_to product_path(product) do %>
             <div class="sz-product-image">
               <% if product.images.attached? %>
-                <%= image_tag product.images.first,
+                <%= image_tag product.primary_image,
                       class: "w-full h-52 object-contain",
                       alt: product.title %>
               <% else %>

@@ -5,6 +5,11 @@ class Product < ApplicationRecord
   has_rich_text :description
   has_one_attached :embroidery_file
   has_many_attached :images
+
+  def primary_image
+    images.find { |img| img.filename.to_s.include?("detail") } || images.first
+  end
+
   belongs_to :category
   has_many :download_accesses, dependent: :destroy
   has_many :wishlist_items, dependent: :destroy

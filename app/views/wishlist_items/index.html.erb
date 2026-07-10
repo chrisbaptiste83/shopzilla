@@ -43,7 +43,7 @@
         <figure class="px-4 pt-4 relative overflow-hidden">
           <%= link_to product_path(product) do %>
             <% if product.images.attached? %>
-              <%= image_tag product.images.first, class: "rounded-lg h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300" %>
+              <%= image_tag product.primary_image, class: "rounded-lg h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300" %>
             <% else %>
               <div class="rounded-lg h-48 w-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                 <span class="text-5xl opacity-50">🎨</span>

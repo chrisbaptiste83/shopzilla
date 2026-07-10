@@ -4,8 +4,8 @@
 <% content_for :og_description, "#{@product.title} embroidery design — #{@product.stitch_count} stitches. #{number_to_currency(@product.price)} instant download." %>
 <% content_for :og_type, "product" %>
 <% if @product.images.attached? %>
-  <% _og_img = imagekit_url(@product.images.first, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85) %>
-  <% content_for :og_image, _og_img || url_for(@product.images.first) %>
+  <% _og_img = imagekit_url(@product.primary_image, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85) %>
+  <% content_for :og_image, _og_img || url_for(@product.primary_image) %>
 <% end %>
 
 <!-- Breadcrumb -->
@@ -22,8 +22,8 @@
   <!-- Product Images -->
   <div data-controller="product-gallery">
     <% if @product.images.attached? %>
-      <% _ik_main = imagekit_url(@product.images.first, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85, sharpen: 30) %>
-      <%= image_tag(_ik_main || @product.images.first.variant(resize_to_limit: [1200, 1200]),
+      <% _ik_main = imagekit_url(@product.primary_image, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85, sharpen: 30) %>
+      <%= image_tag(_ik_main || @product.primary_image.variant(resize_to_limit: [1200, 1200]),
             class: "rounded-2xl w-full h-96 object-contain bg-base-200",
             data: { product_gallery_target: "mainImage" }) %>
     <% else %>
@@ -161,8 +161,8 @@
       <% related_products.each do |related| %>
         <%= link_to product_path(related), class: "group block" do %>
           <% if related.images.attached? %>
-            <% _ik_rel = imagekit_url(related.images.first, width: 400, height: 400, crop: "at_max", format: "auto", quality: 80, sharpen: 30) %>
-            <%= image_tag(_ik_rel || related.images.first, class: "rounded-2xl w-full h-36 object-contain bg-base-200 group-hover:opacity-80 transition-opacity mb-3") %>
+            <% _ik_rel = imagekit_url(related.primary_image, width: 400, height: 400, crop: "at_max", format: "auto", quality: 80, sharpen: 30) %>
+            <%= image_tag(_ik_rel || related.primary_image, class: "rounded-2xl w-full h-36 object-contain bg-base-200 group-hover:opacity-80 transition-opacity mb-3") %>
           <% else %>
             <div class="rounded-2xl w-full h-36 bg-base-200 mb-3"></div>
           <% end %>

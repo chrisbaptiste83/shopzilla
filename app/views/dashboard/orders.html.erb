@@ -46,7 +46,7 @@
                     <div class="flex items-center gap-3">
                       <div class="w-10 h-10 rounded overflow-hidden flex-shrink-0" style="background: rgba(148, 163, 184, 0.1);">
                         <% if item.product.images.attached? %>
-                          <%= image_tag item.product.images.first.variant(resize_to_fill: [80, 80]), class: "w-full h-full object-cover" %>
+                          <%= image_tag item.product.primary_image.variant(resize_to_fill: [80, 80]), class: "w-full h-full object-cover" %>
                         <% else %>
                           <div class="w-full h-full flex items-center justify-center text-lg opacity-50">✂️</div>
                         <% end %>

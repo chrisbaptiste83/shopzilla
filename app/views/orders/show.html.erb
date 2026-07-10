@@ -31,7 +31,7 @@
         <% @order.order_items.each do |item| %>
           <div class="flex items-center gap-4 p-3 rounded-lg">
             <% if item.product.images.attached? %>
-              <%= image_tag item.product.images.first.variant(resize_to_fill: [80, 80]),
+              <%= image_tag item.product.primary_image.variant(resize_to_fill: [80, 80]),
                   class: "w-20 h-20 object-cover rounded-lg",
                   alt: item.product.title %>
             <% else %>

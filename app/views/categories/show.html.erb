@@ -35,7 +35,7 @@
           <%= link_to product_path(product) do %>
             <div class="relative overflow-hidden rounded-xl bg-base-200 mb-3">
               <% if product.images.attached? %>
-                <%= image_tag product.images.first,
+                <%= image_tag product.primary_image,
                       class: "w-full h-48 object-contain group-hover:scale-105 transition-transform duration-300" %>
               <% else %>
                 <div class="w-full h-48 flex items-center justify-center">
