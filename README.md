@@ -48,7 +48,7 @@ A full-featured e-commerce application for Gloria's embroidery studio — sellin
 ### Installation
 
 ```bash
-git clone git@github.com:chrisbaptiste83/shopzilla.git
+git clone http://localhost/night_archivist667/shopzilla.git
 cd shopzilla
 
 bundle install
@@ -163,7 +163,7 @@ stripe listen --forward-to localhost:3000/webhooks/stripe
 
 Deployed to AWS ECS (EC2 launch type) behind an ALB at `gloriasembroideryshop.com`.
 
-- App images are built in GitHub Actions and pushed to ECR.
+- App images are built in GitLab CI and pushed to ECR.
 - ECS runs the Rails container on port `3000` with dynamic host ports.
 - Production secrets are injected from AWS Secrets Manager.
 - Active Storage uses the `amazon` service and stores files in `shopzilla-prod-assets`.

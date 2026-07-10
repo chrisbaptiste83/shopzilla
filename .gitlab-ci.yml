@@ -156,7 +156,7 @@ deploy:
       echo "Deploy complete."
   environment:
     name: production
-    url: http://ecs-apps-alb-1089245167.us-east-2.elb.amazonaws.com
+    url: https://gloriasembroideryshop.com
   only:
     - main
   needs:

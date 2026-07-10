@@ -6,7 +6,7 @@ Owner: Engineering
 ## Architecture Overview
 
 ```
-GitHub Actions
+GitLab CI
     │
     ▼
 Amazon ECR  ──────────────────────────────────┐
@@ -290,15 +290,15 @@ The `docker-entrypoint` script also runs `db:prepare` on each web container star
 
 ## Routine Deploys
 
-All routine deploys are automated via GitHub Actions:
+All routine deploys are automated via GitLab CI:
 
-> Migration note: `.github/workflows/deploy.yml` now deploys to `ECS_CLUSTER=shopzilla`.
-> The old `default` cluster should not run the Shopzilla web service.
+> Migration note: `.gitlab-ci.yml` is the single authoritative deploy pipeline.
+> The old `default` cluster and GitHub Actions workflows are retired.
 
 1. Open a PR against `main`
 2. CI runs (tests, security scan, lint)
 3. Merge to `main`
-4. GitHub Actions (`deploy.yml`) triggers automatically:
+4. GitLab CI (`.gitlab-ci.yml`) triggers automatically:
    - Builds a new image tagged with the commit SHA
    - Pushes to ECR
    - Registers a new task definition revision pointing at that image
@@ -389,10 +389,10 @@ aws ecs update-service \
 
 Completed:
 
-- deployed on ECS EC2 + ECR via GitHub Actions
+- deployed on ECS EC2 + ECR via GitLab CI
 - removed stored AWS credentials from `storage.yml` — ECS EC2 instance IAM role provides S3 access automatically
 - updated `config/environments/production.rb` to use `ACTIVE_STORAGE_SERVICE` env var (was hardcoded `:local`)
 - updated `config/storage.yml` bucket from `embroidery-files-667` to `shopzilla-prod-assets`
 - created `.aws/task-definition.json` with EC2 launch type, dynamic port mapping, Secrets Manager injection
-- created `.github/workflows/deploy.yml` — triggers on CI pass on `main`, builds amd64 image, pushes to ECR, rolling ECS deploy via OIDC (no stored AWS credentials in GitHub)
+- `.gitlab-ci.yml` is the canonical pipeline — triggers on push to `main`, builds amd64 image, pushes to ECR, rolling ECS deploy
 - created this deployment guide
