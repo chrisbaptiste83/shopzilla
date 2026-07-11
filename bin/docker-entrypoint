@@ -6,10 +6,13 @@ if [ -z "${LD_PRELOAD+x}" ]; then
     export LD_PRELOAD
 fi
 
-# If running the rails server then create or migrate existing database
-if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+# Prepare the schema whenever this command starts a Rails server. ECS appends
+# bind/port flags, and the Docker default may prefix the server with Thruster,
+# so checking only the final arguments silently skipped migrations in both
+# cases. Catalog reconciliation is intentionally an explicit release action;
+# never run db:seed implicitly on a container restart.
+if [[ " $* " == *" ./bin/rails server "* ]]; then
   ./bin/rails db:prepare
-  ./bin/rails db:seed
 fi
 
 exec "${@}"

@@ -6,6 +6,7 @@ class HomeController < ApplicationController
                                   .limit(6)
     @featured_products = Product.where(is_available: true)
                                  .includes(:images_attachments)
+                                 .order(created_at: :desc)
                                  .limit(3)
     @mosaic_products = Product.where(
       id: Product.where(is_available: true).joins(:images_attachments).distinct.select(:id)
