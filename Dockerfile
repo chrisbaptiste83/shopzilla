@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-# Production Dockerfile — deployed to AWS ECS via GitHub Actions.
+# Production Dockerfile — deployed to AWS ECS via GitLab CI.
 # To run locally: docker build -t shopzilla . && docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name shopzilla shopzilla
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html

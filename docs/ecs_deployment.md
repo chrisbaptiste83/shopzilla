@@ -193,16 +193,10 @@ aws iam put-role-policy \
   }'
 ```
 
-### 6. Create ECS Cluster
+### 6. Use the Existing ECS Cluster
 
-The target Shopzilla cluster is named `shopzilla`. The previous shared cluster was named
-`default`; Shopzilla production traffic now runs from the dedicated `shopzilla` cluster.
-
-```bash
-aws ecs create-cluster \
-  --cluster-name shopzilla \
-  --region us-east-2
-```
+Shopzilla production runs in the `default` cluster. It is the canonical target for
+the `shopzilla-web` service; do not create or deploy to a second `shopzilla` cluster.
 
 ### 7. Create CloudWatch Log Group
 
@@ -233,13 +227,11 @@ Do this through the ECS console (Create Service wizard) or with the AWS CLI. Key
 
 ## First Deploy
 
-### Step 1 — Register the task definition
+### Step 1 — Let GitLab CI Register the Task Definition
 
-```bash
-aws ecs register-task-definition \
-  --cli-input-json file://.aws/task-definition.json \
-  --region us-east-2
-```
+Routine deploys retrieve the active `shopzilla-web` task definition, replace only
+the application image, and register the resulting revision. Do not keep exported
+task definitions with credentials in the repository.
 
 ### Step 2 — Build and push the initial image
 
@@ -260,31 +252,22 @@ docker push 673588459621.dkr.ecr.us-east-2.amazonaws.com/shopzilla:latest
 
 ```bash
 aws ecs create-service \
-  --cluster shopzilla \
+  --cluster default \
   --service-name shopzilla-web \
-  --task-definition shopzilla \
+  --task-definition shopzilla-web \
   --desired-count 1 \
   --launch-type EC2 \
   --load-balancers "targetGroupArn=arn:aws:elasticloadbalancing:us-east-2:673588459621:targetgroup/shopzilla/...,containerName=shopzilla,containerPort=3000" \
   --region us-east-2
 ```
 
-### Step 4 — Run database migrations (first time only)
+### Step 4 — Database Preparation and Catalog Releases
 
-```bash
-aws ecs run-task \
-  --cluster shopzilla \
-  --task-definition shopzilla \
-  --overrides '{
-    "containerOverrides": [{
-      "name": "shopzilla",
-      "command": ["bin/rails", "db:migrate"]
-    }]
-  }' \
-  --region us-east-2
-```
-
-The `docker-entrypoint` script also runs `db:prepare` on each web container start, so migrations run automatically on rolling deploys. The one-time task is only needed if you want to run migrations before the service starts.
+The `docker-entrypoint` runs `db:prepare` whenever a web container starts, so
+migrations are applied on rolling deploys. The production catalog seed is
+deliberately **not** automatic because it reconciles obsolete products. Take a
+PostgreSQL backup and run `bin/rails db:seed` as an explicit, reviewed catalog
+release only when the checked-in catalog is the intended production state.
 
 ---
 
@@ -293,7 +276,7 @@ The `docker-entrypoint` script also runs `db:prepare` on each web container star
 All routine deploys are automated via GitLab CI:
 
 > Migration note: `.gitlab-ci.yml` is the single authoritative deploy pipeline.
-> The old `default` cluster and GitHub Actions workflows are retired.
+> The `default` ECS cluster is the active production target; GitHub Actions is retired.
 
 1. Open a PR against `main`
 2. CI runs (tests, security scan, lint)
@@ -362,13 +345,13 @@ To roll back to a previous task definition revision:
 
 ```bash
 # List recent revisions
-aws ecs describe-task-definition --task-definition shopzilla --region us-east-2
+aws ecs describe-task-definition --task-definition shopzilla-web --region us-east-2
 
 # Update service to a specific revision number
 aws ecs update-service \
-  --cluster shopzilla \
+  --cluster default \
   --service shopzilla-web \
-  --task-definition shopzilla:REVISION_NUMBER \
+  --task-definition shopzilla-web:REVISION_NUMBER \
   --region us-east-2
 ```
 
@@ -377,7 +360,7 @@ aws ecs update-service \
 ## Monitoring
 
 - **Container logs**: CloudWatch Logs → `/ecs/shopzilla`
-- **Service health**: ECS console → shopzilla cluster → shopzilla-web service → Events tab
+- **Service health**: ECS console → default cluster → shopzilla-web service → Events tab
 - **ALB health**: EC2 console → Target Groups → shopzilla → Targets tab (should show `healthy`)
 - **Rails health check endpoint**: `GET /up` — returns 200 when the app is booted
 
@@ -392,7 +375,7 @@ Completed:
 - deployed on ECS EC2 + ECR via GitLab CI
 - removed stored AWS credentials from `storage.yml` — ECS EC2 instance IAM role provides S3 access automatically
 - updated `config/environments/production.rb` to use `ACTIVE_STORAGE_SERVICE` env var (was hardcoded `:local`)
-- updated `config/storage.yml` bucket from `embroidery-files-667` to `shopzilla-prod-assets`
-- created `.aws/task-definition.json` with EC2 launch type, dynamic port mapping, Secrets Manager injection
+- updated `config/storage.yml` bucket from `embroidery-files-667` to `shopzilla-prod-assets-na`
+- GitLab CI dynamically derives each task definition revision from the active service
 - `.gitlab-ci.yml` is the canonical pipeline — triggers on push to `main`, builds amd64 image, pushes to ECR, rolling ECS deploy
 - created this deployment guide

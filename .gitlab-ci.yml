@@ -50,7 +50,6 @@ rubocop:
 
 rspec:
   stage: test
-  allow_failure: true
   services:
     - name: postgres:16-alpine
       alias: postgres
@@ -58,6 +57,7 @@ rspec:
     DATABASE_URL: postgres://rails:password@postgres/shopzilla_test
   <<: *ruby_setup
   script:
+    - bash test/docker_entrypoint_test.sh
     - npm install -g yarn && yarn install
     - bundle exec rails db:test:prepare
     - bundle exec rails test
