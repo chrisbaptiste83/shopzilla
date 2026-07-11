@@ -75,9 +75,15 @@ rspec:
 build:
   stage: build
   image: ubuntu:22.04
+  services:
+    - name: docker:26.1.4-dind
+      alias: docker
   variables:
     DEBIAN_FRONTEND: noninteractive
-    DOCKER_HOST: unix:///var/run/docker.sock
+    # The shared runners deliberately do not mount the host Docker socket.
+    # Keep this job on the same isolated DIND path as the other applications.
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - apt-get update -qq && apt-get install -y --no-install-recommends curl unzip ca-certificates
     - |
@@ -91,27 +97,48 @@ build:
         -o ~/.docker/cli-plugins/docker-buildx
       chmod +x ~/.docker/cli-plugins/docker-buildx
     - |
-      ARCH=$(uname -m)
-      curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o /tmp/awscliv2.zip
-      unzip -q /tmp/awscliv2.zip -d /tmp && /tmp/aws/install
-    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+      for attempt in $(seq 1 30); do
+        if docker info >/dev/null 2>&1; then
+          break
+        fi
+        sleep 1
+      done
+      docker info >/dev/null
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        ARCH=$(uname -m)
+        curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o /tmp/awscliv2.zip
+        unzip -q /tmp/awscliv2.zip -d /tmp && /tmp/aws/install
+        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+      fi
   script:
     # The legacy builder resolves FROM against the host's (arm64) image cache
     # even with --platform; a docker-container BuildKit builder does not.
     - docker rm -f buildx_buildkit_ci-builder0 2>/dev/null || true
     - docker buildx create --name ci-builder --driver docker-container --use
     - |
-      docker buildx build \
-        --platform linux/amd64 \
-        --push \
-        --provenance=false \
-        --cache-from type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY:latest \
-        -t $ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHA \
-        -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
-        .
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        docker buildx build \
+          --platform linux/amd64 \
+          --push \
+          --provenance=false \
+          --cache-from type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY:latest \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHA \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+          .
+      else
+        # MR builds exercise the production Dockerfile without publishing an
+        # image or requiring protected AWS credentials.
+        docker buildx build \
+          --platform linux/amd64 \
+          --provenance=false \
+          --output type=cacheonly \
+          .
+      fi
     - docker buildx rm ci-builder || true
-  only:
-    - main
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 # ── Deploy ────────────────────────────────────────────────────────────────────
 
