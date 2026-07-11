@@ -1,5 +1,8 @@
 source "https://rubygems.org"
 
+# Keep developer, CI, and production container runtimes aligned.
+ruby "3.4.2"
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.2"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
