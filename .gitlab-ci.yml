@@ -4,9 +4,9 @@ variables:
   GIT_STRATEGY: clone
   FF_NETWORK_PER_BUILD: "true"
   AWS_REGION: us-east-2
-  ECR_REGISTRY: "570823560193.dkr.ecr.us-east-2.amazonaws.com"
+  ECR_REGISTRY: "673588459621.dkr.ecr.us-east-2.amazonaws.com"
   ECR_REPOSITORY: shopzilla
-  ECS_CLUSTER: shopzilla
+  ECS_CLUSTER: default
   ECS_SERVICE: shopzilla-web
   CONTAINER_NAME: shopzilla
   POSTGRES_USER: rails

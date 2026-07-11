@@ -185,7 +185,7 @@ Three distinct roles were created or utilized, each scoped to a specific functio
 
 **Policies:**
 - `AmazonECSTaskExecutionRolePolicy` (AWS managed) — ECR pull, CloudWatch log writes
-- `ShopzillaSecretsRead` (inline) — `secretsmanager:GetSecretValue` scoped to `arn:aws:secretsmanager:us-east-2:570823560193:secret:shopzilla/*`
+- `ShopzillaSecretsRead` (inline) — `secretsmanager:GetSecretValue` scoped to `arn:aws:secretsmanager:us-east-2:673588459621:secret:shopzilla/*`
 
 **Key security note:** In the live deployment, runtime S3 access comes from the EC2 instance profile rather than an ECS task role. The execution role remains limited to bootstrap responsibilities such as ECR pulls and Secrets Manager access.
 
@@ -244,7 +244,7 @@ Three secrets were created in AWS Secrets Manager:
 "secrets": [
   {
     "name": "RAILS_MASTER_KEY",
-    "valueFrom": "arn:aws:secretsmanager:us-east-2:570823560193:secret:shopzilla/rails-master-key"
+    "valueFrom": "arn:aws:secretsmanager:us-east-2:673588459621:secret:shopzilla/rails-master-key"
   }
 ]
 ```
@@ -476,7 +476,7 @@ permissions:
 steps:
   - uses: aws-actions/configure-aws-credentials@v4
     with:
-      role-to-assume: arn:aws:iam::570823560193:role/github-actions-shopzilla
+      role-to-assume: arn:aws:iam::673588459621:role/github-actions-shopzilla
       aws-region: us-east-2
 ```
 

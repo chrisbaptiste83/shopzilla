@@ -108,7 +108,7 @@ aws iam put-role-policy \
       "Effect": "Allow",
       "Action": "secretsmanager:GetSecretValue",
       "Resource": [
-        "arn:aws:secretsmanager:us-east-2:570823560193:secret:shopzilla/*"
+        "arn:aws:secretsmanager:us-east-2:673588459621:secret:shopzilla/*"
       ]
     }]
   }'
@@ -137,7 +137,7 @@ aws iam create-role \
     "Statement": [{
       "Effect": "Allow",
       "Principal": {
-        "Federated": "arn:aws:iam::570823560193:oidc-provider/token.actions.githubusercontent.com"
+        "Federated": "arn:aws:iam::673588459621:oidc-provider/token.actions.githubusercontent.com"
       },
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
@@ -186,7 +186,7 @@ aws iam put-role-policy \
         "Effect": "Allow",
         "Action": "iam:PassRole",
         "Resource": [
-          "arn:aws:iam::570823560193:role/service-role/ecsTaskExecutionRole"
+          "arn:aws:iam::673588459621:role/service-role/ecsTaskExecutionRole"
         ]
       }
     ]
@@ -246,14 +246,14 @@ aws ecs register-task-definition \
 ```bash
 aws ecr get-login-password --region us-east-2 | \
   docker login --username AWS --password-stdin \
-  570823560193.dkr.ecr.us-east-2.amazonaws.com
+  673588459621.dkr.ecr.us-east-2.amazonaws.com
 
 docker build --platform linux/amd64 -t shopzilla .
 
 docker tag shopzilla:latest \
-  570823560193.dkr.ecr.us-east-2.amazonaws.com/shopzilla:latest
+  673588459621.dkr.ecr.us-east-2.amazonaws.com/shopzilla:latest
 
-docker push 570823560193.dkr.ecr.us-east-2.amazonaws.com/shopzilla:latest
+docker push 673588459621.dkr.ecr.us-east-2.amazonaws.com/shopzilla:latest
 ```
 
 ### Step 3 — Create the ECS service (once)
@@ -265,7 +265,7 @@ aws ecs create-service \
   --task-definition shopzilla \
   --desired-count 1 \
   --launch-type EC2 \
-  --load-balancers "targetGroupArn=arn:aws:elasticloadbalancing:us-east-2:570823560193:targetgroup/shopzilla/...,containerName=shopzilla,containerPort=3000" \
+  --load-balancers "targetGroupArn=arn:aws:elasticloadbalancing:us-east-2:673588459621:targetgroup/shopzilla/...,containerName=shopzilla,containerPort=3000" \
   --region us-east-2
 ```
 
