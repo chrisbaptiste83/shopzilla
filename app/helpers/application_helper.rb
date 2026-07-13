@@ -52,4 +52,9 @@ module ApplicationHelper
     url = "#{endpoint}/#{key}"
     tr.present? ? "#{url}?tr=#{tr}" : url
   end
+
+  def turbo_native_app?
+    request.user_agent.to_s.include?("Turbo Native") ||
+      request.user_agent.to_s.include?("Hotwire Native")
+  end
 end
