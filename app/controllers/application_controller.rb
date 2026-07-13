@@ -4,6 +4,12 @@ class ApplicationController < ActionController::Base
 
   before_action :authenticate_from_token!
 
+  helper_method :turbo_native_app?
+
+  def turbo_native_app?
+    request.user_agent.to_s.include?("Turbo Native")
+  end
+
   private
 
   # Allow Bearer-token auth in addition to session auth for JSON/API requests.

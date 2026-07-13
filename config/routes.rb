@@ -41,6 +41,10 @@ Rails.application.routes.draw do
     end
   end
 
+  # Turbo Native Path Configurations
+  get "configurations/ios_v1",     to: "configurations#ios_v1",     defaults: { format: :json }
+  get "configurations/android_v1", to: "configurations#android_v1", defaults: { format: :json }
+
   get "up" => "rails/health#show", as: :rails_health_check
   root to: "home#index"
 

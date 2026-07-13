@@ -2,7 +2,7 @@
 <html>
 <head>
   <title><%= content_for?(:page_title) ? "#{yield(:page_title)} | Gloria's Embroidery Shop" : "Gloria's Embroidery Shop" %></title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : "Beautiful hand-crafted embroidery designs. Download PES files for immediate use." %>">
 
   <!-- Open Graph -->
@@ -45,7 +45,8 @@
     <div class="sz-aurora-blob sz-aurora-blob-2"></div>
     <div class="sz-aurora-blob sz-aurora-blob-3"></div>
   </div>
-  <!-- Navigation Bar -->
+  <!-- Navigation Bar (hidden in native mobile wrapper) -->
+  <% unless turbo_native_app? %>
   <div class="navbar shadow-xl sticky top-0 z-50 px-2 sm:px-4">
     <div class="navbar-start">
       <div class="dropdown">
@@ -208,9 +209,9 @@
       <% else %>
         <%= link_to "Login", new_user_session_path, class: "btn btn-ghost btn-sm hidden lg:inline-flex" %>
         <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-primary btn-sm hidden lg:inline-flex" %>
-      <% end %>
     </div>
   </div>
+  <% end %>
 
   <!-- Main Content -->
   <main class="container mx-auto px-4 md:px-6 mt-4 relative z-10 page-surface">
@@ -231,7 +232,8 @@
     <%= yield %>
   </main>
 
-  <!-- Footer -->
+  <!-- Footer (hidden in native mobile wrapper) -->
+  <% unless turbo_native_app? %>
   <footer class="footer p-6 sm:p-10 mt-16 grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
     <nav>
       <h6 class="footer-title">Shop</h6>
@@ -294,5 +296,6 @@
       </div>
     </nav>
   </footer>
+  <% end %>
 </body>
 </html>
