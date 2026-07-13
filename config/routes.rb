@@ -18,7 +18,9 @@ Rails.application.routes.draw do
   get "dashboard/downloads", to: "dashboard#downloads", as: :dashboard_downloads
   get "dashboard/wishlist", to: "dashboard#wishlist", as: :dashboard_wishlist
 
-  resources :products
+  resources :products do
+    resources :reviews, only: [ :create, :destroy ]
+  end
   resources :categories
   devise_for :users, controllers: {
     sessions:      "users/sessions",

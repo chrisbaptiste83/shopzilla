@@ -23,6 +23,7 @@ class User < ApplicationRecord
   has_many :download_accesses, dependent: :destroy
   has_many :wishlist_items, dependent: :destroy
   has_many :wishlist_products, through: :wishlist_items, source: :product
+  has_many :reviews, dependent: :destroy
 
 
   def self.ransackable_associations(auth_object = nil)
