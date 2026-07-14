@@ -13,6 +13,12 @@ class Product < ApplicationRecord
   belongs_to :category
   has_many :download_accesses, dependent: :destroy
   has_many :wishlist_items, dependent: :destroy
+  has_many :reviews, dependent: :destroy
+
+  def average_rating
+    return 0.0 if reviews.empty?
+    reviews.average(:rating).to_f.round(1)
+  end
 
   before_validation :create_category_from_name, if: -> { new_category_name.present? }
 

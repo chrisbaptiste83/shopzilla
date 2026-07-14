@@ -1,0 +1,11 @@
+one:
+  product: rose_design
+  user: alice
+  rating: 5
+  content: "Great embroidery design!"
+
+two:
+  product: hoop_art
+  user: alice
+  rating: 4
+  content: "Lovely hoop art."

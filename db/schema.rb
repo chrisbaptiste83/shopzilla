@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_07_113015) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_13_220852) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -125,6 +125,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_07_113015) do
     t.index ["category_id"], name: "index_products_on_category_id"
   end
 
+  create_table "reviews", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "rating", default: 5, null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id", "user_id"], name: "index_reviews_on_product_id_and_user_id", unique: true
+    t.index ["product_id"], name: "index_reviews_on_product_id"
+    t.index ["user_id"], name: "index_reviews_on_user_id"
+  end
+
   create_table "shipping_addresses", force: :cascade do |t|
     t.string "full_name"
     t.string "street_address"
@@ -176,6 +188,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_07_113015) do
   add_foreign_key "orders", "users"
   add_foreign_key "payments", "orders"
   add_foreign_key "products", "categories"
+  add_foreign_key "reviews", "products"
+  add_foreign_key "reviews", "users"
   add_foreign_key "shipping_addresses", "orders"
   add_foreign_key "wishlist_items", "products"
   add_foreign_key "wishlist_items", "users"

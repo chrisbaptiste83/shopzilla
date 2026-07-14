@@ -1,5 +1,7 @@
 # app/controllers/products_controller.rb
 class ProductsController < ApplicationController
+  ALLOWED_SORTS = %w[newest price_low price_high].freeze
+
   before_action :set_product, only: %i[show edit update destroy]
   before_action :authenticate_user!, only: %i[new create edit update destroy]
   before_action :check_admin, only: %i[new create edit update destroy]
@@ -12,10 +14,10 @@ class ProductsController < ApplicationController
 
     # 🔎 Search (title + description if present)
     if params[:search].present?
-      search_term = "%#{params[:search].downcase}%"
+      search_term = "%#{Product.sanitize_sql_like(params[:search].downcase)}%"
       @products = @products
         .left_joins(:rich_text_description)
-        .where("LOWER(products.title) LIKE ? OR LOWER(action_text_rich_texts.body) LIKE ?", search_term, search_term)
+        .where("LOWER(products.title) LIKE :q OR LOWER(action_text_rich_texts.body) LIKE :q", q: search_term)
     end
 
     # 🎨 Filter by category
@@ -25,7 +27,7 @@ class ProductsController < ApplicationController
 
     # 🗂️ Filter by file_format (use :file_format param to avoid clash with Rails' :format)
     if params[:file_format].present?
-      format_term = "%#{params[:file_format].downcase}%"
+      format_term = "%#{Product.sanitize_sql_like(params[:file_format].downcase)}%"
       @products = @products.where("LOWER(file_format) LIKE ?", format_term)
     end
 
@@ -37,17 +39,18 @@ class ProductsController < ApplicationController
       @products = @products.where("stitch_count <= ?", params[:stitch_max].to_i)
     end
 
-    # 🔃 Sorting
-    case params[:sort]
+    # 🔃 Sorting (Strict Whitelist Enforcement)
+    sort_key = ALLOWED_SORTS.include?(params[:sort]) ? params[:sort] : nil
+    case sort_key
     when "newest"
       @products = @products.order(created_at: :desc)
     when "price_low"
       @products = @products.order(price: :asc)
     when "price_high"
       @products = @products.order(price: :desc)
+    else
+      @products = @products.order(created_at: :desc) if @products.order_values.empty?
     end
-
-    @products = @products.order(created_at: :desc) if @products.order_values.empty?
 
     per_page = params[:per].to_i
     per_page = 24 if per_page <= 0

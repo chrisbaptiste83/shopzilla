@@ -152,6 +152,61 @@
   </div>
 </div>
 
+<!-- Customer Reviews -->
+<section class="border-t border-base-300 pt-12 mb-16">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h2 class="text-2xl font-bold">Customer Reviews</h2>
+      <div class="flex items-center gap-2 mt-1">
+        <span class="text-warning text-lg font-semibold">★ <%= @product.average_rating %></span>
+        <span class="text-base-content/60 text-sm">(<%= pluralize(@product.reviews.count, "review") %>)</span>
+      </div>
+    </div>
+  </div>
+
+  <% if user_signed_in? && !@product.reviews.exists?(user: current_user) %>
+    <div class="bg-base-200/50 rounded-2xl p-6 mb-8 border border-base-300">
+      <h3 class="font-semibold mb-4">Write a Review</h3>
+      <%= form_with model: [ @product, Review.new ], local: true, class: "flex flex-col gap-4" do |f| %>
+        <div class="flex items-center gap-4">
+          <label class="text-sm font-medium">Rating:</label>
+          <%= f.select :rating, options_for_select((1..5).map { |r| ["#{r} ★", r] }.reverse, 5), {}, class: "select select-bordered select-sm w-32" %>
+        </div>
+        <%= f.text_area :content, rows: 3, placeholder: "Share your experience with this embroidery design...", class: "textarea textarea-bordered w-full" %>
+        <div>
+          <%= f.submit "Submit Review", class: "btn btn-primary btn-sm" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="flex flex-col gap-4">
+    <% if @product.reviews.any? %>
+      <% @product.reviews.includes(:user).order(created_at: :desc).each do |review| %>
+        <div class="p-5 rounded-2xl bg-base-100 border border-base-200 shadow-sm flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-sm"><%= review.user.email.split('@').first %></span>
+              <span class="text-warning text-sm">★ <%= review.rating %></span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-base-content/40"><%= time_ago_in_words(review.created_at) %> ago</span>
+              <% if user_signed_in? && (review.user == current_user || current_user.admin?) %>
+                <%= button_to "Delete", product_review_path(@product, review), method: :delete, class: "text-error text-xs hover:underline" %>
+              <% end %>
+            </div>
+          </div>
+          <% if review.content.present? %>
+            <p class="text-sm text-base-content/80 leading-relaxed"><%= review.content %></p>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-base-content/50 text-sm">No reviews yet. Be the first to review this product!</p>
+    <% end %>
+  </div>
+</section>
+
 <!-- Related Products -->
 <% related_products = @product.category.products.where.not(id: @product.id).limit(4) %>
 <% if related_products.any? %>

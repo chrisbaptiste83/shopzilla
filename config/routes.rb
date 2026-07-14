@@ -18,7 +18,9 @@ Rails.application.routes.draw do
   get "dashboard/downloads", to: "dashboard#downloads", as: :dashboard_downloads
   get "dashboard/wishlist", to: "dashboard#wishlist", as: :dashboard_wishlist
 
-  resources :products
+  resources :products do
+    resources :reviews, only: [ :create, :destroy ]
+  end
   resources :categories
   devise_for :users, controllers: {
     sessions:      "users/sessions",
@@ -40,6 +42,19 @@ Rails.application.routes.draw do
       delete :clear
     end
   end
+
+  # Stripe Terminal & Tap to Pay endpoints
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      post "terminal/connection_token",   to: "terminal#connection_token"
+      post "terminal/payment_intents",    to: "terminal#create_payment_intent"
+      post "terminal/capture",            to: "terminal#capture"
+    end
+  end
+
+  # Turbo Native Path Configurations
+  get "configurations/ios_v1",     to: "configurations#ios_v1",     defaults: { format: :json }
+  get "configurations/android_v1", to: "configurations#android_v1", defaults: { format: :json }
 
   get "up" => "rails/health#show", as: :rails_health_check
   root to: "home#index"
