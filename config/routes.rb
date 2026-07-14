@@ -43,6 +43,15 @@ Rails.application.routes.draw do
     end
   end
 
+  # Stripe Terminal & Tap to Pay endpoints
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      post "terminal/connection_token",   to: "terminal#connection_token"
+      post "terminal/payment_intents",    to: "terminal#create_payment_intent"
+      post "terminal/capture",            to: "terminal#capture"
+    end
+  end
+
   # Turbo Native Path Configurations
   get "configurations/ios_v1",     to: "configurations#ios_v1",     defaults: { format: :json }
   get "configurations/android_v1", to: "configurations#android_v1", defaults: { format: :json }

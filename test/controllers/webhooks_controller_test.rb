@@ -58,6 +58,39 @@ class WebhooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, order.order_items.find_by(product: products(:hoop_art)).quantity
   end
 
+  test "payment_intent succeeded webhook creates order for tap_to_pay terminal payments" do
+    event = {
+      "type" => "payment_intent.succeeded",
+      "data" => {
+        "object" => {
+          "id" => "pi_test_terminal_tap",
+          "amount" => 1299,
+          "metadata" => {
+            "user_id" => users(:alice).id.to_s,
+            "product_ids" => products(:hoop_art).id.to_s,
+            "tap_to_pay" => "true"
+          }
+        }
+      }
+    }
+
+    payload = event.to_json
+    original_construct_event = Stripe::Webhook.method(:construct_event)
+    Stripe::Webhook.define_singleton_method(:construct_event) { |p, s, e| JSON.parse(p) }
+    begin
+      post "/webhooks/stripe", params: payload, headers: { "CONTENT_TYPE" => "application/json", "HTTP_STRIPE_SIGNATURE" => "test" }
+      assert_response :success
+
+      order = Order.find_by!(stripe_session_id: "pi_test_terminal_tap")
+      assert_equal 12.99, order.total.to_f
+      assert_equal "completed", order.status
+      assert_equal 12.99, order.payment.amount.to_f
+      assert_equal "pi_test_terminal_tap", order.payment.stripe_payment_id
+    ensure
+      Stripe::Webhook.define_singleton_method(:construct_event, original_construct_event)
+    end
+  end
+
   private
 
   def webhook_headers
