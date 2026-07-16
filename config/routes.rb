@@ -11,8 +11,13 @@ Rails.application.routes.draw do
   get "pages/success"
   get "pages/cancel"
 
-  resource :profile, only: [ :show, :edit, :update ]
-
+  resource :profile, only: [ :show, :edit, :update ] do
+    resources :webauthn_credentials, only: [:create, :destroy] do
+      collection do
+        post :callback
+      end
+    end
+  end
   get "dashboard", to: "dashboard#show", as: :dashboard
   get "dashboard/orders", to: "dashboard#orders", as: :dashboard_orders
   get "dashboard/downloads", to: "dashboard#downloads", as: :dashboard_downloads

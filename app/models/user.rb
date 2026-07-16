@@ -24,8 +24,15 @@ class User < ApplicationRecord
   has_many :wishlist_items, dependent: :destroy
   has_many :wishlist_products, through: :wishlist_items, source: :product
   has_many :reviews, dependent: :destroy
+  has_many :webauthn_credentials, dependent: :destroy
 
+  after_initialize :generate_webauthn_id, if: :new_record?
 
+  private
+
+  def generate_webauthn_id
+    self.webauthn_id ||= WebAuthn.generate_user_id
+  end
   def self.ransackable_associations(auth_object = nil)
     [ "orders" ]
   end

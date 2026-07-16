@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_13_220852) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_16_125017) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -162,10 +162,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_220852) do
     t.string "auth_token"
     t.string "provider"
     t.string "uid"
+    t.string "webauthn_id"
     t.index ["auth_token"], name: "index_users_on_auth_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["webauthn_id"], name: "index_users_on_webauthn_id", unique: true
+  end
+
+  create_table "webauthn_credentials", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "external_id"
+    t.string "public_key"
+    t.integer "sign_count"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_webauthn_credentials_on_user_id"
   end
 
   create_table "wishlist_items", force: :cascade do |t|
@@ -191,6 +203,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_13_220852) do
   add_foreign_key "reviews", "products"
   add_foreign_key "reviews", "users"
   add_foreign_key "shipping_addresses", "orders"
+  add_foreign_key "webauthn_credentials", "users"
   add_foreign_key "wishlist_items", "products"
   add_foreign_key "wishlist_items", "users"
 end

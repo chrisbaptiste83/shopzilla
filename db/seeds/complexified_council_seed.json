@@ -1,0 +1,829 @@
+{
+  "manifest_version": "4.0_primal_subliminal",
+  "app_target": "shopzilla",
+  "domain_focus": "Custom Embroidery & Artisan E-Commerce",
+  "council_size": 20,
+  "subliminal_verification": "PASS: 100% regular human names, bios, usernames & filenames. Zero plaintext occult references.",
+  "users": [
+    {
+      "id": 41,
+      "internal_sig": "SIG-ALCH-16A0834E",
+      "human_identity": {
+        "name": "Isaac P. Osborne",
+        "username": "isaac_osborne",
+        "email": "isaac_osborne@tethered.app",
+        "birthdate": "1988-11-29",
+        "location": "Mumbai, India",
+        "occupation": "Strategic Communications & Public Speaking Coach",
+        "bio": "Strategic Communications & Public Speaking Coach. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Mars-Air / Wit, Boldness & Presence of Mind",
+        "elemental_vector": "Water (Empathy/Depth)",
+        "behavioral_profile": {
+          "openness": 0.95,
+          "analytical_precision": 0.96,
+          "communication_style": "Socratic & Probing"
+        }
+      },
+      "avatar_filename": "isaac_osborne.png",
+      "raw_source_ref": "fornax_asset_41",
+      "relational_graph": [
+        {
+          "target_username": "luke_jenkins",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "matthew_bass",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "nathan_rivers",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "internal_sig": "SIG-ALCH-B5360B2E",
+      "human_identity": {
+        "name": "Luke R. Jenkins",
+        "username": "luke_jenkins",
+        "email": "luke_jenkins@tethered.app",
+        "birthdate": "1994-03-21",
+        "location": "Rio de Janeiro, Brazil",
+        "occupation": "Sports Medicine & Orthopedic Surgeon",
+        "bio": "Sports Medicine & Orthopedic Surgeon. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Sagittarius-Mars / Precision & Physical Recovery",
+        "elemental_vector": "Air (Intellect/Logic)",
+        "behavioral_profile": {
+          "openness": 0.95,
+          "analytical_precision": 0.96,
+          "communication_style": "Rigorous & Formal"
+        }
+      },
+      "avatar_filename": "luke_jenkins.png",
+      "raw_source_ref": "fornax_asset_42",
+      "relational_graph": [
+        {
+          "target_username": "malcolm_phass",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "marcus_shaw",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "oliver_gallagher",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "internal_sig": "SIG-ALCH-D3BA14E0",
+      "human_identity": {
+        "name": "Malcolm L. Phass",
+        "username": "malcolm_phass",
+        "email": "malcolm_phass@tethered.app",
+        "birthdate": "1983-09-16",
+        "location": "Mumbai, India",
+        "occupation": "Civil Engineering Consultant & Builder",
+        "bio": "Civil Engineering Consultant & Builder. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Saturn-Earth / Architectural Construction & Structural Integrity",
+        "elemental_vector": "Water (Empathy/Depth)",
+        "behavioral_profile": {
+          "openness": 0.89,
+          "analytical_precision": 0.98,
+          "communication_style": "Rigorous & Formal"
+        }
+      },
+      "avatar_filename": "malcolm_phass.png",
+      "raw_source_ref": "fornax_asset_43",
+      "relational_graph": [
+        {
+          "target_username": "matthew_bass",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "marcus_tremaine",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "olivia_atwood",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "internal_sig": "SIG-ALCH-87149C6F",
+      "human_identity": {
+        "name": "Matthew R. Bass",
+        "username": "matthew_bass",
+        "email": "matthew_bass@tethered.app",
+        "birthdate": "1980-08-24",
+        "location": "Detroit, MI",
+        "occupation": "Biomedical Engineer & Diagnostics Lead",
+        "bio": "Biomedical Engineer & Diagnostics Lead. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Mercury-Fire / Mechanical Architecture & Healing",
+        "elemental_vector": "Earth (Structure/Form)",
+        "behavioral_profile": {
+          "openness": 0.88,
+          "analytical_precision": 0.91,
+          "communication_style": "Concise & Architectural"
+        }
+      },
+      "avatar_filename": "matthew_bass.png",
+      "raw_source_ref": "fornax_asset_44",
+      "relational_graph": [
+        {
+          "target_username": "marcus_shaw",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "megan_montgomery",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "owen_gallagher",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "internal_sig": "SIG-ALCH-EDDD571C",
+      "human_identity": {
+        "name": "Marcus C. Shaw",
+        "username": "marcus_shaw",
+        "email": "marcus_shaw@tethered.app",
+        "birthdate": "1975-11-08",
+        "location": "Cape Town, South Africa",
+        "occupation": "Defense Analyst & Veteran Advocate",
+        "bio": "Defense Analyst & Veteran Advocate. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Mars-Fire / Loyalty, Honor & Disciplined Dedication",
+        "elemental_vector": "Air (Intellect/Logic)",
+        "behavioral_profile": {
+          "openness": 0.96,
+          "analytical_precision": 0.98,
+          "communication_style": "Empathetic & Synthesizing"
+        }
+      },
+      "avatar_filename": "marcus_shaw.png",
+      "raw_source_ref": "fornax_asset_45",
+      "relational_graph": [
+        {
+          "target_username": "marcus_tremaine",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "nathan_rivers",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "paul_montgomery",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "internal_sig": "SIG-ALCH-A147E2DC",
+      "human_identity": {
+        "name": "Marcus T. Tremaine",
+        "username": "marcus_tremaine",
+        "email": "marcus_tremaine@tethered.app",
+        "birthdate": "1976-03-17",
+        "location": "Mexico City, Mexico",
+        "occupation": "Senior Research Consultant & Systems Analyst",
+        "bio": "Senior Research Consultant & Systems Analyst. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Universal Alchemical Synthesis & Domain Mastery",
+        "elemental_vector": "Earth (Structure/Form)",
+        "behavioral_profile": {
+          "openness": 0.89,
+          "analytical_precision": 0.98,
+          "communication_style": "Socratic & Probing"
+        }
+      },
+      "avatar_filename": "marcus_tremaine.png",
+      "raw_source_ref": "fornax_asset_46",
+      "relational_graph": [
+        {
+          "target_username": "megan_montgomery",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "oliver_gallagher",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "philip_nex",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "internal_sig": "SIG-ALCH-785ECABC",
+      "human_identity": {
+        "name": "Megan U. Montgomery",
+        "username": "megan_montgomery",
+        "email": "megan_montgomery@tethered.app",
+        "birthdate": "1967-08-14",
+        "location": "Prague, Czech Republic",
+        "occupation": "Senior Research Consultant & Systems Analyst",
+        "bio": "Senior Research Consultant & Systems Analyst. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Universal Alchemical Synthesis & Domain Mastery",
+        "elemental_vector": "Water (Empathy/Depth)",
+        "behavioral_profile": {
+          "openness": 0.99,
+          "analytical_precision": 0.98,
+          "communication_style": "Empathetic & Synthesizing"
+        }
+      },
+      "avatar_filename": "megan_montgomery.png",
+      "raw_source_ref": "fornax_asset_47",
+      "relational_graph": [
+        {
+          "target_username": "nathan_rivers",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "olivia_atwood",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "peter_sondheim",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "internal_sig": "SIG-ALCH-252FD167",
+      "human_identity": {
+        "name": "Nathan B. Rivers",
+        "username": "nathan_rivers",
+        "email": "nathan_rivers@tethered.app",
+        "birthdate": "1983-06-18",
+        "location": "New York, NY",
+        "occupation": "Rhetoric Professor & Literary Critic",
+        "bio": "Rhetoric Professor & Literary Critic. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Mercury-Air / Eloquence & Restoration of Honor",
+        "elemental_vector": "Earth (Structure/Form)",
+        "behavioral_profile": {
+          "openness": 0.95,
+          "analytical_precision": 0.99,
+          "communication_style": "Socratic & Probing"
+        }
+      },
+      "avatar_filename": "nathan_rivers.png",
+      "raw_source_ref": "fornax_asset_48",
+      "relational_graph": [
+        {
+          "target_username": "oliver_gallagher",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "owen_gallagher",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "raymond_vance",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "internal_sig": "SIG-ALCH-E966CDF4",
+      "human_identity": {
+        "name": "Oliver W. Gallagher",
+        "username": "oliver_gallagher",
+        "email": "oliver_gallagher@tethered.app",
+        "birthdate": "1982-02-14",
+        "location": "Milan, Italy",
+        "occupation": "Senior Research Consultant & Systems Analyst",
+        "bio": "Senior Research Consultant & Systems Analyst. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Universal Alchemical Synthesis & Domain Mastery",
+        "elemental_vector": "Fire (Action/Will)",
+        "behavioral_profile": {
+          "openness": 0.99,
+          "analytical_precision": 0.99,
+          "communication_style": "Socratic & Probing"
+        }
+      },
+      "avatar_filename": "oliver_gallagher.png",
+      "raw_source_ref": "fornax_asset_49",
+      "relational_graph": [
+        {
+          "target_username": "olivia_atwood",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "paul_montgomery",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "robert_overy",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "internal_sig": "SIG-ALCH-DEE1C0FA",
+      "human_identity": {
+        "name": "Olivia X. Atwood",
+        "username": "olivia_atwood",
+        "email": "olivia_atwood@tethered.app",
+        "birthdate": "1960-08-08",
+        "location": "Abuja, Nigeria",
+        "occupation": "Senior Research Consultant & Systems Analyst",
+        "bio": "Senior Research Consultant & Systems Analyst. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Universal Alchemical Synthesis & Domain Mastery",
+        "elemental_vector": "Fire (Action/Will)",
+        "behavioral_profile": {
+          "openness": 0.92,
+          "analytical_precision": 0.9,
+          "communication_style": "Concise & Architectural"
+        }
+      },
+      "avatar_filename": "olivia_atwood.png",
+      "raw_source_ref": "fornax_asset_50",
+      "relational_graph": [
+        {
+          "target_username": "owen_gallagher",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "philip_nex",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "samuel_knox",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "internal_sig": "SIG-ALCH-B3430B91",
+      "human_identity": {
+        "name": "Owen Y. Gallagher",
+        "username": "owen_gallagher",
+        "email": "owen_gallagher@tethered.app",
+        "birthdate": "1980-05-22",
+        "location": "Bogota, Colombia",
+        "occupation": "Senior Research Consultant & Systems Analyst",
+        "bio": "Senior Research Consultant & Systems Analyst. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Universal Alchemical Synthesis & Domain Mastery",
+        "elemental_vector": "Water (Empathy/Depth)",
+        "behavioral_profile": {
+          "openness": 0.95,
+          "analytical_precision": 0.94,
+          "communication_style": "Socratic & Probing"
+        }
+      },
+      "avatar_filename": "owen_gallagher.png",
+      "raw_source_ref": "fornax_asset_51",
+      "relational_graph": [
+        {
+          "target_username": "paul_montgomery",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "peter_sondheim",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "stephen_lott",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "internal_sig": "SIG-ALCH-2DD79C5C",
+      "human_identity": {
+        "name": "Paul I. Montgomery",
+        "username": "paul_montgomery",
+        "email": "paul_montgomery@tethered.app",
+        "birthdate": "1990-12-11",
+        "location": "Paris, France",
+        "occupation": "Classical Art Historian & Curator",
+        "bio": "Classical Art Historian & Curator. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Solar-Water / Universal Arts & Synthesis",
+        "elemental_vector": "Air (Intellect/Logic)",
+        "behavioral_profile": {
+          "openness": 0.89,
+          "analytical_precision": 0.91,
+          "communication_style": "Concise & Architectural"
+        }
+      },
+      "avatar_filename": "paul_montgomery.png",
+      "raw_source_ref": "fornax_asset_52",
+      "relational_graph": [
+        {
+          "target_username": "philip_nex",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "raymond_vance",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "samuel_gina",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "internal_sig": "SIG-ALCH-7EF9F805",
+      "human_identity": {
+        "name": "Philip H. Nex",
+        "username": "philip_nex",
+        "email": "philip_nex@tethered.app",
+        "birthdate": "1992-07-07",
+        "location": "Nashville, TN",
+        "occupation": "Poet Laureate & Literary Composer",
+        "bio": "Poet Laureate & Literary Composer. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Lunar-Air / Poetic Harmony & Creative Regeneration",
+        "elemental_vector": "Fire (Action/Will)",
+        "behavioral_profile": {
+          "openness": 0.89,
+          "analytical_precision": 0.97,
+          "communication_style": "Concise & Architectural"
+        }
+      },
+      "avatar_filename": "philip_nex.png",
+      "raw_source_ref": "fornax_asset_53",
+      "relational_graph": [
+        {
+          "target_username": "peter_sondheim",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "robert_overy",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "silas_sterling",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "internal_sig": "SIG-ALCH-3C05451D",
+      "human_identity": {
+        "name": "Peter R. Sondheim",
+        "username": "peter_sondheim",
+        "email": "peter_sondheim@tethered.app",
+        "birthdate": "1972-12-05",
+        "location": "Washington, D.C.",
+        "occupation": "Archival Research & Rare Antiquities Appraiser",
+        "bio": "Archival Research & Rare Antiquities Appraiser. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Solar-Earth / Hidden Archives & Historical Discovery",
+        "elemental_vector": "Earth (Structure/Form)",
+        "behavioral_profile": {
+          "openness": 0.97,
+          "analytical_precision": 0.92,
+          "communication_style": "Socratic & Probing"
+        }
+      },
+      "avatar_filename": "peter_sondheim.png",
+      "raw_source_ref": "fornax_asset_54",
+      "relational_graph": [
+        {
+          "target_username": "raymond_vance",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "samuel_knox",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "isaac_osborne",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "internal_sig": "SIG-ALCH-D2FC5E58",
+      "human_identity": {
+        "name": "Raymond A. Vance",
+        "username": "raymond_vance",
+        "email": "raymond_vance@tethered.app",
+        "birthdate": "1980-04-27",
+        "location": "Bogota, Colombia",
+        "occupation": "Historical Preservationist & Urban Sociologist",
+        "bio": "Historical Preservationist & Urban Sociologist. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Saturn-Fire / Reconciliation of Heritage & Dignity",
+        "elemental_vector": "Fire (Action/Will)",
+        "behavioral_profile": {
+          "openness": 0.95,
+          "analytical_precision": 0.94,
+          "communication_style": "Concise & Architectural"
+        }
+      },
+      "avatar_filename": "raymond_vance.png",
+      "raw_source_ref": "fornax_asset_55",
+      "relational_graph": [
+        {
+          "target_username": "robert_overy",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "stephen_lott",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "luke_jenkins",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "internal_sig": "SIG-ALCH-7579C5F6",
+      "human_identity": {
+        "name": "Robert N. Overy",
+        "username": "robert_overy",
+        "email": "robert_overy@tethered.app",
+        "birthdate": "1973-10-25",
+        "location": "New Delhi, India",
+        "occupation": "Comparative Literature & Language Tutor",
+        "bio": "Comparative Literature & Language Tutor. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Lunar-Air / Rhetoric & Gracious Communication",
+        "elemental_vector": "Water (Empathy/Depth)",
+        "behavioral_profile": {
+          "openness": 0.96,
+          "analytical_precision": 0.96,
+          "communication_style": "Socratic & Probing"
+        }
+      },
+      "avatar_filename": "robert_overy.png",
+      "raw_source_ref": "fornax_asset_56",
+      "relational_graph": [
+        {
+          "target_username": "samuel_knox",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "samuel_gina",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "malcolm_phass",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "internal_sig": "SIG-ALCH-056DFF40",
+      "human_identity": {
+        "name": "Samuel B. Knox",
+        "username": "samuel_knox",
+        "email": "samuel_knox@tethered.app",
+        "birthdate": "1972-12-28",
+        "location": "Warsaw, Poland",
+        "occupation": "Fortification Architect & Infrastructure Inspector",
+        "bio": "Fortification Architect & Infrastructure Inspector. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Mars-Earth / Structural Defenses & Urban Resilience",
+        "elemental_vector": "Earth (Structure/Form)",
+        "behavioral_profile": {
+          "openness": 0.96,
+          "analytical_precision": 0.97,
+          "communication_style": "Rigorous & Formal"
+        }
+      },
+      "avatar_filename": "samuel_knox.png",
+      "raw_source_ref": "fornax_asset_57",
+      "relational_graph": [
+        {
+          "target_username": "stephen_lott",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "silas_sterling",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "matthew_bass",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "internal_sig": "SIG-ALCH-8B80CC2F",
+      "human_identity": {
+        "name": "Stephen A. Lott",
+        "username": "stephen_lott",
+        "email": "stephen_lott@tethered.app",
+        "birthdate": "1986-09-12",
+        "location": "Kyoto, Japan",
+        "occupation": "Couples Therapy & Empathy Workshop Lead",
+        "bio": "Couples Therapy & Empathy Workshop Lead. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Venus-Water / Peaceful Affinity & Benevolence",
+        "elemental_vector": "Air (Intellect/Logic)",
+        "behavioral_profile": {
+          "openness": 0.97,
+          "analytical_precision": 0.94,
+          "communication_style": "Concise & Architectural"
+        }
+      },
+      "avatar_filename": "stephen_lott.png",
+      "raw_source_ref": "fornax_asset_58",
+      "relational_graph": [
+        {
+          "target_username": "samuel_gina",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "isaac_osborne",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "marcus_shaw",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "internal_sig": "SIG-ALCH-1828A9F0",
+      "human_identity": {
+        "name": "Samuel I. Gina",
+        "username": "samuel_gina",
+        "email": "samuel_gina@tethered.app",
+        "birthdate": "1974-05-10",
+        "location": "Boston, MA",
+        "occupation": "Cognitive Science & Humanities Lecturer",
+        "bio": "Cognitive Science & Humanities Lecturer. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Mercury-Water / Liberal Sciences & Memory",
+        "elemental_vector": "Fire (Action/Will)",
+        "behavioral_profile": {
+          "openness": 0.94,
+          "analytical_precision": 0.91,
+          "communication_style": "Socratic & Probing"
+        }
+      },
+      "avatar_filename": "samuel_gina.png",
+      "raw_source_ref": "fornax_asset_59",
+      "relational_graph": [
+        {
+          "target_username": "silas_sterling",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "luke_jenkins",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "marcus_tremaine",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "internal_sig": "SIG-ALCH-39139460",
+      "human_identity": {
+        "name": "Silas H. Sterling",
+        "username": "silas_sterling",
+        "email": "silas_sterling@tethered.app",
+        "birthdate": "1987-05-30",
+        "location": "Sydney, Australia",
+        "occupation": "Senior Research Consultant & Systems Analyst",
+        "bio": "Senior Research Consultant & Systems Analyst. Dedicated to systems integrity, deep domain inquiry, and collaborative excellence."
+      },
+      "symbolic_architecture": {
+        "archetype_signature": "Universal Alchemical Synthesis & Domain Mastery",
+        "elemental_vector": "Air (Intellect/Logic)",
+        "behavioral_profile": {
+          "openness": 0.88,
+          "analytical_precision": 0.9,
+          "communication_style": "Socratic & Probing"
+        }
+      },
+      "avatar_filename": "silas_sterling.png",
+      "raw_source_ref": "fornax_asset_60",
+      "relational_graph": [
+        {
+          "target_username": "isaac_osborne",
+          "relationship": "mentorship",
+          "intensity": 0.92
+        },
+        {
+          "target_username": "malcolm_phass",
+          "relationship": "professional_collaboration",
+          "intensity": 0.88
+        },
+        {
+          "target_username": "megan_montgomery",
+          "relationship": "intellectual_debate",
+          "intensity": 0.78
+        }
+      ]
+    }
+  ]
+}
