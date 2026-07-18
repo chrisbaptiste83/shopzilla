@@ -1,18 +1,16 @@
+# frozen_string_literal: true
+
 class DownloadsController < ApplicationController
   before_action :authenticate_user!
 
   MAX_DOWNLOADS = 10
 
   def show
-    @download_access = DownloadAccess.find_by!(access_token: params[:token])
+    # Ownership at the query layer — foreign tokens 404 for this user.
+    @download_access = current_user.download_accesses.find_by!(access_token: params[:token])
 
     if @download_access.expired?
       redirect_to root_path, alert: "Download link has expired"
-      return
-    end
-
-    if @download_access.user != current_user
-      redirect_to root_path, alert: "Unauthorized access"
       return
     end
 
