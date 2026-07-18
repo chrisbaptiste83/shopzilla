@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_16_125017) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_18_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -72,6 +72,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_16_125017) do
     t.index ["expires_at"], name: "index_download_accesses_on_expires_at"
     t.index ["order_id"], name: "index_download_accesses_on_order_id"
     t.index ["product_id"], name: "index_download_accesses_on_product_id"
+    t.index ["user_id", "product_id"], name: "index_download_accesses_on_user_id_and_product_id"
     t.index ["user_id"], name: "index_download_accesses_on_user_id"
   end
 
@@ -95,6 +96,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_16_125017) do
     t.datetime "updated_at", null: false
     t.string "stripe_session_id"
     t.index ["stripe_session_id"], name: "index_orders_on_stripe_session_id"
+    t.index ["user_id", "status"], name: "index_orders_on_user_id_and_status"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
@@ -122,6 +124,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_16_125017) do
     t.boolean "physical_product"
     t.boolean "shippable", default: false, null: false
     t.integer "stitch_count"
+    t.index ["category_id", "created_at"], name: "index_products_on_category_id_and_created_at"
     t.index ["category_id"], name: "index_products_on_category_id"
   end
 
