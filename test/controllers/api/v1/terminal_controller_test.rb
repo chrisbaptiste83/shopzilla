@@ -53,7 +53,6 @@ module Api
           Stripe::PaymentIntent.singleton_class.remove_method(:create) if Stripe::PaymentIntent.methods(false).include?(:create)
         end
       end
-
     end
   end
 end

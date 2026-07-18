@@ -5,7 +5,6 @@ require "test_helper"
 class StripeTerminalServiceTest < ActiveSupport::TestCase
   setup do
     @user = users(:alice)
-
   end
 
   test "rejects float dollar amounts" do

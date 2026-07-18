@@ -99,5 +99,4 @@ Rails.application.configure do
   config.host_authorization = {
     exclude: ->(request) { request.path.in?(%w[/up /healthz]) }
   }
-
 end
