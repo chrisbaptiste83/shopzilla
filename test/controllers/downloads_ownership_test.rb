@@ -10,7 +10,8 @@ class DownloadsOwnershipTest < ActionDispatch::IntegrationTest
   end
 
   test "another user cannot download with alice's token" do
-    get download_path(token: download_accesses(:active_download).access_token)
+    get secure_download_path(token: download_accesses(:active_download).access_token)
+
     assert_response :not_found
   end
 end
