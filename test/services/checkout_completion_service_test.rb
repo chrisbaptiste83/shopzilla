@@ -17,7 +17,7 @@ class CheckoutCompletionServiceTest < ActiveSupport::TestCase
       }
     }
 
-    assert_difference ["Order.count", "Payment.count", "OrderItem.count", "DownloadAccess.count"], 1 do
+    assert_difference [ "Order.count", "Payment.count", "OrderItem.count", "DownloadAccess.count" ], 1 do
       order = CheckoutCompletionService.complete_from_checkout_session(session)
       assert_equal "completed", order.status
       assert_equal 15.0, order.total
@@ -37,7 +37,7 @@ class CheckoutCompletionServiceTest < ActiveSupport::TestCase
     }
 
     CheckoutCompletionService.complete_from_checkout_session(session)
-    assert_no_difference ["Order.count", "Payment.count", "OrderItem.count"] do
+    assert_no_difference [ "Order.count", "Payment.count", "OrderItem.count" ] do
       CheckoutCompletionService.complete_from_checkout_session(session)
     end
   end
@@ -53,7 +53,7 @@ class CheckoutCompletionServiceTest < ActiveSupport::TestCase
       }
     }
 
-    assert_difference ["Order.count", "Payment.count", "OrderItem.count", "DownloadAccess.count"], 1 do
+    assert_difference [ "Order.count", "Payment.count", "OrderItem.count", "DownloadAccess.count" ], 1 do
       order = CheckoutCompletionService.complete_from_payment_intent(intent)
       assert_equal "completed", order.status
       assert_equal 25.0, order.total

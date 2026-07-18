@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   get "pages/cancel"
 
   resource :profile, only: [ :show, :edit, :update ] do
-    resources :webauthn_credentials, only: [:create, :destroy] do
+    resources :webauthn_credentials, only: [ :create, :destroy ] do
       collection do
         post :callback
       end
