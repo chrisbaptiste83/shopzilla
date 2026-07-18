@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class WebauthnCredentialsController < ApplicationController
   before_action :authenticate_user!
 
@@ -11,14 +13,16 @@ class WebauthnCredentialsController < ApplicationController
     )
 
     session[:current_challenge] = create_options.challenge
-
     render json: create_options
   end
 
   def callback
-    webauthn_credential = WebAuthn::Credential.from_create(params[:credential])
+    credential_params = params.require(:credential)
+    webauthn_credential = WebAuthn::Credential.from_create(credential_params)
 
     begin
+      raise WebAuthn::Error, "missing challenge" if session[:current_challenge].blank?
+
       webauthn_credential.verify(session[:current_challenge])
 
       credential = current_user.webauthn_credentials.build(
@@ -28,9 +32,9 @@ class WebauthnCredentialsController < ApplicationController
       )
 
       if credential.save
-        render json: { status: "ok" }
+        render json: { status: "ok", id: credential.id }
       else
-        render json: { error: "Failed to save credential" }, status: :unprocessable_entity
+        render json: { error: credential.errors.full_messages.to_sentence }, status: :unprocessable_entity
       end
     rescue WebAuthn::Error => e
       render json: { error: e.message }, status: :unprocessable_entity
@@ -40,7 +44,9 @@ class WebauthnCredentialsController < ApplicationController
   end
 
   def destroy
-    current_user.webauthn_credentials.find(params[:id]).destroy
-    redirect_to profile_path, notice: "Passkey deleted."
+    current_user.webauthn_credentials.find(params[:id]).destroy!
+    redirect_back fallback_location: root_path, notice: "Passkey deleted."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: root_path, alert: "Passkey not found."
   end
 end
