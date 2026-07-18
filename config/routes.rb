@@ -62,6 +62,8 @@ Rails.application.routes.draw do
   get "configurations/android_v1", to: "configurations#android_v1", defaults: { format: :json }
 
   get "up" => "rails/health#show", as: :rails_health_check
+  get "healthz" => "rails/health#show"
+
   root to: "home#index"
 
   match "/404", to: "errors#not_found",    via: :all

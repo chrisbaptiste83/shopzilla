@@ -6,47 +6,49 @@ module Api
       skip_before_action :verify_authenticity_token
       before_action :authenticate_user!
 
-      # POST /api/v1/terminal/connection_token
       def connection_token
-        token = Stripe::Terminal::ConnectionToken.create
+        token = StripeTerminalService.connection_token
         render json: { secret: token.secret }
       rescue Stripe::StripeError => e
         render json: { error: e.message }, status: :unprocessable_entity
       end
 
-      # POST /api/v1/terminal/payment_intents
       def create_payment_intent
-        amount_cents = (params.require(:amount).to_f * 100).to_i
-        product_ids  = params[:product_ids] || []
-
-        intent = Stripe::PaymentIntent.create(
-          amount: amount_cents,
-          currency: "usd",
-          payment_method_types: [ "card_present" ],
-          capture_method: "manual",
-          metadata: {
-            user_id: current_user.id,
-            product_ids: Array(product_ids).join(","),
-            tap_to_pay: "true"
-          }
+        intent = StripeTerminalService.create_payment_intent(
+          user: current_user,
+          amount_cents: terminal_params[:amount_cents],
+          product_ids: terminal_params[:product_ids]
         )
 
         render json: {
           client_secret: intent.client_secret,
-          id: intent.id
+          id: intent.id,
+          amount_cents: intent.amount
         }
+      rescue StripeTerminalService::ValidationError => e
+        render json: { error: e.message }, status: :unprocessable_entity
       rescue Stripe::StripeError => e
         render json: { error: e.message }, status: :unprocessable_entity
       end
 
-      # POST /api/v1/terminal/capture
       def capture
-        intent_id = params.require(:payment_intent_id)
-        intent = Stripe::PaymentIntent.capture(intent_id)
-
+        intent = StripeTerminalService.capture!(
+          user: current_user,
+          payment_intent_id: terminal_params[:payment_intent_id]
+        )
         render json: { status: intent.status, id: intent.id }
+      rescue StripeTerminalService::ValidationError => e
+        render json: { error: e.message }, status: :unprocessable_entity
+      rescue StripeTerminalService::OwnershipError => e
+        render json: { error: e.message }, status: :forbidden
       rescue Stripe::StripeError => e
         render json: { error: e.message }, status: :unprocessable_entity
+      end
+
+      private
+
+      def terminal_params
+        params.permit(:amount_cents, :payment_intent_id, product_ids: [])
       end
     end
   end

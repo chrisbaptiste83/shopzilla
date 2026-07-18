@@ -197,5 +197,7 @@ deploy:
     url: https://gloriasembroideryshop.com
   only:
     - main
+  when: manual
   needs:
     - build
+

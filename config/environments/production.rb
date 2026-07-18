@@ -96,5 +96,8 @@ Rails.application.configure do
   config.hosts.concat(ENV["ALLOWED_HOSTS"].to_s.split(",")) if ENV["ALLOWED_HOSTS"].present?
   #
   # Skip DNS rebinding protection for the default health check endpoint.
-  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.host_authorization = {
+    exclude: ->(request) { request.path.in?(%w[/up /healthz]) }
+  }
+
 end
