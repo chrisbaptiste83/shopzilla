@@ -16,9 +16,8 @@ Rails.application.configure do
   # Turn on fragment caching in view templates.
   config.action_controller.perform_caching = true
 
-  # ECS serves requests directly from Puma, so Rails must serve precompiled assets
-  # when Thruster is not in front of the app.
-  config.public_file_server.enabled = true
+  # Thruster serves assets in production, so disable Rails asset server.
+  config.public_file_server.enabled = false
 
   # Cache assets for far-future expiry since they are all digest stamped.
   config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
