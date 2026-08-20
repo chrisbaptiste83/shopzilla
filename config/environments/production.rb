@@ -25,8 +25,8 @@ Rails.application.configure do
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
 
-  # Storage service is driven by ACTIVE_STORAGE_SERVICE env var so ECS tasks
-  # can switch between :local (dev), :amazon (prod), and :local_mirror_s3 (cutover).
+  # Storage service is driven by ACTIVE_STORAGE_SERVICE so deployments can use
+  # the local disk in development and the canonical S3 service in production.
   config.active_storage.service = ENV.fetch("ACTIVE_STORAGE_SERVICE", "amazon").to_sym
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.

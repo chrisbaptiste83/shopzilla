@@ -109,11 +109,12 @@ module Embroidery
       return if files.blank?
 
       record.images.purge if @overwrite_attachments && record.images.attached?
-      files.first(2).each do |file_entry|
+      files.first(3).each do |file_entry|
         path = package_root.join(file_entry.fetch(:proposed_s3_key))
         raise ArgumentError, "missing packaged preview image: #{path}" unless path.file?
 
         blob = find_or_build_blob(path, file_entry, destination_key_for(file_entry, kind: :preview))
+        blob.update!(metadata: blob.metadata.to_h.merge(Product.image_metadata_for(filename: file_entry.fetch(:filename))))
         record.images.attach(blob)
       end
     end

@@ -198,7 +198,7 @@ bin/rails embroidery_catalog:upload \
 # Live upload to prod
 bin/rails embroidery_catalog:upload \
   MANIFEST_PATH=tmp/embroidery_package_v3/manifest.json DRY_RUN=false \
-  S3_BUCKET=shopzilla-prod-assets
+  S3_BUCKET=shopzilla-prod-assets-na
 
 # Import into Rails DB + ActiveStorage
 bin/rails embroidery_catalog:import \
@@ -264,7 +264,7 @@ Completed:
 - fixed `PackageBuilder` duplicate handling: first-occurrence-wins using `Set`
 - built `Embroidery::S3Uploader` with AES256 SSE, dry-run, overwrite check, `upload_report.json`
 - added `rake embroidery_catalog:upload`, `rake active_storage:s3:migrate`, `rake active_storage:s3:verify`
-- enabled `local_mirror_s3` in `config/storage.yml`
+- standardized production storage on the `amazon` Active Storage service
 - re-ran package → `tmp/embroidery_package_v2/`: 17 packaged, 3 skipped (duplicate prefixes excluded)
 - dry-run upload: 68 files, 3.63 MB, 0 errors ✅
 
@@ -279,7 +279,7 @@ Completed:
 
 Completed:
 
-- confirmed active buckets: `shopzilla-dev-assets`, `shopzilla-prod-assets`
+- confirmed active buckets: `shopzilla-dev-assets`, `shopzilla-prod-assets-na`
 - dev upload succeeded: 68/68 files, 3.63 MB → `s3://shopzilla-dev-assets/embroidery/` ✅
 
 ### 2026-05-10 — Preview rendering
@@ -312,7 +312,24 @@ All 3 PackageBuilder tests pass ✅
 Next steps:
 
 1. Scale to full 55-category Bundles catalog: audit → review issues → package (with rendering) → upload to `shopzilla-dev-assets`
-2. Production cutover: upload to `shopzilla-prod-assets`, deploy mirror service, migrate, verify, switch
+2. Production publish: upload to `shopzilla-prod-assets-na`, import the manifest, verify Active Storage blobs, and deploy with `ACTIVE_STORAGE_SERVICE=amazon`
+
+### 2026-08-20 — Production previews and storage cleanup
+
+Completed:
+
+- re-rendered and refreshed all 60 canonical production preview objects in `s3://shopzilla-prod-assets-na`
+- standardized the PES renderer behind `scripts/render_pes.py` and enabled guide trimming for production imports
+- added explicit Active Storage image metadata (`image_role`, `render_style`, `asset_kind`) and a backfill task
+- removed the unused Active Storage mirror and Cloudinary integration
+- removed the unused `complexified_council_seed.json` artifact and updated storage documentation to the canonical S3 bucket
+
+Validation:
+
+- 20 source PES files and 60 preview variants rendered successfully
+- production manifest contains 20 products, 60 preview blobs, and 20 primary image roles
+- Python/Ruby syntax checks and `git diff --check` pass
+- Rails tests remain to be run under the pinned Ruby 3.4.2 runtime
 
 ## Decision Record
 

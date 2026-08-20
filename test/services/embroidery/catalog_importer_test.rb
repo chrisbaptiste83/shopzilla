@@ -82,6 +82,7 @@ class Embroidery::CatalogImporterTest < ActiveSupport::TestCase
     assert_equal "Rose design embroidery design, available in 4x4. Features 8,123 stitches for a detailed, professional finish. Part of the Floral bundle collection. Works with most home and commercial embroidery machines. Instant digital download included.", product.description.to_plain_text.strip
     assert product.embroidery_file.attached?
     assert_equal 1, product.images.count
+    assert_equal "product_preview", product.images.first.blob.metadata["asset_kind"]
     assert_equal "downloads/embroidery/floral-bundle/rose-design/4x4/01-rose.pes", product.embroidery_file.blob.key
     assert_equal "products/images/floral-bundle/rose-design/4x4/01-preview.jpg", product.images.first.blob.key
   end

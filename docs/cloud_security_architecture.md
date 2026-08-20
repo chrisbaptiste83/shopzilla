@@ -82,7 +82,7 @@ ECS Cluster (EC2 Launch Type)
        └── Credentials: via instance metadata service (IMDS)
             │
             ├── PostgreSQL (on-host, port 5432)
-            └── S3: shopzilla-prod-assets
+            └── S3: shopzilla-prod-assets-na
                  ├── products/    (public assets)
                  ├── downloads/   (private, application-mediated access)
                  ├── pipeline/    (import manifests)
@@ -172,7 +172,7 @@ Three distinct roles were created or utilized, each scoped to a specific functio
 **Trust principal:** `ec2.amazonaws.com`
 
 **Policies:**
-- `AmazonS3FullAccess` — allows Active Storage to read, write, and delete objects in `shopzilla-prod-assets`
+- `AmazonS3FullAccess` — allows Active Storage to read, write, and delete objects in `shopzilla-prod-assets-na`
 - `AmazonEC2ContainerServiceforEC2Role` — allows the ECS agent to register the instance with the cluster, pull task definitions, manage container lifecycle, and write logs to CloudWatch
 
 **Threat mitigated:** T-04, T-05 — limits blast radius if a container is compromised; the attacker can only affect S3 and ECS, not IAM, RDS, billing, or other services.
@@ -208,7 +208,7 @@ This deployment enforces POLP at three levels:
 
 **Service level:** Each AWS service interaction uses a dedicated role. No single credential grants broad access across services.
 
-**Resource level:** The Secrets Manager policy grants access to `shopzilla/*` (all Shopzilla secrets) rather than all secrets in the account. The S3 policy is scoped to `shopzilla-prod-assets` only.
+**Resource level:** The Secrets Manager policy grants access to `shopzilla/*` (all Shopzilla secrets) rather than all secrets in the account. The S3 policy is scoped to `shopzilla-prod-assets-na` only.
 
 **Action level:** The CI/CD role cannot read secrets. The execution role cannot write to S3. The instance profile cannot modify IAM. Each role can only perform the specific actions it needs.
 
@@ -374,10 +374,10 @@ Rails 8's `/up` endpoint returns 200 only when the database connection is health
 
 ### 8.1 S3 Bucket Architecture
 
-The `shopzilla-prod-assets` bucket uses a prefix-based security model to separate data by sensitivity:
+The `shopzilla-prod-assets-na` bucket uses a prefix-based security model to separate data by sensitivity:
 
 ```
-shopzilla-prod-assets/
+shopzilla-prod-assets-na/
   products/          ← public read (CloudFront/ALB served)
   downloads/         ← private (application-mediated access)
   pipeline/          ← private (import audit trail)

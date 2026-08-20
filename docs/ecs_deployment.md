@@ -25,7 +25,7 @@ Route 53 / registrar ──▶ ALB (HTTPS 443) ──▶ ECS Cluster (EC2)
                                                     │
                                          ┌──────────┴──────────┐
                                          ▼                     ▼
-                              PostgreSQL on EC2 host     S3 (shopzilla-prod-assets)
+                              PostgreSQL on EC2 host     S3 (shopzilla-prod-assets-na)
 ```
 
 **Key design decisions:**
@@ -304,18 +304,17 @@ All routine deploys are automated via GitLab CI:
 | `STRIPE_SECRET_KEY` | Secrets Manager | secret |
 
 `ACTIVE_STORAGE_SERVICE` can be changed without a redeploy by updating the task definition:
-- `amazon` — production S3 (default)
-- `local_mirror_s3` — writes to disk AND S3 (cutover mode)
-- `local` — disk only (emergency fallback)
+- `amazon` — production S3 (default and canonical production path)
+- `local` — disk only (development or emergency fallback)
 
 ---
 
 ## S3 Bucket Layout
 
-The `shopzilla-prod-assets` bucket uses this key structure:
+The `shopzilla-prod-assets-na` bucket uses this key structure:
 
 ```
-shopzilla-prod-assets/
+shopzilla-prod-assets-na/
   products/
     <category>/<design>/<size>/
       images/01-preview.png

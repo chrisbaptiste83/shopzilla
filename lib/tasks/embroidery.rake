@@ -18,10 +18,12 @@ namespace :embroidery do
   task import: :environment do
     source_dir = ENV.fetch("EMBROIDERY_SOURCE_DIR", DEFAULT_SOURCE)
     force      = ENV["FORCE"].present?
+    trim_guides = ActiveModel::Type::Boolean.new.cast(ENV.fetch("TRIM_GUIDES", "true"))
     catalog    = YAML.load_file(CATALOG_FILE)
 
     puts "Source directory: #{source_dir}"
     puts "Force re-render:  #{force}"
+    puts "Trim guide runs:  #{trim_guides}"
     puts
 
     seed_categories(catalog.fetch("categories", []))
@@ -33,7 +35,7 @@ namespace :embroidery do
 
     Dir.mktmpdir("embroidery_renders") do |tmpdir|
       products.each do |data|
-        import_one(data, source_dir, tmpdir, force, results)
+        import_one(data, source_dir, tmpdir, force, trim_guides, results)
       end
     end
 
@@ -50,7 +52,9 @@ namespace :embroidery do
   task :render, %i[pes_path out_path] => :environment do |_, args|
     abort "Usage: rails embroidery:render[/path/to/file.pes,/path/to/out.png]" if args[:pes_path].blank?
     out = args[:out_path] || args[:pes_path].sub(/\.pes$/i, ".png")
-    system("python3", RENDER_SCRIPT.to_s, args[:pes_path], out)
+    render_args = ["python3", RENDER_SCRIPT.to_s, args[:pes_path], out]
+    render_args << "--trim-guides" unless ENV["TRIM_GUIDES"] == "false"
+    system(*render_args)
     puts "Rendered → #{out}"
   end
 
@@ -68,7 +72,7 @@ namespace :embroidery do
     puts "Categories ready: #{names.join(', ')}\n\n"
   end
 
-  def import_one(data, source_dir, tmpdir, force, results)
+  def import_one(data, source_dir, tmpdir, force, trim_guides, results)
     title    = data.fetch("title")
     cat_name = data.fetch("category")
     pes_name = data.fetch("pes_file")
@@ -113,14 +117,22 @@ namespace :embroidery do
       slug = title.parameterize
       renders = %w[dark light detail].filter_map do |style|
         path = File.join(tmpdir, "#{slug}-#{style}.png")
-        ok   = system("python3", RENDER_SCRIPT.to_s, pes_path, path, "--style", style)
+        render_args = ["python3", RENDER_SCRIPT.to_s, pes_path, path, "--style", style]
+        render_args << "--trim-guides" if trim_guides
+        ok   = system(*render_args)
         ok && File.exist?(path) ? { style: style, path: path } : nil
       end
 
       if renders.any?
         product.images.purge if force && product.images.attached?
         attachables = renders.map do |r|
-          { io: File.open(r[:path]), filename: "#{slug}-#{r[:style]}.png", content_type: "image/png" }
+          filename = "#{slug}-#{r[:style]}.png"
+          {
+            io: File.open(r[:path]),
+            filename: filename,
+            content_type: "image/png",
+            metadata: Product.image_metadata_for(filename: filename, render_style: r[:style])
+          }
         end
         product.images.attach(attachables)
         product.reload

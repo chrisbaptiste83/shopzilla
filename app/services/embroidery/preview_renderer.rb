@@ -3,19 +3,20 @@ require "digest"
 
 module Embroidery
   class PreviewRenderer
-    SCRIPT = Rails.root.join("bin", "render_embroidery_preview.py").freeze
+    SCRIPT = Rails.root.join("scripts", "render_pes.py").freeze
 
     def initialize(pes_path:, output_path:, style: :isolated)
       @pes_path    = pes_path.to_s
       @output_path = output_path.to_s
-      @style       = style.to_s
+      @style       = style.to_s == "isolated" ? "light" : style.to_s
     end
 
     def call
       FileUtils.mkdir_p(File.dirname(@output_path))
 
       _stdout, stderr, status = Open3.capture3(
-        "python3", SCRIPT.to_s, @pes_path, @output_path, "--style", @style
+        "python3", SCRIPT.to_s, @pes_path, @output_path,
+        "--style", @style, "--trim-guides"
       )
 
       raise "render failed for #{@pes_path}: #{stderr.strip}" unless status.success?

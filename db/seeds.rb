@@ -54,16 +54,23 @@ elsif Rails.env.production?
   end
 
   data["blobs"].each do |b|
-    next if ActiveStorage::Blob.exists?(key: b["key"])
-    ActiveStorage::Blob.create!(
+    blob = ActiveStorage::Blob.find_or_initialize_by(key: b["key"])
+    metadata = b["metadata"].presence || if b["content_type"].to_s.start_with?("image/")
+      Product.image_metadata_for(filename: b["filename"])
+    else
+      { "asset_kind" => "embroidery_source" }
+    end
+    blob.assign_attributes(
       key:          b["key"],
       filename:     b["filename"],
       content_type: b["content_type"],
       byte_size:    b["byte_size"],
       checksum:     b["checksum"],
       service_name: b["service_name"],
-      created_at:   b["created_at"]
+      created_at:   b["created_at"],
+      metadata:     blob.metadata.to_h.merge(metadata)
     )
+    blob.save!
   end
 
   data["attachments"].each do |a|

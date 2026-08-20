@@ -1,4 +1,5 @@
 require "test_helper"
+require "stringio"
 
 class ProductTest < ActiveSupport::TestCase
   def valid_product
@@ -77,5 +78,31 @@ class ProductTest < ActiveSupport::TestCase
 
   test "fixture hoop_art is valid" do
     assert products(:hoop_art).valid?
+  end
+
+  test "image metadata identifies the primary detail preview" do
+    assert_equal(
+      { "image_role" => "primary", "render_style" => "detail", "asset_kind" => "product_preview" },
+      Product.image_metadata_for(filename: "sunflower-detail.png")
+    )
+  end
+
+  test "primary image follows explicit metadata instead of its filename" do
+    product = valid_product
+    product.save!
+    product.images.attach(
+      io: StringIO.new("alternate"),
+      filename: "detail-looking-name.png",
+      content_type: "image/png",
+      metadata: { "image_role" => "alternate", "asset_kind" => "product_preview" }
+    )
+    product.images.attach(
+      io: StringIO.new("primary"),
+      filename: "storefront.png",
+      content_type: "image/png",
+      metadata: { "image_role" => "primary", "asset_kind" => "product_preview" }
+    )
+
+    assert_equal "storefront.png", product.reload.primary_image.filename.to_s
   end
 end

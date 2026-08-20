@@ -182,7 +182,7 @@
 
   <div class="flex flex-col gap-4">
     <% if @product.reviews.any? %>
-      <% @product.reviews.includes(:user).order(created_at: :desc).each do |review| %>
+      <% @product.reviews.sort_by(&:created_at).reverse_each do |review| %>
         <div class="p-5 rounded-2xl bg-base-100 border border-base-200 shadow-sm flex flex-col gap-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -208,7 +208,7 @@
 </section>
 
 <!-- Related Products -->
-<% related_products = @product.category.products.where.not(id: @product.id).limit(4) %>
+<% related_products = @related_products %>
 <% if related_products.any? %>
   <section class="border-t border-base-300 pt-12">
     <h2 class="text-lg font-semibold mb-6 text-base-content/60">You Might Also Like</h2>
