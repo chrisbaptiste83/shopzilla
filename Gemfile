@@ -86,3 +86,7 @@ gem "aws-sdk-ses", "~> 1.97"
 gem "rack-attack", "~> 6.8"
 
 gem "webauthn", "~> 3.4"
+
+# Error tracking [https://sentry.io]
+gem "sentry-ruby"
+gem "sentry-rails"
