@@ -1,5 +1,8 @@
 require "yaml"
 require "tmpdir"
+require "tempfile"
+require "digest"
+require "base64"
 
 namespace :embroidery do
   CATALOG_FILE   = Rails.root.join("db/seeds/catalog.yml")
@@ -52,10 +55,72 @@ namespace :embroidery do
   task :render, %i[pes_path out_path] => :environment do |_, args|
     abort "Usage: rails embroidery:render[/path/to/file.pes,/path/to/out.png]" if args[:pes_path].blank?
     out = args[:out_path] || args[:pes_path].sub(/\.pes$/i, ".png")
-    render_args = ["python3", RENDER_SCRIPT.to_s, args[:pes_path], out]
+    render_args = [ "python3", RENDER_SCRIPT.to_s, args[:pes_path], out ]
     render_args << "--trim-guides" unless ENV["TRIM_GUIDES"] == "false"
+    render_args += [ "--rotate", ENV.fetch("ROTATE", "0") ]
     system(*render_args)
     puts "Rendered → #{out}"
+  end
+
+  desc "Re-render a product's attached previews (PRODUCT_ID=28 ROTATE=3 DRY_RUN=true)"
+  task rerender_previews: :environment do
+    product_id = ENV.fetch("PRODUCT_ID")
+    rotation = Float(ENV.fetch("ROTATE", "0"))
+    dry_run = ActiveModel::Type::Boolean.new.cast(ENV.fetch("DRY_RUN", "true"))
+    product = Product.find(product_id)
+
+    abort "Product #{product.id} has no attached embroidery file" unless product.embroidery_file.attached?
+
+    previews = product.images.filter_map do |image|
+      style = image.blob.metadata["render_style"].presence ||
+        image.filename.to_s.match(/(?:-|_)(dark|light|detail)\.png\z/i)&.captures&.first&.downcase
+      [ image, style ] if %w[dark light detail].include?(style)
+    end
+    abort "Product #{product.id} has no recognizable preview images" if previews.empty?
+
+    Tempfile.create([ "product-#{product.id}", ".pes" ]) do |pes_file|
+      product.embroidery_file.blob.open do |source|
+        IO.copy_stream(source, pes_file)
+      end
+      pes_file.flush
+
+      Dir.mktmpdir("product_preview_renders") do |tmpdir|
+        previews.each do |image, style|
+          output_path = File.join(tmpdir, "#{style}.png")
+          command = [
+            "python3", RENDER_SCRIPT.to_s, pes_file.path, output_path,
+            "--style", style, "--trim-guides", "--rotate", rotation.to_s
+          ]
+          raise "render failed for #{image.filename}" unless system(*command)
+
+          checksum = Base64.strict_encode64(Digest::MD5.file(output_path).digest)
+          byte_size = File.size(output_path)
+          blob = image.blob
+
+          if dry_run
+            puts "Would update #{blob.filename} (#{style}, #{rotation} degrees)"
+            next
+          end
+
+          blob.variant_records.find_each { |variant| variant.image.purge }
+          File.open(output_path, "rb") do |rendered|
+            blob.service.upload(
+              blob.key,
+              rendered,
+              checksum: checksum,
+              filename: blob.filename,
+              content_type: blob.content_type
+            )
+          end
+          blob.update!(
+            byte_size: byte_size,
+            checksum: checksum,
+            metadata: blob.metadata.to_h.merge("render_rotation_degrees" => rotation)
+          )
+          puts "Updated #{blob.filename} (#{style}, #{rotation} degrees)"
+        end
+      end
+    end
   end
 
   # ── embroidery:reimport ───────────────────────────────────────────────────────
@@ -117,7 +182,7 @@ namespace :embroidery do
       slug = title.parameterize
       renders = %w[dark light detail].filter_map do |style|
         path = File.join(tmpdir, "#{slug}-#{style}.png")
-        render_args = ["python3", RENDER_SCRIPT.to_s, pes_path, path, "--style", style]
+        render_args = [ "python3", RENDER_SCRIPT.to_s, pes_path, path, "--style", style ]
         render_args << "--trim-guides" if trim_guides
         ok   = system(*render_args)
         ok && File.exist?(path) ? { style: style, path: path } : nil

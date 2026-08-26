@@ -202,7 +202,7 @@ def detect_guide_stitches(stitches):
 
 # ── Core renderer ─────────────────────────────────────────────────────────────
 
-def render(pes_path, out_path, size=1200, style_name="dark", trim_guides=False):
+def render(pes_path, out_path, size=1200, style_name="dark", trim_guides=False, rotation=0.0):
     cfg = STYLES.get(style_name, STYLES["dark"])
 
     pattern = pyembroidery.read(pes_path)
@@ -222,6 +222,34 @@ def render(pes_path, out_path, size=1200, style_name="dark", trim_guides=False):
     min_y, max_y = min(ys), max(ys)
     w = max_x - min_x or 1
     h = max_y - min_y or 1
+
+    # Rotate the artwork around its source bounding-box center while leaving
+    # the preview frame and thread legend upright. Positive degrees rotate
+    # clockwise in the rendered image coordinate system.
+    if rotation:
+        import math
+
+        angle = math.radians(float(rotation))
+        cos_angle = math.cos(angle)
+        sin_angle = math.sin(angle)
+        center_x = (min_x + max_x) / 2.0
+        center_y = (min_y + max_y) / 2.0
+
+        def rotate_point(x, y):
+            dx = x - center_x
+            dy = y - center_y
+            return (
+                center_x + (dx * cos_angle - dy * sin_angle),
+                center_y + (dx * sin_angle + dy * cos_angle),
+            )
+
+        stitches = [(*rotate_point(stitch[0], stitch[1]), stitch[2]) for stitch in stitches]
+        xs = [s[0] for s in stitches if s[2] not in (pyembroidery.END, pyembroidery.STOP)]
+        ys = [s[1] for s in stitches if s[2] not in (pyembroidery.END, pyembroidery.STOP)]
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+        w = max_x - min_x or 1
+        h = max_y - min_y or 1
 
     pad = 80
     inner = size - pad * 2
@@ -441,6 +469,12 @@ if __name__ == "__main__":
     parser.add_argument("out_path")
     parser.add_argument("--style", choices=["dark", "light", "detail"], default="dark")
     parser.add_argument(
+        "--rotate",
+        type=float,
+        default=0.0,
+        help="Rotate artwork clockwise by this many degrees; frame and legend stay upright.",
+    )
+    parser.add_argument(
         "--trim-guides",
         action="store_true",
         help="Remove hoop-registration guides (basting box, cross-hair alignment "
@@ -448,4 +482,4 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     render(args.pes_path, args.out_path, style_name=args.style,
-           trim_guides=args.trim_guides)
+           trim_guides=args.trim_guides, rotation=args.rotate)

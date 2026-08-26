@@ -1,13 +1,16 @@
+<% content_for :page_title, "Checkout Cancelled" %>
 
-<div class="hero min-h-screen bg-base-200">
-  <div class="hero-content text-center">
-    <div class="max-w-md">
-      <h1 class="text-5xl font-bold text-error">Payment Cancelled</h1>
-      <p class="py-6 text-lg">
-        It looks like the payment process was cancelled. You can try again anytime.
-      </p>
-      <%= link_to "Back to Products", products_path, class: "btn btn-error" %>
-    </div>
+<section class="checkout-state">
+  <div class="checkout-state-icon checkout-state-icon-neutral" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
   </div>
-</div>
-cel.html.erb</p>
+  <p class="sz-section-label">No charge was made</p>
+  <h1>Checkout cancelled</h1>
+  <p class="checkout-state-lead">Your purchase was not completed. You can return to your cart or keep browsing.</p>
+  <div class="checkout-state-actions">
+    <%= link_to "Return to cart", cart_path, class: "btn btn-primary" %>
+    <%= link_to "Browse designs", products_path, class: "btn btn-ghost" %>
+  </div>
+</section>

@@ -4,12 +4,21 @@ class CheckoutController < ApplicationController
   def create
     # Determine products to checkout
     if params[:product_id].present?
-      @products = [ Product.find(params[:product_id]) ]
+      product = Product.find_by(id: params[:product_id], is_available: true)
+      unless product
+        redirect_to products_path, alert: "This product is not available."
+        return
+      end
+      @products = [ product ]
     else
       cart = session[:cart] || {}
-      @products = Product.where(id: cart.keys)
+      @products = Product.where(id: cart.keys, is_available: true)
       if @products.empty?
         redirect_to cart_path, alert: "Your cart is empty."
+        return
+      end
+      if @products.size != cart.keys.uniq.size
+        redirect_to cart_path, alert: "One or more products are no longer available."
         return
       end
     end
@@ -23,7 +32,8 @@ class CheckoutController < ApplicationController
 
     # Check if any product is physical
     if @products.any?(&:shippable)
-      total = @products.sum(&:price)
+      @quantities_by_product_id = quantities_by_product_id
+      total = @products.sum { |product| product.price * quantities_by_product_id.fetch(product.id.to_s) }
       @order = Order.new(user: current_user, status: "pending", total: total) # Temporary order
       @order.build_shipping_address
       render :shipping
@@ -65,11 +75,20 @@ class CheckoutController < ApplicationController
     @order.user = current_user
     @order.status = "pending"
 
-    # Manually re-associate products from IDs
-    product_ids = params[:order][:product_ids].reject(&:blank?)
-    products = Product.find(product_ids)
+    @quantities_by_product_id = parsed_quantities(params[:product_quantities])
+    if @quantities_by_product_id.empty?
+      redirect_to cart_path, alert: "Your cart is empty or invalid."
+      return
+    end
 
-    total = products.sum(&:price)
+    product_ids = @quantities_by_product_id.keys
+    products = Product.where(id: product_ids, is_available: true).to_a
+    if products.size != product_ids.size
+      redirect_to cart_path, alert: "One or more products are no longer available."
+      return
+    end
+
+    total = products.sum { |product| product.price * @quantities_by_product_id.fetch(product.id.to_s) }
     @order.total = total
 
     if @order.save
@@ -81,7 +100,7 @@ class CheckoutController < ApplicationController
             product_data: { name: product.title },
             unit_amount: (product.price * 100).to_i
           },
-          quantity: 1 # Assuming quantity of 1 for simplicity
+          quantity: @quantities_by_product_id.fetch(product.id.to_s)
         }
       end
 
@@ -96,10 +115,11 @@ class CheckoutController < ApplicationController
           user_id: current_user.id,
           order_id: @order.id, # Pass order_id to webhook
           product_ids: products.map(&:id).join(","),
-          product_quantities: products.index_with { 1 }.transform_keys(&:id).transform_keys(&:to_s).to_json
+          product_quantities: @quantities_by_product_id.to_json
         }
       )
 
+      session[:cart] = {}
       redirect_to session_checkout.url, allow_other_host: true
     else
       # Re-render form with errors
@@ -122,5 +142,16 @@ class CheckoutController < ApplicationController
     products.index_with do |product|
       params[:product_id].present? ? 1 : session.dig(:cart, product.id.to_s).to_i
     end.transform_keys { |product| product.id.to_s }
+  end
+
+  def parsed_quantities(raw_quantities)
+    JSON.parse(raw_quantities.to_s).each_with_object({}) do |(product_id, quantity), result|
+      next unless product_id.to_s.match?(/\A\d+\z/)
+
+      normalized_quantity = quantity.to_i
+      result[product_id.to_s] = normalized_quantity if normalized_quantity.between?(1, 99)
+    end
+  rescue JSON::ParserError, NoMethodError
+    {}
   end
 end

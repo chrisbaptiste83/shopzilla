@@ -23,6 +23,39 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index only displays available products" do
+    products(:rose_design).update!(is_available: false)
+
+    get products_path, headers: @ua
+
+    assert_response :success
+    assert_not_includes response.body, products(:rose_design).title
+    assert_includes response.body, products(:hoop_art).title
+  end
+
+  test "index provides a file format filter" do
+    get products_path, headers: @ua
+
+    assert_response :success
+    assert_select "select[name='file_format'] option[value='DST']", text: "DST"
+  end
+
+  test "index serves product grid images through ImageKit fitted whole (no circular crop)" do
+    products(:rose_design).images.attach(
+      io: StringIO.new("image-binary"),
+      filename: "preview.png",
+      content_type: "image/png"
+    )
+
+    get products_path, headers: @ua
+
+    assert_response :success
+    assert_select ".catalog-product-media img[src^='https://ik.imagekit.io/mlvnqaq3b/'][src*='w-420,h-420,c-at_max,f-auto,q-72,e-sharpen-20']",
+      minimum: 1
+    assert_select ".catalog-product-media img[src*='r-max']", count: 0
+    assert_select ".catalog-product-media img[src*='/rails/active_storage/representations/']", count: 0
+  end
+
   test "show is publicly accessible" do
     get product_path(products(:rose_design)), headers: @ua
     assert_response :success

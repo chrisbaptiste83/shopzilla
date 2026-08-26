@@ -32,200 +32,148 @@
   <link href="https://fonts.googleapis.com/css2?family=Parisienne&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <%= javascript_include_tag "bundle", "data-turbo-track": "reload", type: "module", nonce: false %>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-  <script src="https://js.stripe.com/v3/"></script>
 </head>
-<body class="text-high-contrast"
-      data-controller="page-transition">
-  <!-- Aurora ambient background -->
-  <div class="sz-aurora" aria-hidden="true">
-    <div class="sz-aurora-blob sz-aurora-blob-1"></div>
-    <div class="sz-aurora-blob sz-aurora-blob-2"></div>
-    <div class="sz-aurora-blob sz-aurora-blob-3"></div>
-  </div>
+<body class="text-high-contrast">
   <!-- Navigation Bar (hidden in native mobile wrapper) -->
   <% unless turbo_native_app? %>
-  <div class="navbar shadow-xl sticky top-0 z-50 px-2 sm:px-4">
-    <div class="navbar-start">
-      <div class="dropdown">
-        <label tabindex="0" class="btn btn-ghost lg:hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
-          </svg>
-        </label>
-        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow rounded-box w-64">
-          <li><%= link_to "Products", products_path %></li>
+  <% navigation_categories = Category.with_available_products.limit(8) %>
+  <% cart_count = (session[:cart] || {}).values.sum %>
+  <header class="site-header sticky top-0 z-50">
+    <nav class="navbar min-h-16 max-w-7xl mx-auto px-4 sm:px-6" aria-label="Primary navigation">
+      <div class="navbar-start gap-2">
+        <details class="dropdown lg:hidden">
+          <summary class="btn btn-ghost btn-square list-none" aria-label="Open navigation menu">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </summary>
+          <ul class="menu menu-sm dropdown-content mt-3 z-10 p-2 shadow-lg rounded-lg w-64">
+            <li><%= link_to "All designs", products_path %></li>
+            <% navigation_categories.each do |category| %>
+              <li><%= link_to category.name, category_path(category) %></li>
+            <% end %>
+            <li><%= link_to "About", about_path %></li>
+            <li><%= link_to "Contact", contact_path %></li>
+            <% if user_signed_in? %>
+              <li class="menu-title mt-2"><span>Account</span></li>
+              <li><%= link_to "Dashboard", dashboard_path %></li>
+              <li><%= link_to "Orders", dashboard_orders_path %></li>
+              <li><%= link_to "Downloads", dashboard_downloads_path %></li>
+              <li><%= link_to "Wishlist", dashboard_wishlist_path %></li>
+              <% if current_user.admin? %>
+                <li><%= link_to "Admin panel", admin_root_path if defined?(admin_root_path) %></li>
+              <% end %>
+              <li>
+                <%= button_to "Log out", destroy_user_session_path, method: :delete, data: { turbo: false }, class: "btn btn-ghost btn-sm text-error w-full justify-start" %>
+              </li>
+            <% else %>
+              <li class="menu-title mt-2"><span>Account</span></li>
+              <li><%= link_to "Log in", new_user_session_path %></li>
+              <li><%= link_to "Create account", new_user_registration_path %></li>
+            <% end %>
+          </ul>
+        </details>
+
+        <%= link_to root_path, class: "site-brand", aria: { label: "Gloria's Embroidery Shop home" } do %>
+          <span class="site-brand-mark" aria-hidden="true">G</span>
+          <span class="site-brand-name">
+            <span>Gloria's</span>
+            <small>Embroidery Shop</small>
+          </span>
+        <% end %>
+      </div>
+
+      <div class="navbar-center hidden lg:flex">
+        <ul class="menu menu-horizontal gap-1">
+          <li><%= link_to "All designs", products_path, class: "font-medium" %></li>
           <li>
             <details>
-              <summary>Categories</summary>
-              <ul class="p-2">
-                <% Category.with_available_products.each do |category| %>
+              <summary class="font-medium">Categories</summary>
+              <ul class="p-2 rounded-lg w-56">
+                <% navigation_categories.each do |category| %>
                   <li><%= link_to category.name, category_path(category) %></li>
                 <% end %>
               </ul>
             </details>
           </li>
-          <li><%= link_to "About", about_path %></li>
-          <li><%= link_to "Contact", contact_path %></li>
-          <li class="menu-title mt-2"><span>Account</span></li>
-          <% if user_signed_in? %>
-            <li><%= link_to "Dashboard", dashboard_path %></li>
-            <li><%= link_to "Orders", dashboard_orders_path %></li>
-            <li><%= link_to "Downloads", dashboard_downloads_path %></li>
-            <li><%= link_to "Wishlist", dashboard_wishlist_path %></li>
-            <% if current_user.admin? %>
-              <li class="menu-title mt-2"><span>Admin</span></li>
-              <li><%= link_to "Add Product", new_product_path %></li>
-              <li><%= link_to "Admin Panel", admin_root_path if defined?(admin_root_path) %></li>
-            <% end %>
-            <li class="mt-2">
-              <%= form_with url: destroy_user_session_path, method: :delete, data: { turbo: false } do %>
-                <%= button_tag "Logout", type: "submit", class: "btn btn-ghost btn-sm text-error w-full text-left" %>
-              <% end %>
-            </li>
-          <% else %>
-            <li><%= link_to "Login", new_user_session_path %></li>
-            <li><%= link_to "Sign Up", new_user_registration_path %></li>
-          <% end %>
+          <li><%= link_to "About", about_path, class: "font-medium" %></li>
+          <li><%= link_to "Contact", contact_path, class: "font-medium" %></li>
         </ul>
       </div>
-      <%= link_to root_path, class: "btn btn-ghost normal-case text-sm sm:text-xl font-bold px-1 sm:px-4" do %>
-        <span class="text-primary">✂️</span>
-        <span class="sm:hidden">Gloria's Shop</span>
-        <span class="hidden sm:inline">Gloria's Embroidery Shop</span>
-      <% end %>
-    </div>
 
-    <div class="navbar-center hidden lg:flex">
-      <ul class="menu menu-horizontal px-1 gap-2">
-        <li><%= link_to "Products", products_path, class: "font-medium" %></li>
-        <li>
-          <details>
-            <summary class="font-medium">Categories</summary>
-            <ul class="p-2 rounded-t-none">
-              <% Category.with_available_products.each do |category| %>
-                <li><%= link_to category.name, category_path(category), class: "block px-2 py-1" %></li>
+      <div class="navbar-end gap-1">
+        <%= form_with url: products_path, method: :get, local: true, class: "hidden xl:block" do |f| %>
+          <%= f.label :search, "Search designs", class: "sr-only", for: "site-search" %>
+          <%= f.search_field :search, id: "site-search", placeholder: "Search designs", class: "input input-bordered input-sm w-44", value: params[:search], autocomplete: "off" %>
+        <% end %>
+
+        <% if user_signed_in? %>
+          <% wishlist_count = current_user.wishlist_items.count %>
+          <%= link_to wishlist_items_path, class: "btn btn-ghost btn-circle", aria: { label: "Wishlist, #{pluralize(wishlist_count, 'item')}" }, title: "Wishlist" do %>
+            <span class="indicator">
+              <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              <% if wishlist_count.positive? %>
+                <span class="badge badge-xs badge-secondary indicator-item"><%= wishlist_count %></span>
               <% end %>
+            </span>
+          <% end %>
+        <% end %>
+
+        <%= link_to cart_path, class: "btn btn-ghost btn-circle", aria: { label: "Cart, #{pluralize(cart_count, 'item')}" }, title: "Cart" do %>
+          <span class="indicator">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.3 2.6A1 1 0 006.6 17H18m-9 4h.01M17 21h.01" />
+            </svg>
+            <% if cart_count.positive? %>
+              <span class="badge badge-xs badge-primary indicator-item"><%= cart_count %></span>
+            <% end %>
+          </span>
+        <% end %>
+
+        <% if user_signed_in? %>
+          <details class="dropdown dropdown-end hidden lg:block">
+            <summary class="btn btn-ghost btn-circle list-none" aria-label="Open account menu">
+              <% if current_user.avatar.attached? %>
+                <%= image_tag current_user.avatar.variant(resize_to_fill: [80, 80]), class: "account-avatar", alt: "" %>
+              <% else %>
+                <span class="account-avatar account-avatar-fallback" aria-hidden="true"><%= current_user.email.first.upcase %></span>
+              <% end %>
+            </summary>
+            <ul class="menu menu-sm dropdown-content mt-3 z-10 p-2 shadow-lg rounded-lg w-60">
+              <li class="menu-title"><span class="truncate"><%= current_user.email %></span></li>
+              <li><%= link_to "Dashboard", dashboard_path %></li>
+              <li><%= link_to "Orders", dashboard_orders_path %></li>
+              <li><%= link_to "Downloads", dashboard_downloads_path %></li>
+              <li><%= link_to "Wishlist", dashboard_wishlist_path %></li>
+              <% if current_user.admin? %>
+                <li class="menu-title mt-2"><span>Store management</span></li>
+                <li><%= link_to "Admin panel", admin_root_path if defined?(admin_root_path) %></li>
+              <% end %>
+              <li class="mt-1">
+                <%= button_to "Log out", destroy_user_session_path, method: :delete, data: { turbo: false }, class: "btn btn-ghost btn-sm text-error w-full justify-start" %>
+              </li>
             </ul>
           </details>
-        </li>
-        <li><%= link_to "About", about_path, class: "font-medium" %></li>
-        <li><%= link_to "Contact", contact_path, class: "font-medium" %></li>
-      </ul>
-    </div>
-
-    <div class="navbar-end gap-1 sm:gap-2">
-      <!-- Search -->
-      <div class="form-control hidden md:block">
-        <%= form_with url: products_path, method: :get, local: true do |f| %>
-          <%= f.text_field :search, placeholder: "Search designs...", class: "input input-bordered input-sm w-24 md:w-auto", value: params[:search], autocomplete: "off" %>
+        <% else %>
+          <%= link_to "Log in", new_user_session_path, class: "btn btn-ghost btn-sm hidden lg:inline-flex" %>
+          <%= link_to "Create account", new_user_registration_path, class: "btn btn-primary btn-sm hidden lg:inline-flex" %>
         <% end %>
       </div>
-
-
-      <!-- Wishlist -->
-      <% if user_signed_in? %>
-        <% wishlist_count = current_user.wishlist_items.count %>
-        <%= link_to wishlist_items_path, class: "btn btn-ghost btn-circle" do %>
-          <div class="indicator">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-            <% if wishlist_count.positive? %>
-              <span class="badge badge-sm badge-secondary indicator-item"><%= wishlist_count %></span>
-            <% end %>
-          </div>
-        <% end %>
-      <% end %>
-
-      <!-- Shopping Cart -->
-      <% if user_signed_in? %>
-        <% cart = session[:cart] || {} %>
-        <% cart_count = cart.values.sum %>
-        <% subtotal = Product.where(id: cart.keys).sum { |p| p.price * cart[p.id.to_s].to_i } %>
-
-        <div class="dropdown dropdown-end">
-          <label tabindex="0" class="btn btn-ghost btn-circle text-2xl">
-            <div class="indicator">
-              🛒
-              <% if cart_count.positive? %>
-                <span class="badge badge-sm badge-primary indicator-item"><%= cart_count %></span>
-              <% end %>
-            </div>
-          </label>
-
-          <div tabindex="0" class="mt-3 z-[1] card card-compact dropdown-content w-52 shadow">
-            <div class="card-body">
-              <span class="font-bold text-lg"><%= cart_count %> Items</span>
-              <span class="text-info">Subtotal: $<%= subtotal %></span>
-              <div class="card-actions">
-                <%= link_to "View Cart", cart_path, class: "btn btn-primary btn-block" %>
-                <%= link_to "Clear Cart", clear_cart_path, method: :delete, class: "btn btn-error btn-block btn-sm mt-1" if cart_count.positive? %>
-              </div>
-            </div>
-          </div>
-        </div>
-      <% else %>
-        <%= link_to new_user_session_path, class: "btn btn-ghost btn-circle text-2xl" do %>
-          <div class="indicator">
-            🛒
-          </div>
-        <% end %>
-      <% end %>
-
-      <!-- User Menu -->
-      <% if user_signed_in? %>
-        <% if current_user.admin? %>
-          <%= link_to "Add Product", new_product_path, class: "btn btn-ghost btn-sm text-primary hidden lg:inline-flex" %>
-          <%= link_to "Admin", admin_root_path, class: "btn btn-ghost btn-sm text-primary hidden lg:inline-flex" if defined?(admin_root_path) %>
-        <% end %>
-        <div class="dropdown dropdown-end">
-          <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-            <div class="w-10 rounded-full">
-              <% if current_user.avatar.attached? %>
-                <%= image_tag current_user.avatar.variant(resize_to_fill: [80, 80]), class: "rounded-full" %>
-              <% else %>
-                <img src="https://ui-avatars.com/api/?name=<%= current_user.email.first %>&background=random" alt="User Avatar" />
-              <% end %>
-            </div>
-          </label>
-          <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content rounded-box w-52">
-            <li class="menu-title">
-              <span><%= current_user.email %></span>
-            </li>
-            <li><%= link_to "Dashboard", dashboard_path %></li>
-            <li><%= link_to "Orders", dashboard_orders_path %></li>
-            <li><%= link_to "Downloads", dashboard_downloads_path %></li>
-            <li><%= link_to "Wishlist", dashboard_wishlist_path %></li>
-            <li>
-              <%= form_with url: destroy_user_session_path, method: :delete, data: { turbo: false } do %>
-                <%= button_tag "Logout", type: "submit", class: "btn btn-ghost text-error w-full text-left" %>
-              <% end %>
-            </li>
-          </ul>
-      <% else %>
-        <%= link_to "Login", new_user_session_path, class: "btn btn-ghost btn-sm hidden lg:inline-flex" %>
-        <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-primary btn-sm hidden lg:inline-flex" %>
-      <% end %>
-    </div>
-  </div>
+    </nav>
+  </header>
   <% end %>
 
   <!-- Main Content -->
-  <main class="container mx-auto px-4 md:px-6 mt-4 relative z-10 page-surface">
+  <main class="container mx-auto px-4 md:px-6 pt-4 relative z-10 page-surface">
     <% if notice %>
-      <div class="alert alert-success shadow-lg mb-4"
-           data-controller="scroll-animation"
-           data-scroll-animation-animation-value="fade-down">
+      <div class="alert alert-success shadow-lg mb-4 flash-message">
         <span><%= notice %></span>
       </div>
     <% end %>
     <% if alert %>
-      <div class="alert alert-error shadow-lg mb-4"
-           data-controller="scroll-animation"
-           data-scroll-animation-animation-value="fade-down">
+      <div class="alert alert-error shadow-lg mb-4 flash-message">
         <span><%= alert %></span>
       </div>
     <% end %>
@@ -234,67 +182,42 @@
 
   <!-- Footer (hidden in native mobile wrapper) -->
   <% unless turbo_native_app? %>
-  <footer class="footer p-6 sm:p-10 mt-16 grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
-    <nav>
-      <h6 class="footer-title">Shop</h6>
-      <a class="link link-hover" href="<%= products_path %>">All Products</a>
-      <% Category.with_available_products.limit(4).each do |category| %>
-        <a class="link link-hover" href="<%= category_path(category) %>"><%= category.name %></a>
-      <% end %>
-    </nav>
-    <nav>
-      <h6 class="footer-title">Support</h6>
-      <a class="link link-hover" href="<%= contact_path %>">Contact Us</a>
-      <a class="link link-hover">Help Center</a>
-      <a class="link link-hover">Size Guide</a>
-      <a class="link link-hover hidden sm:block">File Formats</a>
-      <a class="link link-hover hidden sm:block">Machine Compatibility</a>
-    </nav>
-    <nav>
-      <h6 class="footer-title">Company</h6>
-      <a class="link link-hover" href="<%= about_path %>">About Us</a>
-      <a class="link link-hover">Blog</a>
-      <a class="link link-hover hidden sm:block">Careers</a>
-      <a class="link link-hover hidden sm:block">Press</a>
-    </nav>
-    <nav>
-      <h6 class="footer-title">Legal</h6>
-      <a class="link link-hover">Terms of Service</a>
-      <a class="link link-hover">Privacy Policy</a>
-      <a class="link link-hover hidden sm:block">Cookie Policy</a>
-      <a class="link link-hover hidden sm:block">Refund Policy</a>
-    </nav>
-  </footer>
-  
-  <footer class="footer footer-center sm:footer px-4 sm:px-10 py-4 border-t">
-    <aside class="items-center grid-flow-col">
-      <div class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
-        <div class="flex items-center gap-2">
-          <span class="text-primary text-2xl">✂️</span>
-          <p class="font-semibold text-sm sm:text-base">Gloria's Embroidery Shop</p>
-        </div>
-        <p class="text-xs sm:text-sm">&copy; <%= Time.current.year %> All rights reserved.</p>
+  <footer class="site-footer mt-16">
+    <div class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div class="sm:col-span-2 lg:col-span-1">
+        <%= link_to root_path, class: "site-brand mb-4 inline-flex" do %>
+          <span class="site-brand-mark" aria-hidden="true">G</span>
+          <span class="site-brand-name"><span>Gloria's</span><small>Embroidery Shop</small></span>
+        <% end %>
+        <p class="text-sm text-base-content/60 max-w-xs">Machine-ready embroidery designs, tested and ready to download.</p>
       </div>
-    </aside>
-    <nav class="md:place-self-center md:justify-self-end">
-      <div class="grid grid-flow-col gap-4">
-        <a class="link link-hover">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
-            <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
-          </svg>
-        </a>
-        <a class="link link-hover">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
-            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
-          </svg>
-        </a>
-        <a class="link link-hover">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
-            <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path>
-          </svg>
-        </a>
-      </div>
-    </nav>
+      <nav aria-label="Shop links">
+        <h2 class="footer-title">Shop</h2>
+        <%= link_to "All designs", products_path, class: "link link-hover" %>
+        <% navigation_categories.first(3).each do |category| %>
+          <%= link_to category.name, category_path(category), class: "link link-hover" %>
+        <% end %>
+      </nav>
+      <nav aria-label="Company links">
+        <h2 class="footer-title">Company</h2>
+        <%= link_to "About Gloria's", about_path, class: "link link-hover" %>
+        <%= link_to "Contact", contact_path, class: "link link-hover" %>
+      </nav>
+      <nav aria-label="Account links">
+        <h2 class="footer-title">Account</h2>
+        <% if user_signed_in? %>
+          <%= link_to "Dashboard", dashboard_path, class: "link link-hover" %>
+          <%= link_to "Orders", dashboard_orders_path, class: "link link-hover" %>
+          <%= link_to "Downloads", dashboard_downloads_path, class: "link link-hover" %>
+        <% else %>
+          <%= link_to "Log in", new_user_session_path, class: "link link-hover" %>
+          <%= link_to "Create account", new_user_registration_path, class: "link link-hover" %>
+        <% end %>
+      </nav>
+    </div>
+    <div class="max-w-7xl mx-auto px-6 py-4 border-t border-base-300 text-xs text-base-content/55">
+      &copy; <%= Time.current.year %> Gloria's Embroidery Shop. All rights reserved.
+    </div>
   </footer>
   <% end %>
 </body>

@@ -10,10 +10,10 @@ Rails.application.configure do
     policy.font_src    :self, :https, :data
     policy.img_src     :self, :https, :data, :blob
     policy.object_src  :none
-    policy.script_src  :self, :https, "https://js.stripe.com", "https://cdn.jsdelivr.net"
-    policy.style_src   :self, :https, :unsafe_inline, "https://cdn.jsdelivr.net"
+    policy.script_src  :self
+    policy.style_src   :self, "https://fonts.googleapis.com", :unsafe_inline
     policy.connect_src :self, :https, "https://api.stripe.com"
-    policy.frame_src   "https://js.stripe.com", "https://hooks.stripe.com"
+    policy.frame_src   :none
     policy.base_uri    :self
     policy.frame_ancestors :none
   end

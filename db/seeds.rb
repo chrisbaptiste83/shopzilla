@@ -55,11 +55,12 @@ elsif Rails.env.production?
 
   data["blobs"].each do |b|
     blob = ActiveStorage::Blob.find_or_initialize_by(key: b["key"])
-    metadata = b["metadata"].presence || if b["content_type"].to_s.start_with?("image/")
-      Product.image_metadata_for(filename: b["filename"])
-    else
-      { "asset_kind" => "embroidery_source" }
-    end
+    metadata = b["metadata"].presence ||
+      if b["content_type"].to_s.start_with?("image/")
+        Product.image_metadata_for(filename: b["filename"])
+      else
+        { "asset_kind" => "embroidery_source" }
+      end
     blob.assign_attributes(
       key:          b["key"],
       filename:     b["filename"],

@@ -1,12 +1,16 @@
 module ApplicationHelper
+  IMAGEKIT_URL_ENDPOINT = ENV.fetch("IMAGEKIT_URL_ENDPOINT", "https://ik.imagekit.io/mlvnqaq3b").delete_suffix("/").freeze
+
   def in_wishlist?(product)
     return false unless user_signed_in?
-    current_user.wishlist_items.exists?(product_id: product.id)
+
+    wishlist_items_by_product_id.key?(product.id)
   end
 
   def wishlist_item_for(product)
     return nil unless user_signed_in?
-    current_user.wishlist_items.find_by(product_id: product.id)
+
+    wishlist_items_by_product_id[product.id]
   end
 
   CATEGORY_IMAGE_MAP = [
@@ -26,9 +30,6 @@ module ApplicationHelper
   end
 
   def imagekit_url(blob_or_attachment, transforms = {})
-    endpoint = ENV.fetch("IMAGEKIT_URL_ENDPOINT", nil)
-    return nil unless endpoint
-
     key = if blob_or_attachment.respond_to?(:blob)
       blob_or_attachment.blob.key
     elsif blob_or_attachment.respond_to?(:key)
@@ -37,7 +38,9 @@ module ApplicationHelper
       blob_or_attachment.to_s
     end
 
-    tr = transforms.map do |k, v|
+    transformations = transforms.dup
+    avatar = transformations.delete(:avatar)
+    tr = transformations.map do |k, v|
       case k
       when :width   then "w-#{v}"
       when :height  then "h-#{v}"
@@ -48,13 +51,20 @@ module ApplicationHelper
       else "#{k}-#{v}"
       end
     end.join(",")
+    tr = "#{tr}:r-max" if avatar
 
-    url = "#{endpoint}/#{key}"
+    url = "#{IMAGEKIT_URL_ENDPOINT}/#{key}"
     tr.present? ? "#{url}?tr=#{tr}" : url
   end
 
   def turbo_native_app?
     request.user_agent.to_s.include?("Turbo Native") ||
       request.user_agent.to_s.include?("Hotwire Native")
+  end
+
+  private
+
+  def wishlist_items_by_product_id
+    @wishlist_items_by_product_id ||= current_user.wishlist_items.index_by(&:product_id)
   end
 end

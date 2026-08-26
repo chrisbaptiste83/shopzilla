@@ -1,4 +1,5 @@
 require "base64"
+require "digest"
 
 namespace :embroidery_catalog do
   desc "Import products directly from S3 bucket when local source files are unavailable"
@@ -28,13 +29,14 @@ namespace :embroidery_catalog do
         return existing
       end
 
-      etag     = s3.head_object(bucket: bucket, key: key).etag.delete('"')
-      checksum = Base64.strict_encode64([etag].pack("H*")) rescue SecureRandom.base64(28)
+      object = s3.get_object(bucket: bucket, key: key)
+      contents = object.body.read
+      checksum = Base64.strict_encode64(Digest::MD5.digest(contents))
 
       ActiveStorage::Blob.create!(
         key:          key,
         filename:     filename,
-        byte_size:    byte_size,
+        byte_size:    contents.bytesize,
         content_type: content_type,
         service_name: service_name,
         checksum:     checksum,

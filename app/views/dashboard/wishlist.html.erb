@@ -26,7 +26,7 @@
             <figure class="px-4 pt-4 relative overflow-hidden">
               <%= link_to product_path(product) do %>
                 <% if product.images.attached? %>
-                  <%= image_tag product.primary_image, class: "rounded-lg h-44 w-full object-cover group-hover:scale-105 transition-transform duration-300" %>
+                  <%= image_tag product.primary_image, class: "rounded-lg h-44 w-full object-contain bg-base-200 group-hover:scale-105 transition-transform duration-300" %>
                 <% else %>
                   <div class="rounded-lg h-44 w-full flex items-center justify-center" style="background: linear-gradient(135deg, rgba(45, 212, 191, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);">
                     <span class="text-4xl opacity-40">🎨</span>

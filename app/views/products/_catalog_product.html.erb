@@ -1,0 +1,52 @@
+<article class="catalog-product group">
+  <%= link_to product_path(product), class: "catalog-product-media" do %>
+    <% if product.images.attached? %>
+      <% image_url = imagekit_url(product.primary_image, width: 420, height: 420, crop: "at_max", format: "auto", quality: 72, sharpen: 20) %>
+      <%= image_tag(image_url,
+            class: "group-hover:scale-[1.03]",
+            alt: "#{product.title} embroidery preview",
+            loading: "lazy",
+            decoding: "async") %>
+    <% else %>
+      <div class="catalog-product-placeholder">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+    <% end %>
+    <span class="catalog-product-category"><%= product.category.name %></span>
+  <% end %>
+
+  <% if user_signed_in? %>
+    <div class="catalog-wishlist-action">
+      <% if in_wishlist?(product) %>
+        <%= form_with url: wishlist_item_path(wishlist_item_for(product)), method: :delete, local: true do %>
+          <button type="submit" class="btn btn-circle btn-sm btn-error" aria-label="Remove <%= product.title %> from wishlist" title="Remove from wishlist">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+        <% end %>
+      <% else %>
+        <%= form_with url: wishlist_items_path, method: :post, local: true do %>
+          <%= hidden_field_tag :product_id, product.id %>
+          <button type="submit" class="btn btn-circle btn-sm" aria-label="Add <%= product.title %> to wishlist" title="Add to wishlist">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="catalog-product-copy">
+    <h2><%= link_to product.title, product_path(product) %></h2>
+    <div class="catalog-product-meta">
+      <span><%= number_to_currency(product.price) %></span>
+      <% if product.stitch_count.present? %>
+        <small><%= number_with_delimiter(product.stitch_count) %> stitches</small>
+      <% end %>
+    </div>
+  </div>
+</article>
