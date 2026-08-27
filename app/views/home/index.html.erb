@@ -1,8 +1,11 @@
 <!-- Hero Section -->
 <section class="sz-hero">
-  <div class="sz-hero-dot-grid" aria-hidden="true"></div>
+  <%= image_tag "categories/studio.jpg",
+        alt: "Finished embroidery designs arranged in Gloria's studio",
+        class: "sz-hero-media",
+        loading: "eager",
+        fetchpriority: "high" %>
 
-  <!-- Left: Content -->
   <div class="sz-hero-content">
     <span class="sz-eyebrow sz-fade-up sz-fade-up-1">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -12,12 +15,12 @@
     </span>
 
     <h1 class="sz-headline sz-fade-up sz-fade-up-2">
-      Premium Designs<br>
-      <span class="sz-gradient-text">Made to Stitch</span>
+      Machine-ready<br>
+      <span class="sz-gradient-text">embroidery designs</span>
     </h1>
 
     <p class="sz-subhead sz-fade-up sz-fade-up-3">
-      Instant-download embroidery files crafted for all major machines —
+      Instant-download embroidery files crafted for all major machines.
       PES, DST, JEF and more. Ready the moment you purchase.
     </p>
 
@@ -33,27 +36,20 @@
 
     <div class="sz-trust-row sz-fade-up sz-fade-up-5">
       <span class="sz-trust-badge">
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#0f766e" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <svg aria-hidden="true" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         Instant Download
       </span>
       <span class="sz-trust-badge">
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#0f766e" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <svg aria-hidden="true" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         All Formats
       </span>
       <span class="sz-trust-badge">
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#0f766e" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <svg aria-hidden="true" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         Machine Tested
       </span>
     </div>
   </div>
 
-  <!-- Right: Hero image -->
-  <div class="sz-hero-mosaic sz-fade-up sz-fade-up-3">
-    <%= image_tag "categories/hero.jpg",
-          alt: "Gloria's Embroidery Studio",
-          class: "w-full rounded-2xl shadow-2xl",
-          style: "max-height:520px;object-fit:cover;object-position:center;" %>
-  </div>
 </section>
 
 <!-- Section divider -->
@@ -67,13 +63,15 @@
   </div>
   <div class="sz-divider my-4"></div>
 
-  <% if @random_categories.any? %>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-      <% @random_categories.each do |category| %>
-        <%= link_to category_path(category), class: "group relative overflow-hidden rounded-2xl aspect-[4/3] block" do %>
+  <% if @featured_categories.any? %>
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <% @featured_categories.each do |category| %>
+        <%= link_to category_path(category), class: "group relative overflow-hidden rounded-lg aspect-[4/3] block" do %>
           <%= image_tag category_banner_image(category),
                 class: "absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105",
-                alt: category.name %>
+                alt: category.name,
+                loading: "lazy",
+                decoding: "async" %>
           <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent"></div>
           <span class="absolute bottom-3 left-3 right-3 text-white font-bold text-sm leading-snug drop-shadow-sm">
             <%= category.name %>
@@ -116,9 +114,12 @@
           <%= link_to product_path(product) do %>
             <div class="sz-product-image">
               <% if product.images.attached? %>
-                <%= image_tag product.primary_image,
-                      class: "w-full h-52 object-contain",
-                      alt: product.title %>
+                <% image_url = imagekit_url(product.storefront_image, width: 520, height: 520, crop: "at_max", format: "auto", quality: 74, sharpen: 20) %>
+                <%= image_tag image_url,
+                      class: "product-preview-image w-full h-52 object-contain",
+                      alt: "#{product.title} embroidery preview",
+                      loading: "lazy",
+                      decoding: "async" %>
               <% else %>
                 <div class="w-full h-52 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 opacity-15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,7 +134,7 @@
               <%= link_to product.title, product_path(product), class: "hover:no-underline" %>
             </h3>
             <div class="flex items-center justify-between">
-              <span class="sz-product-price">$<%= product.price %></span>
+              <span class="sz-product-price"><%= number_to_currency(product.price) %></span>
               <% if product.stitch_count.present? %>
                 <span class="text-xs text-gray-400 font-medium"><%= number_with_delimiter(product.stitch_count) %> sts</span>
               <% end %>

@@ -1,125 +1,89 @@
-<!-- Page Header -->
-<div class="mb-8 px-1">
-  <h1 class="text-3xl font-bold mb-1">All Products</h1>
-  <p class="text-base-content/50">Browse our embroidery designs and patterns.</p>
-</div>
+<% content_for :page_title, "Embroidery Designs" %>
+<% filters_active = params.values_at(:search, :category_id, :file_format, :sort, :stitch_min, :stitch_max).any?(&:present?) %>
 
-<!-- Filters -->
-<div class="mb-8">
-  <%= form_with url: products_path, method: :get, local: true do |f| %>
-    <div class="flex flex-wrap gap-2 items-center">
-      <%= f.text_field :search, value: params[:search], placeholder: "Search...",
-            class: "input input-bordered input-sm w-48" %>
-
-      <select name="category_id" class="select select-bordered select-sm">
-        <option value="">All Categories</option>
-        <% Category.all.each do |category| %>
-          <option value="<%= category.id %>" <%= "selected" if params[:category_id].to_s == category.id.to_s %>>
-            <%= category.name %>
-          </option>
-        <% end %>
-      </select>
-
-      <select name="sort" class="select select-bordered select-sm">
-        <option value="">Sort</option>
-        <option value="newest" <%= "selected" if params[:sort] == "newest" %>>Newest</option>
-        <option value="price_low" <%= "selected" if params[:sort] == "price_low" %>>Price ↑</option>
-        <option value="price_high" <%= "selected" if params[:sort] == "price_high" %>>Price ↓</option>
-      </select>
-
-      <%= f.number_field :stitch_min, value: params[:stitch_min], min: 0, placeholder: "Min stitches",
-            class: "input input-bordered input-sm w-32" %>
-      <%= f.number_field :stitch_max, value: params[:stitch_max], min: 0, placeholder: "Max stitches",
-            class: "input input-bordered input-sm w-32" %>
-
-      <%= f.submit "Filter", class: "btn btn-primary btn-sm" %>
-
-      <% if params[:search].present? || params[:category_id].present? || params[:sort].present? || params[:stitch_min].present? || params[:stitch_max].present? %>
-        <%= link_to "Clear", products_path, class: "btn btn-ghost btn-sm" %>
-      <% end %>
-    </div>
-  <% end %>
-</div>
-
-<!-- Products Grid -->
-<% if @products.empty? %>
-  <div class="text-center py-24 text-base-content/40">
-    <div class="text-5xl mb-4">🧵</div>
-    <h2 class="text-xl font-semibold mb-2 text-base-content/60">No products found</h2>
-    <p class="mb-6">Try adjusting your filters.</p>
-    <%= link_to "Clear Filters", products_path, class: "btn btn-outline btn-sm" %>
+<header class="catalog-header">
+  <div>
+    <p class="sz-section-label">Design catalog</p>
+    <h1>Embroidery designs</h1>
+    <p>Machine-ready files for your next stitching project.</p>
   </div>
-<% else %>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-    <% @products.each do |product| %>
-      <div class="group">
-        <!-- Image -->
-        <%= link_to product_path(product) do %>
-          <div class="relative overflow-hidden rounded-2xl bg-base-200 mb-3">
-            <% if product.images.attached? %>
-              <% _ik = imagekit_url(product.primary_image, width: 600, height: 600, crop: "at_max", format: "auto", quality: 80, sharpen: 30) %>
-              <%= image_tag(_ik || product.primary_image.variant(resize_to_limit: [600, 600]),
-                    class: "w-full h-48 object-contain group-hover:scale-105 transition-transform duration-300") %>
-            <% else %>
-              <div class="w-full h-48 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-            <% end %>
+  <p class="catalog-count"><%= pluralize(@products.total_count, "design") %></p>
+</header>
 
-            <!-- Category badge -->
-            <% if product.category.present? %>
-              <div class="absolute top-2 left-2">
-                <span class="badge badge-xs bg-base-100/80 backdrop-blur text-base-content border-0">
-                  <%= product.category.name %>
-                </span>
-              </div>
-            <% end %>
+<section class="catalog-filters" aria-label="Product filters">
+  <%= form_with url: products_path, method: :get, local: true, class: "catalog-filter-grid" do |f| %>
+    <div class="catalog-search-field">
+      <%= f.label :search, "Search designs", class: "catalog-filter-label" %>
+      <%= f.search_field :search, value: params[:search], placeholder: "Title or description",
+            class: "input input-bordered w-full", autocomplete: "off" %>
+    </div>
 
-            <!-- Wishlist button -->
-            <% if user_signed_in? %>
-              <div class="absolute top-2 right-2">
-                <% if in_wishlist?(product) %>
-                  <%= form_with url: wishlist_item_path(wishlist_item_for(product)), method: :delete, local: true do %>
-                    <button type="submit" class="btn btn-circle btn-xs btn-error opacity-80">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </button>
-                  <% end %>
-                <% else %>
-                  <%= form_with url: wishlist_items_path, method: :post, local: true do %>
-                    <%= hidden_field_tag :product_id, product.id %>
-                    <button type="submit" class="btn btn-circle btn-xs bg-base-100/70 backdrop-blur hover:bg-base-100 border-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </button>
-                  <% end %>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        <% end %>
+    <div>
+      <%= label_tag :category_id, "Category", class: "catalog-filter-label" %>
+      <%= select_tag :category_id,
+            options_from_collection_for_select(@categories, :id, :name, params[:category_id]),
+            include_blank: "All categories",
+            class: "select select-bordered w-full" %>
+    </div>
 
-        <!-- Info -->
-        <div class="px-1">
-          <h3 class="font-semibold text-sm mb-1 group-hover:text-primary transition-colors truncate">
-            <%= link_to product.title, product_path(product) %>
-          </h3>
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-primary"><%= number_to_currency(product.price) %></span>
-            <% if product.stitch_count.present? %>
-              <span class="text-xs text-base-content/45"><%= number_with_delimiter(product.stitch_count) %> sts</span>
-            <% end %>
-          </div>
+    <div>
+      <%= label_tag :file_format, "File format", class: "catalog-filter-label" %>
+      <%= select_tag :file_format,
+            options_for_select(@file_formats, params[:file_format]),
+            include_blank: "All formats",
+            class: "select select-bordered w-full" %>
+    </div>
+
+    <div>
+      <%= label_tag :sort, "Sort by", class: "catalog-filter-label" %>
+      <%= select_tag :sort,
+            options_for_select([
+              [ "Newest", "newest" ],
+              [ "Price: low to high", "price_low" ],
+              [ "Price: high to low", "price_high" ]
+            ], params[:sort]),
+            include_blank: "Recommended",
+            class: "select select-bordered w-full" %>
+    </div>
+
+    <details class="catalog-advanced" <%= "open" if params[:stitch_min].present? || params[:stitch_max].present? %>>
+      <summary>Stitch count</summary>
+      <div class="catalog-stitch-fields">
+        <div>
+          <%= f.label :stitch_min, "Minimum", class: "catalog-filter-label" %>
+          <%= f.number_field :stitch_min, value: params[:stitch_min], min: 0, placeholder: "0",
+                class: "input input-bordered w-full" %>
+        </div>
+        <div>
+          <%= f.label :stitch_max, "Maximum", class: "catalog-filter-label" %>
+          <%= f.number_field :stitch_max, value: params[:stitch_max], min: 0, placeholder: "Any",
+                class: "input input-bordered w-full" %>
         </div>
       </div>
-    <% end %>
+    </details>
+
+    <div class="catalog-filter-actions">
+      <%= f.submit "Apply filters", class: "btn btn-primary" %>
+      <%= link_to "Clear", products_path, class: "btn btn-ghost" if filters_active %>
+    </div>
+  <% end %>
+</section>
+
+<% if @products.empty? %>
+  <div class="catalog-empty">
+    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+    </svg>
+    <h2>No matching designs</h2>
+    <p>Try a broader search or remove one of your filters.</p>
+    <%= link_to "View all designs", products_path, class: "btn btn-outline btn-sm" %>
+  </div>
+<% else %>
+  <div class="product-card-grid">
+    <%= render partial: "catalog_product", collection: @products, as: :product %>
   </div>
 
-  <div class="mt-10 flex justify-center">
+  <nav class="mt-10 flex justify-center" aria-label="Product pages">
     <%= paginate @products %>
-  </div>
+  </nav>
 <% end %>

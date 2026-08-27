@@ -1,47 +1,72 @@
-<div class="container mx-auto max-w-2xl px-4 py-12">
-  <h1 class="text-3xl font-bold mb-6">Shipping Information</h1>
+<% content_for :page_title, "Shipping Information" %>
 
-  <%= form_with(model: @order, url: process_shipping_address_path, method: :post, local: true) do |form| %>
-    <%= form.fields_for :shipping_address do |shipping_form| %>
-      <div class="space-y-4">
-        <div class="form-control">
-          <%= shipping_form.label :full_name, class: "label" %>
-          <%= shipping_form.text_field :full_name, class: "input input-bordered w-full", required: true %>
-        </div>
+<header class="catalog-header">
+  <div>
+    <p class="sz-section-label">Secure checkout</p>
+    <h1>Shipping information</h1>
+    <p>Enter the delivery address for the physical items in your order.</p>
+  </div>
+</header>
 
-        <div class="form-control">
-          <%= shipping_form.label :street_address, class: "label" %>
-          <%= shipping_form.text_field :street_address, class: "input input-bordered w-full", required: true %>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="form-control">
-            <%= shipping_form.label :city, class: "label" %>
-            <%= shipping_form.text_field :city, class: "input input-bordered w-full", required: true %>
-          </div>
-          <div class="form-control">
-            <%= shipping_form.label :state, class: "label" %>
-            <%= shipping_form.text_field :state, class: "input input-bordered w-full", required: true %>
-          </div>
-          <div class="form-control">
-            <%= shipping_form.label :zip_code, class: "label" %>
-            <%= shipping_form.text_field :zip_code, class: "input input-bordered w-full", required: true %>
-          </div>
-        </div>
-
-        <div class="form-control">
-          <%= shipping_form.label :country, class: "label" %>
-          <%= shipping_form.text_field :country, class: "input input-bordered w-full", required: true %>
-        </div>
+<div class="checkout-form-layout">
+  <section>
+    <% if @order.errors.any? %>
+      <div class="alert alert-error mb-6" role="alert">
+        <span><%= @order.errors.full_messages.to_sentence %></span>
       </div>
     <% end %>
 
-    <% @products.each do |product| %>
-      <%= form.hidden_field :product_ids, multiple: true, value: product.id %>
-    <% end %>
+    <%= form_with(model: @order, url: process_shipping_address_path, method: :post, local: true, class: "space-y-5") do |form| %>
+      <%= form.fields_for :shipping_address do |shipping_form| %>
+        <div>
+          <%= shipping_form.label :full_name, class: "catalog-filter-label" %>
+          <%= shipping_form.text_field :full_name, class: "input input-bordered w-full", required: true, autocomplete: "name" %>
+        </div>
 
-    <div class="mt-8">
-      <%= form.submit "Continue to Payment", class: "btn btn-primary w-full" %>
+        <div>
+          <%= shipping_form.label :street_address, class: "catalog-filter-label" %>
+          <%= shipping_form.text_field :street_address, class: "input input-bordered w-full", required: true, autocomplete: "street-address" %>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <%= shipping_form.label :city, class: "catalog-filter-label" %>
+            <%= shipping_form.text_field :city, class: "input input-bordered w-full", required: true, autocomplete: "address-level2" %>
+          </div>
+          <div>
+            <%= shipping_form.label :state, class: "catalog-filter-label" %>
+            <%= shipping_form.text_field :state, class: "input input-bordered w-full", required: true, autocomplete: "address-level1" %>
+          </div>
+          <div>
+            <%= shipping_form.label :zip_code, "ZIP code", class: "catalog-filter-label" %>
+            <%= shipping_form.text_field :zip_code, class: "input input-bordered w-full", required: true, autocomplete: "postal-code" %>
+          </div>
+        </div>
+
+        <div>
+          <%= shipping_form.label :country, class: "catalog-filter-label" %>
+          <%= shipping_form.text_field :country, class: "input input-bordered w-full", required: true, autocomplete: "country-name" %>
+        </div>
+      <% end %>
+
+      <%= hidden_field_tag :product_quantities, @quantities_by_product_id.to_json %>
+      <%= form.submit "Continue to payment", class: "btn btn-primary w-full" %>
+    <% end %>
+  </section>
+
+  <aside class="cart-summary" aria-labelledby="checkout-summary-heading">
+    <h2 id="checkout-summary-heading">Order summary</h2>
+    <% @products.each do |product| %>
+      <% quantity = @quantities_by_product_id.fetch(product.id.to_s) %>
+      <div class="checkout-summary-item">
+        <span><%= product.title %> <small>x<%= quantity %></small></span>
+        <strong><%= number_to_currency(product.price * quantity) %></strong>
+      </div>
+    <% end %>
+    <div class="cart-summary-row mt-4">
+      <span>Total</span>
+      <strong><%= number_to_currency(@order.total) %></strong>
     </div>
-  <% end %>
+    <%= link_to "Return to cart", cart_path, class: "btn btn-ghost w-full" %>
+  </aside>
 </div>

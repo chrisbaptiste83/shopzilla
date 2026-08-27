@@ -1,7 +1,7 @@
 # Reference Index
 
-Last updated: 2026-04-28
-Context: `feature/embroidery-storage-redesign`
+Last updated: 2026-08-20
+Context: `main`
 
 This index collects the most relevant documentation for the current embroidery catalog, checkout, download, and storage redesign work.
 
@@ -15,8 +15,7 @@ Link:
 
 Why it matters:
 
-- S3 service configuration
-- mirror service for storage cutover
+- S3 service configuration and the production storage contract
 - `has_one_attached` and `has_many_attached`
 - blob URL and download behavior
 - direct uploads if we later remove app-server-mediated upload paths
@@ -25,7 +24,6 @@ Most relevant sections:
 
 - Setup
 - S3 Service
-- Mirror Service
 - Attaching Files to Records
 - Linking to Files
 - Direct Uploads

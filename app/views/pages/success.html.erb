@@ -1,46 +1,41 @@
+<% content_for :page_title, "Order Confirmed" %>
 
-<div class="hero min-h-screen bg-base-100">
-  <div class="hero-content text-center">
-    <div class="max-w-md">
-      <h1 class="text-5xl font-bold text-success">Thank You!</h1>
-      <p class="py-6 text-lg">
-        Your purchase was successful. We've emailed you a receipt. The download links below will enable you to download your purchased files. We appreciate your business!
-      </p>
+<section class="checkout-state">
+  <div class="checkout-state-icon checkout-state-icon-success" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+  </div>
+  <p class="sz-section-label">Payment received</p>
+  <h1>Order confirmed</h1>
+  <p class="checkout-state-lead">Your receipt is on its way. Your available files are ready below and will remain in your account.</p>
 
-      <% if current_user %>
-        <% if @download_accesses.any? %>
-          <div class="mb-4">
-            <p class="mb-2 font-medium text-lg">Your Downloads:</p>
-            <% @download_accesses.each do |da| %>
-              <% if da.product&.embroidery_file&.attached? %>
-                <div class="mb-2 flex flex-col items-center rounded-lg p-4 bg-base-200">
-                  <p class="font-medium mb-1"><%= da.product.title %></p>
-                  <%= link_to "Download", secure_download_path(da.access_token),
-                              class: "btn btn-accent mt-1" %>
-                  <p class="text-xs text-base-content/60 mt-1">
-                    Link expires: <%= da.expires_at.strftime("%B %d, %Y") %>
-                  </p>
-                </div>
-              <% else %>
-                <div class="alert alert-info mb-2">
-                  <p>Your download for "<%= da.product&.title || 'Unknown Product' %>" is not available yet.</p>
-                </div>
-              <% end %>
-            <% end %>
-          </div>
+  <% if @download_accesses.any? %>
+    <div class="download-list" aria-label="Your downloads">
+      <% @download_accesses.each do |download_access| %>
+        <% if download_access.product&.embroidery_file&.attached? %>
+          <article class="download-item">
+            <div>
+              <h2><%= download_access.product.title %></h2>
+              <p>Available until <%= download_access.expires_at.strftime("%B %d, %Y") %></p>
+            </div>
+            <%= link_to "Download file", secure_download_path(download_access.access_token), class: "btn btn-primary btn-sm" %>
+          </article>
         <% else %>
-          <div class="alert alert-info mb-4">
-            <p>Your download links will be available shortly. Check your account for access.</p>
+          <div class="alert alert-info">
+            <span>Your download for "<%= download_access.product&.title || "this product" %>" is still being prepared.</span>
           </div>
         <% end %>
-      <% else %>
-        <div class="alert alert-info mb-4">
-          <p>Please <%= link_to "log in", new_user_session_path %> to access your downloads.</p>
-        </div>
       <% end %>
-
-      <%= link_to "Back to Shop", products_path, class: "btn btn-success mt-4" %>
     </div>
-  </div>
-</div>
+  <% else %>
+    <div class="alert alert-info max-w-xl">
+      <span>Your download links will be available shortly. Check your account for access.</span>
+    </div>
+  <% end %>
 
+  <div class="checkout-state-actions">
+    <%= link_to "View downloads", dashboard_downloads_path, class: "btn btn-primary" %>
+    <%= link_to "Continue shopping", products_path, class: "btn btn-ghost" %>
+  </div>
+</section>

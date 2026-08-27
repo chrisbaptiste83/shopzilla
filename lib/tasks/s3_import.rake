@@ -1,4 +1,5 @@
 require "base64"
+require "digest"
 
 namespace :embroidery_catalog do
   desc "Import products directly from S3 bucket when local source files are unavailable"
@@ -21,20 +22,25 @@ namespace :embroidery_catalog do
       slug.split("-").map(&:capitalize).join(" ")
     end
 
-    def self.adopt_blob(s3, bucket, key, filename, byte_size, content_type, service_name)
+    def self.adopt_blob(s3, bucket, key, filename, byte_size, content_type, service_name, metadata: {})
       existing = ActiveStorage::Blob.find_by(key: key)
-      return existing if existing
+      if existing
+        existing.update!(metadata: existing.metadata.to_h.merge(metadata)) if metadata.present?
+        return existing
+      end
 
-      etag     = s3.head_object(bucket: bucket, key: key).etag.delete('"')
-      checksum = Base64.strict_encode64([etag].pack("H*")) rescue SecureRandom.base64(28)
+      object = s3.get_object(bucket: bucket, key: key)
+      contents = object.body.read
+      checksum = Base64.strict_encode64(Digest::MD5.digest(contents))
 
       ActiveStorage::Blob.create!(
         key:          key,
         filename:     filename,
-        byte_size:    byte_size,
+        byte_size:    contents.bytesize,
         content_type: content_type,
         service_name: service_name,
-        checksum:     checksum
+        checksum:     checksum,
+        metadata:     metadata
       )
     end
 
@@ -97,9 +103,11 @@ namespace :embroidery_catalog do
         )
         product.save!
 
-        image_objs.sort_by(&:key).first(2).each do |img|
+        image_objs.sort_by(&:key).first(3).each do |img|
           fname = File.basename(img.key)
-          blob  = adopt_blob(s3, bucket, img.key, fname, img.size, "image/png", service_name)
+          style = fname.match(/(?:-|_)(dark|light|detail)\.png\z/i)&.captures&.first&.downcase
+          metadata = Product.image_metadata_for(filename: fname, render_style: style)
+          blob  = adopt_blob(s3, bucket, img.key, fname, img.size, "image/png", service_name, metadata: metadata)
           product.images.attach(blob)
         end
 

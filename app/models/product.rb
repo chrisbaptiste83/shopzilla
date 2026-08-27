@@ -1,4 +1,7 @@
 class Product < ApplicationRecord
+  IMAGE_ROLES = %w[primary alternate].freeze
+  IMAGE_RENDER_STYLES = %w[dark light detail].freeze
+
   # Add a virtual attribute to hold the new category name
   attr_accessor :new_category_name
 
@@ -7,7 +10,26 @@ class Product < ApplicationRecord
   has_many_attached :images
 
   def primary_image
-    images.find { |img| img.filename.to_s.include?("detail") } || images.first
+    images.find { |image| image.blob.metadata["image_role"].to_s == "primary" } || images.first
+  end
+
+  def image_for_style(style)
+    images.find { |image| image.blob.metadata["render_style"].to_s == style.to_s }
+  end
+
+  def storefront_image
+    image_for_style("light") || primary_image
+  end
+
+  def self.image_metadata_for(filename:, role: nil, render_style: nil)
+    style = render_style.presence || filename.to_s.match(/(?:-|_)(dark|light|detail)(?:\.[^.]+)?\z/i)&.captures&.first&.downcase
+    role  = role.presence || (style == "light" ? "primary" : "alternate")
+
+    {
+      "image_role" => IMAGE_ROLES.include?(role.to_s) ? role.to_s : "alternate",
+      "render_style" => IMAGE_RENDER_STYLES.include?(style.to_s) ? style.to_s : nil,
+      "asset_kind" => "product_preview"
+    }.compact
   end
 
   belongs_to :category
@@ -16,8 +38,10 @@ class Product < ApplicationRecord
   has_many :reviews, dependent: :destroy
 
   def average_rating
-    return 0.0 if reviews.empty?
-    reviews.average(:rating).to_f.round(1)
+    ratings = reviews.loaded? ? reviews.map(&:rating) : reviews.pluck(:rating)
+    return 0.0 if ratings.empty?
+
+    (ratings.sum.to_f / ratings.size).round(1)
   end
 
   before_validation :create_category_from_name, if: -> { new_category_name.present? }

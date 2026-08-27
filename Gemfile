@@ -78,7 +78,6 @@ gem "kaminari", "~> 1.2"
 # Cross-Origin Resource Sharing for the embroidery-store frontend
 gem "rack-cors"
 
-gem "cloudinary", "~> 2.4"
 
 gem "omniauth-google-oauth2", "~> 1.2"
 gem "omniauth-github", "~> 2.0"
@@ -87,3 +86,7 @@ gem "aws-sdk-ses", "~> 1.97"
 gem "rack-attack", "~> 6.8"
 
 gem "webauthn", "~> 3.4"
+
+# Error tracking [https://sentry.io]
+gem "sentry-ruby"
+gem "sentry-rails"

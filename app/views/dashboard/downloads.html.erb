@@ -21,7 +21,7 @@
               <div class="flex items-start gap-4">
                 <div class="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0" style="background: rgba(148, 163, 184, 0.1);">
                   <% if access.product.images.attached? %>
-                    <%= image_tag access.product.primary_image.variant(resize_to_fill: [80, 80]), class: "w-full h-full object-cover" %>
+                    <%= image_tag access.product.storefront_image.variant(resize_to_limit: [80, 80]), class: "w-full h-full object-contain" %>
                   <% else %>
                     <div class="w-full h-full flex items-center justify-center text-2xl opacity-50">✂️</div>
                   <% end %>

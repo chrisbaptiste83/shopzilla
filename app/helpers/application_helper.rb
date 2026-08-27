@@ -1,12 +1,16 @@
 module ApplicationHelper
+  IMAGEKIT_URL_ENDPOINT = ENV.fetch("IMAGEKIT_URL_ENDPOINT", "https://ik.imagekit.io/mlvnqaq3b").delete_suffix("/").freeze
+
   def in_wishlist?(product)
     return false unless user_signed_in?
-    current_user.wishlist_items.exists?(product_id: product.id)
+
+    wishlist_items_by_product_id.key?(product.id)
   end
 
   def wishlist_item_for(product)
     return nil unless user_signed_in?
-    current_user.wishlist_items.find_by(product_id: product.id)
+
+    wishlist_items_by_product_id[product.id]
   end
 
   CATEGORY_IMAGE_MAP = [
@@ -26,16 +30,12 @@ module ApplicationHelper
   end
 
   def imagekit_url(blob_or_attachment, transforms = {})
-    endpoint = ENV.fetch("IMAGEKIT_URL_ENDPOINT", nil)
-    return nil unless endpoint
-
-    key = if blob_or_attachment.respond_to?(:blob)
-      blob_or_attachment.blob.key
+    blob = if blob_or_attachment.respond_to?(:blob)
+      blob_or_attachment.blob
     elsif blob_or_attachment.respond_to?(:key)
-      blob_or_attachment.key
-    else
-      blob_or_attachment.to_s
+      blob_or_attachment
     end
+    key = blob&.key || blob_or_attachment.to_s
 
     tr = transforms.map do |k, v|
       case k
@@ -48,13 +48,22 @@ module ApplicationHelper
       else "#{k}-#{v}"
       end
     end.join(",")
+    url = "#{IMAGEKIT_URL_ENDPOINT}/#{key}"
+    query = []
+    query << "tr=#{tr}" if tr.present?
+    query << "v=#{ERB::Util.url_encode(blob.checksum)}" if blob&.checksum.present?
 
-    url = "#{endpoint}/#{key}"
-    tr.present? ? "#{url}?tr=#{tr}" : url
+    query.any? ? "#{url}?#{query.join('&')}" : url
   end
 
   def turbo_native_app?
     request.user_agent.to_s.include?("Turbo Native") ||
       request.user_agent.to_s.include?("Hotwire Native")
+  end
+
+  private
+
+  def wishlist_items_by_product_id
+    @wishlist_items_by_product_id ||= current_user.wishlist_items.index_by(&:product_id)
   end
 end

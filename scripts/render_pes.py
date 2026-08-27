@@ -8,7 +8,7 @@ Styles:
   light  — warm cream background, thread legend, full design
   detail — dark background, zoomed 1.7x into center, no legend
 """
-import sys, os, argparse, colorsys
+import sys, os, argparse
 import pyembroidery
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -65,29 +65,144 @@ def get_font(size):
     return ImageFont.load_default()
 
 
-def boost_color(rgb, style_name):
-    """Boost saturation and ensure visibility against the background."""
-    r, g, b = (c / 255.0 for c in rgb)
-    h, s, v = colorsys.rgb_to_hsv(r, g, b)
+def thread_color(rgb, style_name):
+    """Render threads true-to-color.
 
-    # Saturate — push muted colors toward their hue
-    s = min(1.0, s * 1.35)
+    Embroidery previews are a buying aid: the customer is choosing an actual
+    thread color, so the swatch and stitches must match the thread's real RGB.
+    We deliberately do NOT saturate, lift, or darken the color. Visibility of
+    threads that sit close to the background is handled structurally by the
+    per-stitch outline in the draw loop (see render()), not by lying about the
+    color."""
+    return tuple(int(c) for c in rgb)
 
-    if style_name == "dark" or style_name == "detail":
-        # Lift very dark threads so they read against the dark bg
-        v = max(v, 0.28)
-    else:
-        # On light bg, darken very pale threads so they don't disappear
-        if v > 0.92 and s < 0.15:
-            v = 0.75
 
-    r2, g2, b2 = colorsys.hsv_to_rgb(h, s, v)
-    return (int(r2 * 255), int(g2 * 255), int(b2 * 255))
+def _near_background(color, bg, threshold=48):
+    """True if a thread color is close enough to the background that it would
+    be hard to see. Uses simple per-channel distance — good enough to decide
+    whether a stitch needs a contrast halo."""
+    return sum(abs(c - b) for c, b in zip(color, bg)) < threshold
+
+
+def detect_guide_stitches(stitches):
+    """Return a set of stitch indices that are hoop-registration guides, not art.
+
+    Some digitized designs embed non-decorative alignment stitching that a
+    *photographed* garment would never show but which pyembroidery replays like
+    any other stitch: (a) a basting/placement box — the first color block, a
+    sparse perimeter rectangle sewn to register the hoop and torn out after; and
+    (b) long axis-aligned colinear running-stitch runs (cross-hair guides). Both
+    read as straight lines slashing across an otherwise clean preview.
+
+    This is opt-in (--trim-guides) and conservative: we only flag runs that are
+    (1) long relative to the design, (2) essentially perfectly horizontal or
+    vertical, and (3) built from uniform short running stitches — the signature
+    of a guide, never of a fill. When in doubt we keep the stitch, because a
+    false positive erases real art and a false negative just leaves a faint line.
+    """
+    STITCH = pyembroidery.STITCH
+    guide = set()
+
+    pts = [(i, s[0], s[1], s[2]) for i, s in enumerate(stitches)]
+    real = [(i, x, y) for i, x, y, c in pts if c == STITCH]
+    if len(real) < 20:
+        return guide
+
+    allx = [x for _, x, _ in real]
+    ally = [y for _, _, y in real]
+    w = (max(allx) - min(allx)) or 1
+    h = (max(ally) - min(ally)) or 1
+    span = (w + h) / 2.0
+
+    # (b) axis-aligned colinear guide runs. Walk consecutive same-block stitches;
+    # accumulate a run while it stays on one axis (the off-axis drift stays tiny)
+    # and each step is a short running stitch. Flag the whole run if it is long.
+    # A placement box often turns corners without emitting a JUMP, so a run must
+    # also flush when its orientation changes; otherwise the four sides merge
+    # into one non-axis-aligned path and evade detection.
+    min_run_len = span * 0.35          # a guide spans a big fraction of the design
+    axis_tol = span * 0.01             # off-axis wobble allowed to still be "straight"
+    max_step = span * 0.06             # running-stitch step ceiling (guides are dense)
+
+    axis_ratio = 0.08
+
+    def orientation(a, b):
+        dx = abs(b[0] - a[0]); dy = abs(b[1] - a[1])
+        if max(dx, dy) == 0:
+            return None
+        ratio = min(dx, dy) / max(dx, dy)
+        if ratio > axis_ratio:
+            return None
+        return "horizontal" if dx >= dy else "vertical"
+
+    def flush(run):
+        if len(run) < 8:
+            return
+        xs0 = [p[1] for p in run]; ys0 = [p[2] for p in run]
+        dx = max(xs0) - min(xs0); dy = max(ys0) - min(ys0)
+        horizontal = dy <= axis_tol and dx >= min_run_len
+        vertical = dx <= axis_tol and dy >= min_run_len
+        if horizontal or vertical:
+            for p in run:
+                guide.add(p[0])
+
+    run = []
+    prev = None
+    for i, x, y, c in pts:
+        if c == pyembroidery.COLOR_CHANGE:
+            flush(run); run = []; prev = None; continue
+        if c != STITCH:
+            flush(run); run = []; prev = None; continue
+        if prev is None:
+            run = [(i, x, y)]; prev = (x, y); continue
+        step = ((x - prev[0]) ** 2 + (y - prev[1]) ** 2) ** 0.5
+        run_orientation = (
+            orientation(
+                (run[-2][1], run[-2][2]),
+                (run[-1][1], run[-1][2]),
+            )
+            if len(run) >= 2 else None
+        )
+        segment_orientation = orientation(prev, (x, y))
+        if step > max_step or (
+            run_orientation is not None
+            and segment_orientation is not None
+            and segment_orientation != run_orientation
+        ):
+            flush(run); run = [(i, x, y)]; prev = (x, y); continue
+        run.append((i, x, y)); prev = (x, y)
+    flush(run)
+
+    # (a) first-color placement box: a small, low-count first block whose stitches
+    # are almost all near the design's outer edges. Only trip when it is clearly a
+    # frame (very few stitches, strongly perimeter-biased) so real first-color
+    # art (borders that are part of the picture) is never removed.
+    first_block = []
+    ci = 0
+    for i, x, y, c in pts:
+        if c == pyembroidery.COLOR_CHANGE:
+            ci += 1
+        if ci > 0:
+            break
+        if c == STITCH:
+            first_block.append((i, x, y))
+    if first_block and len(first_block) < 0.04 * len(real):
+        minx, miny = min(allx), min(ally)
+        edge = 0
+        for _, x, y in first_block:
+            if (x - minx) < w * 0.08 or (max(allx) - x) < w * 0.08 \
+               or (y - miny) < h * 0.08 or (max(ally) - y) < h * 0.08:
+                edge += 1
+        if edge / len(first_block) > 0.6:
+            for i, _, _ in first_block:
+                guide.add(i)
+
+    return guide
 
 
 # ── Core renderer ─────────────────────────────────────────────────────────────
 
-def render(pes_path, out_path, size=1200, style_name="dark"):
+def render(pes_path, out_path, size=1200, style_name="dark", trim_guides=False, rotation=0.0):
     cfg = STYLES.get(style_name, STYLES["dark"])
 
     pattern = pyembroidery.read(pes_path)
@@ -96,6 +211,7 @@ def render(pes_path, out_path, size=1200, style_name="dark"):
         sys.exit(1)
 
     stitches = pattern.stitches
+    guide_idx = detect_guide_stitches(stitches) if trim_guides else set()
     xs = [s[0] for s in stitches if s[2] not in (pyembroidery.END, pyembroidery.STOP)]
     ys = [s[1] for s in stitches if s[2] not in (pyembroidery.END, pyembroidery.STOP)]
     if not xs:
@@ -106,6 +222,34 @@ def render(pes_path, out_path, size=1200, style_name="dark"):
     min_y, max_y = min(ys), max(ys)
     w = max_x - min_x or 1
     h = max_y - min_y or 1
+
+    # Rotate the artwork around its source bounding-box center while leaving
+    # the preview frame and thread legend upright. Positive degrees rotate
+    # clockwise in the rendered image coordinate system.
+    if rotation:
+        import math
+
+        angle = math.radians(float(rotation))
+        cos_angle = math.cos(angle)
+        sin_angle = math.sin(angle)
+        center_x = (min_x + max_x) / 2.0
+        center_y = (min_y + max_y) / 2.0
+
+        def rotate_point(x, y):
+            dx = x - center_x
+            dy = y - center_y
+            return (
+                center_x + (dx * cos_angle - dy * sin_angle),
+                center_y + (dx * sin_angle + dy * cos_angle),
+            )
+
+        stitches = [(*rotate_point(stitch[0], stitch[1]), stitch[2]) for stitch in stitches]
+        xs = [s[0] for s in stitches if s[2] not in (pyembroidery.END, pyembroidery.STOP)]
+        ys = [s[1] for s in stitches if s[2] not in (pyembroidery.END, pyembroidery.STOP)]
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+        w = max_x - min_x or 1
+        h = max_y - min_y or 1
 
     pad = 80
     inner = size - pad * 2
@@ -129,7 +273,7 @@ def render(pes_path, out_path, size=1200, style_name="dark"):
         return (200, 200, 200)
 
     def get_color(idx):
-        return boost_color(raw_color(idx), style_name)
+        return thread_color(raw_color(idx), style_name)
 
     def get_thread_name(idx):
         if idx < len(threads):
@@ -147,15 +291,16 @@ def render(pes_path, out_path, size=1200, style_name="dark"):
             int((y - min_y) * scale) + offset_y,
         )
 
-    # Track used colors in order
+    # Track used colors in order (excluding trimmed guide stitches, so a color
+    # block that was purely a basting box does not appear in the legend).
     used_colors = []
     seen = set()
     color_idx = 0
-    for stitch in stitches:
+    for stitch_i, stitch in enumerate(stitches):
         cmd = stitch[2]
         if cmd == pyembroidery.COLOR_CHANGE:
             color_idx += 1
-        elif cmd == pyembroidery.STITCH and color_idx not in seen:
+        elif cmd == pyembroidery.STITCH and stitch_i not in guide_idx and color_idx not in seen:
             seen.add(color_idx)
             used_colors.append(color_idx)
 
@@ -163,30 +308,66 @@ def render(pes_path, out_path, size=1200, style_name="dark"):
     color_idx = 0
     current_color = get_color(0)
     prev = None
+    prev_src = None
     drop = cfg["shadow_drop"]
     stitch_width = max(3, int(base_scale * 0.52))
 
-    for stitch in stitches:
+    # Max plausible single-stitch length, in source (0.1mm) units. Real stitches
+    # rarely exceed ~12mm; a "stitch" longer than this is an unflagged travel
+    # move (some digitizers encode jumps as long STITCH runs with no JUMP/TRIM).
+    # Drawing it would streak a straight line across the whole design — the
+    # stray lines we see in the raw render. Floor at 200u, but scale up for
+    # large designs so we never clip legitimate long fill stitches.
+    max_stitch_len = max(200.0, (w + h) * 0.5 * 0.10)
+
+    for stitch_i, stitch in enumerate(stitches):
         x, y, cmd = stitch[0], stitch[1], stitch[2]
 
         if cmd == pyembroidery.COLOR_CHANGE:
             color_idx += 1
             current_color = get_color(color_idx)
             prev = None
+            prev_src = None
             continue
 
-        if cmd in (pyembroidery.END, pyembroidery.STOP, pyembroidery.TRIM):
+        if cmd in (pyembroidery.END, pyembroidery.STOP, pyembroidery.TRIM, pyembroidery.JUMP):
+            # JUMP is a pen-up travel move — resetting prev prevents a stray
+            # connecting line being drawn across the design to the next stitch.
             prev = None
+            prev_src = None
+            continue
+
+        # Guide stitch (basting box / registration cross-hair) — skip it and
+        # break the pen path so no line is drawn to or from it.
+        if stitch_i in guide_idx:
+            prev = None
+            prev_src = None
             continue
 
         px = to_px(x, y)
 
+        # Guard: skip the connecting line for an over-long segment (unflagged
+        # travel), but still advance the pen so the next real stitch connects.
+        if cmd == pyembroidery.STITCH and prev_src is not None:
+            seg_len = ((x - prev_src[0]) ** 2 + (y - prev_src[1]) ** 2) ** 0.5
+            if seg_len > max_stitch_len:
+                prev = px
+                prev_src = (x, y)
+                continue
+
         if cmd == pyembroidery.STITCH and prev is not None:
+            # Structural visibility: if the thread sits very close to the
+            # background, draw a faint contrast halo so it still reads —
+            # without altering the true thread color itself.
+            if _near_background(current_color, cfg["bg"]):
+                halo = (235, 235, 235) if sum(cfg["bg"]) < 384 else (35, 35, 35)
+                draw.line([prev, px], fill=halo, width=stitch_width + 3)
             shadow = tuple(max(0, c - drop) for c in current_color)
             draw.line([prev, px], fill=shadow, width=stitch_width + 1)
             draw.line([prev, px], fill=current_color, width=stitch_width)
 
         prev = px
+        prev_src = (x, y)
 
     img = img.filter(ImageFilter.SHARPEN)
 
@@ -287,5 +468,18 @@ if __name__ == "__main__":
     parser.add_argument("pes_path")
     parser.add_argument("out_path")
     parser.add_argument("--style", choices=["dark", "light", "detail"], default="dark")
+    parser.add_argument(
+        "--rotate",
+        type=float,
+        default=0.0,
+        help="Rotate artwork clockwise by this many degrees; frame and legend stay upright.",
+    )
+    parser.add_argument(
+        "--trim-guides",
+        action="store_true",
+        help="Remove hoop-registration guides (basting box, cross-hair alignment "
+             "runs) that are not part of the design art.",
+    )
     args = parser.parse_args()
-    render(args.pes_path, args.out_path, style_name=args.style)
+    render(args.pes_path, args.out_path, style_name=args.style,
+           trim_guides=args.trim_guides, rotation=args.rotate)

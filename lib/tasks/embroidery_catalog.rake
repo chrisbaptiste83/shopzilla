@@ -277,7 +277,7 @@ namespace :embroidery_catalog do
     limit          = ENV["LIMIT"]&.to_i
     render_preview = ActiveModel::Type::Boolean.new.cast(ENV.fetch("RENDER_PREVIEW", "true"))
     price_cents    = ENV.fetch("PRICE_CENTS", "500").to_i
-    preview_script = Rails.root.join("bin", "render_embroidery_preview.py")
+    preview_script = Rails.root.join("scripts", "render_pes.py")
 
     default_category_labels = {
       "misc"        => "Miscellaneous",
@@ -355,12 +355,20 @@ namespace :embroidery_catalog do
           if render_preview && pes_path.present? && File.exist?(pes_path)
             tmp = Tempfile.new(["preview", ".png"])
             begin
-              _out, err, status = Open3.capture3("python3", preview_script.to_s, pes_path, tmp.path, "--style", "isolated")
+              _out, err, status = Open3.capture3(
+                "python3", preview_script.to_s, pes_path, tmp.path,
+                "--style", "light", "--trim-guides"
+              )
               if status.success? && File.size(tmp.path) > 0
                 product.images.attach(
                   io:           File.open(tmp.path, "rb"),
                   filename:     "#{clean_name.parameterize}-isolated.png",
-                  content_type: "image/png"
+                  content_type: "image/png",
+                  metadata:     Product.image_metadata_for(
+                    filename: "#{clean_name.parameterize}-isolated.png",
+                    role: "primary",
+                    render_style: "light"
+                  )
                 )
                 preview_attached = true
               else
@@ -379,7 +387,8 @@ namespace :embroidery_catalog do
               product.images.attach(
                 io:           File.open(existing_png, "rb"),
                 filename:     existing_png.basename.to_s,
-                content_type: "image/png"
+                content_type: "image/png",
+                metadata:     Product.image_metadata_for(filename: existing_png.basename.to_s, role: "primary")
               )
             end
           end

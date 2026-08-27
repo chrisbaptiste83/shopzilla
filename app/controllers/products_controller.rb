@@ -9,6 +9,7 @@ class ProductsController < ApplicationController
   # GET /products
   def index
     @products = Product
+      .where(is_available: true)
       .includes(:category, images_attachments: :blob)
       .with_rich_text_description
 
@@ -56,6 +57,9 @@ class ProductsController < ApplicationController
     per_page = 24 if per_page <= 0
     per_page = 48 if per_page > 48
     @products = @products.page(params[:page]).per(per_page)
+    @categories = Category.with_available_products
+    @file_formats = Product.where(is_available: true).where.not(file_format: [ nil, "" ]).distinct.pluck(:file_format)
+      .flat_map { |formats| formats.split(/\s*,\s*/) }.uniq.sort
 
     respond_to do |format|
       format.html
@@ -65,6 +69,12 @@ class ProductsController < ApplicationController
 
   # GET /products/1
   def show
+    @related_products = @product.category.products
+      .where(is_available: true)
+      .where.not(id: @product.id)
+      .includes(images_attachments: :blob)
+      .limit(4)
+
     respond_to do |format|
       format.html
       format.json { render :show }
@@ -126,7 +136,9 @@ class ProductsController < ApplicationController
   private
 
   def set_product
-    @product = Product.find(params[:id])
+    @product = Product
+      .includes(:category, { reviews: :user }, :rich_text_description, images_attachments: :blob, embroidery_file_attachment: :blob)
+      .find(params[:id])
   end
 
   def product_params

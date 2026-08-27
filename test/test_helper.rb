@@ -11,8 +11,10 @@ File.write(builds_path.join("bundle.js"), "") unless builds_path.join("bundle.js
 
 module ActiveSupport
   class TestCase
-    # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+    configured_workers = ENV["PARALLEL_WORKERS"].to_i
+    default_workers = RUBY_PLATFORM.include?("darwin") ? 1 : :number_of_processors
+    parallel_workers = configured_workers.positive? ? configured_workers : default_workers
+    parallelize(workers: parallel_workers)
 
     # Load all fixtures
     fixtures :all

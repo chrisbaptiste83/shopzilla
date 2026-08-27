@@ -19,13 +19,13 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "invalid with duplicate email" do
-    dup = User.new(email: users(:alice).email, password: "password123", password_confirmation: "password123")
+    dup = User.new(email: users(:alice).email, password: "password12345", password_confirmation: "password12345")
     assert_not dup.valid?
     assert dup.errors[:email].any?
   end
 
   test "admin defaults to false for new records" do
-    user = User.create!(email: "brand_new@example.com", password: "password123", password_confirmation: "password123")
+    user = User.create!(email: "brand_new@example.com", password: "password12345", password_confirmation: "password12345")
     assert_not user.admin?
   end
 
