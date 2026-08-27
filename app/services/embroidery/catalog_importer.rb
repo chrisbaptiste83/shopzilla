@@ -114,7 +114,11 @@ module Embroidery
         raise ArgumentError, "missing packaged preview image: #{path}" unless path.file?
 
         blob = find_or_build_blob(path, file_entry, destination_key_for(file_entry, kind: :preview))
-        blob.update!(metadata: blob.metadata.to_h.merge(Product.image_metadata_for(filename: file_entry.fetch(:filename))))
+        metadata = Product.image_metadata_for(
+          filename: file_entry.fetch(:filename),
+          render_style: file_entry[:render_style]
+        )
+        blob.update!(metadata: blob.metadata.to_h.merge(metadata))
         record.images.attach(blob)
       end
     end

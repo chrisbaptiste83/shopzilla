@@ -364,7 +364,11 @@ namespace :embroidery_catalog do
                   io:           File.open(tmp.path, "rb"),
                   filename:     "#{clean_name.parameterize}-isolated.png",
                   content_type: "image/png",
-                  metadata:     Product.image_metadata_for(filename: "#{clean_name.parameterize}-isolated.png", role: "primary")
+                  metadata:     Product.image_metadata_for(
+                    filename: "#{clean_name.parameterize}-isolated.png",
+                    role: "primary",
+                    render_style: "light"
+                  )
                 )
                 preview_attached = true
               else

@@ -34,10 +34,15 @@
   <%= javascript_include_tag "bundle", "data-turbo-track": "reload", type: "module", nonce: false %>
 </head>
 <body class="text-high-contrast">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
   <!-- Navigation Bar (hidden in native mobile wrapper) -->
   <% unless turbo_native_app? %>
   <% navigation_categories = Category.with_available_products.limit(8) %>
   <% cart_count = (session[:cart] || {}).values.sum %>
+  <% designs_active = controller_name.in?(%w[products categories]) %>
+  <% about_active = current_page?(about_path) %>
+  <% contact_active = current_page?(contact_path) %>
   <header class="site-header sticky top-0 z-50">
     <nav class="navbar min-h-16 max-w-7xl mx-auto px-4 sm:px-6" aria-label="Primary navigation">
       <div class="navbar-start gap-2">
@@ -48,12 +53,18 @@
             </svg>
           </summary>
           <ul class="menu menu-sm dropdown-content mt-3 z-10 p-2 shadow-lg rounded-lg w-64">
-            <li><%= link_to "All designs", products_path %></li>
+            <li><%= link_to "All designs", products_path,
+                      class: class_names("nav-link-active": designs_active),
+                      aria: { current: ("page" if designs_active) } %></li>
             <% navigation_categories.each do |category| %>
               <li><%= link_to category.name, category_path(category) %></li>
             <% end %>
-            <li><%= link_to "About", about_path %></li>
-            <li><%= link_to "Contact", contact_path %></li>
+            <li><%= link_to "About", about_path,
+                      class: class_names("nav-link-active": about_active),
+                      aria: { current: ("page" if about_active) } %></li>
+            <li><%= link_to "Contact", contact_path,
+                      class: class_names("nav-link-active": contact_active),
+                      aria: { current: ("page" if contact_active) } %></li>
             <% if user_signed_in? %>
               <li class="menu-title mt-2"><span>Account</span></li>
               <li><%= link_to "Dashboard", dashboard_path %></li>
@@ -85,7 +96,9 @@
 
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal gap-1">
-          <li><%= link_to "All designs", products_path, class: "font-medium" %></li>
+          <li><%= link_to "All designs", products_path,
+                    class: class_names("font-medium", "nav-link-active": designs_active),
+                    aria: { current: ("page" if designs_active) } %></li>
           <li>
             <details>
               <summary class="font-medium">Categories</summary>
@@ -96,8 +109,12 @@
               </ul>
             </details>
           </li>
-          <li><%= link_to "About", about_path, class: "font-medium" %></li>
-          <li><%= link_to "Contact", contact_path, class: "font-medium" %></li>
+          <li><%= link_to "About", about_path,
+                    class: class_names("font-medium", "nav-link-active": about_active),
+                    aria: { current: ("page" if about_active) } %></li>
+          <li><%= link_to "Contact", contact_path,
+                    class: class_names("font-medium", "nav-link-active": contact_active),
+                    aria: { current: ("page" if contact_active) } %></li>
         </ul>
       </div>
 
@@ -166,7 +183,7 @@
   <% end %>
 
   <!-- Main Content -->
-  <main class="container mx-auto px-4 md:px-6 pt-4 relative z-10 page-surface">
+  <main id="main-content" class="container mx-auto px-4 md:px-6 pt-4 relative z-10 page-surface" tabindex="-1">
     <% if notice %>
       <div class="alert alert-success shadow-lg mb-4 flash-message">
         <span><%= notice %></span>

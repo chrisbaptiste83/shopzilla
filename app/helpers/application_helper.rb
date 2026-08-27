@@ -30,17 +30,14 @@ module ApplicationHelper
   end
 
   def imagekit_url(blob_or_attachment, transforms = {})
-    key = if blob_or_attachment.respond_to?(:blob)
-      blob_or_attachment.blob.key
+    blob = if blob_or_attachment.respond_to?(:blob)
+      blob_or_attachment.blob
     elsif blob_or_attachment.respond_to?(:key)
-      blob_or_attachment.key
-    else
-      blob_or_attachment.to_s
+      blob_or_attachment
     end
+    key = blob&.key || blob_or_attachment.to_s
 
-    transformations = transforms.dup
-    avatar = transformations.delete(:avatar)
-    tr = transformations.map do |k, v|
+    tr = transforms.map do |k, v|
       case k
       when :width   then "w-#{v}"
       when :height  then "h-#{v}"
@@ -51,10 +48,12 @@ module ApplicationHelper
       else "#{k}-#{v}"
       end
     end.join(",")
-    tr = "#{tr}:r-max" if avatar
-
     url = "#{IMAGEKIT_URL_ENDPOINT}/#{key}"
-    tr.present? ? "#{url}?tr=#{tr}" : url
+    query = []
+    query << "tr=#{tr}" if tr.present?
+    query << "v=#{ERB::Util.url_encode(blob.checksum)}" if blob&.checksum.present?
+
+    query.any? ? "#{url}?#{query.join('&')}" : url
   end
 
   def turbo_native_app?

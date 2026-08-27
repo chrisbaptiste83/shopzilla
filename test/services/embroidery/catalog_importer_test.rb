@@ -10,6 +10,7 @@ class Embroidery::CatalogImporterTest < ActiveSupport::TestCase
 
     File.binwrite(@package_dir.join("embroidery/floral-bundle/rose-design/4x4/download/01-rose.pes"), "embroidery-binary")
     File.binwrite(@package_dir.join("embroidery/floral-bundle/rose-design/4x4/preview/01-preview.jpg"), "image-binary")
+    File.binwrite(@package_dir.join("embroidery/floral-bundle/rose-design/4x4/preview/02-detail.jpg"), "detail-image-binary")
 
     File.write(
       @package_dir.join("manifest.json"),
@@ -50,7 +51,13 @@ class Embroidery::CatalogImporterTest < ActiveSupport::TestCase
             preview_images: [
               {
                 filename: "preview.jpg",
-                proposed_s3_key: "embroidery/floral-bundle/rose-design/4x4/preview/01-preview.jpg"
+                proposed_s3_key: "embroidery/floral-bundle/rose-design/4x4/preview/01-preview.jpg",
+                render_style: "light"
+              },
+              {
+                filename: "detail.jpg",
+                proposed_s3_key: "embroidery/floral-bundle/rose-design/4x4/preview/02-detail.jpg",
+                render_style: "detail"
               }
             ]
           }
@@ -81,7 +88,11 @@ class Embroidery::CatalogImporterTest < ActiveSupport::TestCase
     assert_equal 8123, product.stitch_count
     assert_equal "Rose design embroidery design, available in 4x4. Features 8,123 stitches for a detailed, professional finish. Part of the Floral bundle collection. Works with most home and commercial embroidery machines. Instant digital download included.", product.description.to_plain_text.strip
     assert product.embroidery_file.attached?
-    assert_equal 1, product.images.count
+    assert_equal 2, product.images.count
+    assert_equal "preview.jpg", product.primary_image.filename.to_s
+    assert_equal "light", product.primary_image.blob.metadata["render_style"]
+    assert_equal "primary", product.primary_image.blob.metadata["image_role"]
+    assert_equal "alternate", product.image_for_style("detail").blob.metadata["image_role"]
     assert_equal "product_preview", product.images.first.blob.metadata["asset_kind"]
     assert_equal "downloads/embroidery/floral-bundle/rose-design/4x4/01-rose.pes", product.embroidery_file.blob.key
     assert_equal "products/images/floral-bundle/rose-design/4x4/01-preview.jpg", product.images.first.blob.key

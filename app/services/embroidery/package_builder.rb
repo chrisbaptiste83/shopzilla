@@ -124,7 +124,8 @@ module Embroidery
         s3_key      = File.join(prefix, "preview", spec[:filename])
         output_path = @out_dir.join(s3_key)
         result      = PreviewRenderer.new(pes_path: pes_path, output_path: output_path, style: spec[:style]).call
-        result.merge(proposed_s3_key: s3_key)
+        render_style = spec[:style] == :isolated ? "light" : spec[:style].to_s
+        result.merge(proposed_s3_key: s3_key, render_style: render_style)
       rescue => error
         Rails.logger.warn("PreviewRenderer #{spec[:style]} failed for #{product[:source_relative_path]}: #{error.message}")
         nil

@@ -17,9 +17,13 @@ class Product < ApplicationRecord
     images.find { |image| image.blob.metadata["render_style"].to_s == style.to_s }
   end
 
+  def storefront_image
+    image_for_style("light") || primary_image
+  end
+
   def self.image_metadata_for(filename:, role: nil, render_style: nil)
     style = render_style.presence || filename.to_s.match(/(?:-|_)(dark|light|detail)(?:\.[^.]+)?\z/i)&.captures&.first&.downcase
-    role  = role.presence || (style == "detail" ? "primary" : "alternate")
+    role  = role.presence || (style == "light" ? "primary" : "alternate")
 
     {
       "image_role" => IMAGE_ROLES.include?(role.to_s) ? role.to_s : "alternate",

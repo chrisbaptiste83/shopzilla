@@ -80,11 +80,13 @@ class ProductTest < ActiveSupport::TestCase
     assert products(:hoop_art).valid?
   end
 
-  test "image metadata identifies the primary detail preview" do
+  test "image metadata identifies the light preview as primary" do
     assert_equal(
-      { "image_role" => "primary", "render_style" => "detail", "asset_kind" => "product_preview" },
-      Product.image_metadata_for(filename: "sunflower-detail.png")
+      { "image_role" => "primary", "render_style" => "light", "asset_kind" => "product_preview" },
+      Product.image_metadata_for(filename: "sunflower-light.png")
     )
+
+    assert_equal "alternate", Product.image_metadata_for(filename: "sunflower-detail.png")["image_role"]
   end
 
   test "primary image follows explicit metadata instead of its filename" do
@@ -104,5 +106,24 @@ class ProductTest < ActiveSupport::TestCase
     )
 
     assert_equal "storefront.png", product.reload.primary_image.filename.to_s
+  end
+
+  test "storefront image prefers the complete light preview" do
+    product = valid_product
+    product.save!
+    product.images.attach(
+      io: StringIO.new("detail"),
+      filename: "sunflower-detail.png",
+      content_type: "image/png",
+      metadata: { "image_role" => "primary", "render_style" => "detail", "asset_kind" => "product_preview" }
+    )
+    product.images.attach(
+      io: StringIO.new("light"),
+      filename: "sunflower-light.png",
+      content_type: "image/png",
+      metadata: { "image_role" => "alternate", "render_style" => "light", "asset_kind" => "product_preview" }
+    )
+
+    assert_equal "sunflower-light.png", product.reload.storefront_image.filename.to_s
   end
 end
