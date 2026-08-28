@@ -116,7 +116,7 @@
               <% if product.images.attached? %>
                 <% image_url = imagekit_url(product.storefront_image, width: 520, height: 520, crop: "at_max", format: "auto", quality: 74, sharpen: 20) %>
                 <%= image_tag image_url,
-                      class: "w-full h-52 object-contain",
+                      class: "product-preview-image",
                       alt: "#{product.title} embroidery preview",
                       loading: "lazy",
                       decoding: "async" %>

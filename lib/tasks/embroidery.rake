@@ -8,6 +8,7 @@ namespace :embroidery do
   CATALOG_FILE   = Rails.root.join("db/seeds/catalog.yml")
   RENDER_SCRIPT  = Rails.root.join("scripts/render_pes.py")
   DEFAULT_SOURCE = File.expand_path("~/Desktop/Embroidery Files")
+  PREVIEW_STYLES = %w[dark light detail].freeze
 
   # ── embroidery:import ────────────────────────────────────────────────────────
   # Reads db/seeds/catalog.yml, renders each PES file to a preview PNG,
@@ -48,6 +49,7 @@ namespace :embroidery do
     puts "Skipped:  #{results[:skipped]}"
     puts "Errors:   #{results[:errors].size}"
     results[:errors].each { |e| puts "  - #{e}" }
+    abort "Import failed for #{results[:errors].size} product(s)" if results[:errors].any?
   end
 
   # ── embroidery:render ────────────────────────────────────────────────────────
@@ -69,6 +71,40 @@ namespace :embroidery do
     dry_run = ActiveModel::Type::Boolean.new.cast(ENV.fetch("DRY_RUN", "true"))
     product = Product.find(product_id)
 
+    rerender_product_previews(product, rotation: rotation, dry_run: dry_run)
+  end
+
+  desc "Apply preview rotations declared in db/seeds/catalog.yml (DRY_RUN=true by default)"
+  task apply_catalog_preview_rotations: :environment do
+    dry_run = ActiveModel::Type::Boolean.new.cast(ENV.fetch("DRY_RUN", "true"))
+    products = YAML.load_file(CATALOG_FILE).fetch("products", [])
+                   .select { |data| Float(data.fetch("preview_rotation_degrees", 0)) != 0 }
+
+    products.each do |data|
+      product = Product.find_by(title: data.fetch("title"))
+      unless product
+        warn "Skipping #{data.fetch('title')}: product not found"
+        next
+      end
+
+      rerender_product_previews(
+        product,
+        rotation: Float(data.fetch("preview_rotation_degrees")),
+        dry_run: dry_run
+      )
+    end
+  end
+
+  # ── embroidery:reimport ───────────────────────────────────────────────────────
+  desc "Force re-render and re-attach all product images"
+  task reimport: :environment do
+    ENV["FORCE"] = "1"
+    Rake::Task["embroidery:import"].invoke
+  end
+
+  # ── helpers ──────────────────────────────────────────────────────────────────
+
+  def rerender_product_previews(product, rotation:, dry_run:)
     abort "Product #{product.id} has no attached embroidery file" unless product.embroidery_file.attached?
 
     previews = product.images.filter_map do |image|
@@ -87,11 +123,12 @@ namespace :embroidery do
       Dir.mktmpdir("product_preview_renders") do |tmpdir|
         previews.each do |image, style|
           output_path = File.join(tmpdir, "#{style}.png")
-          command = [
-            "python3", RENDER_SCRIPT.to_s, pes_file.path, output_path,
-            "--style", style, "--trim-guides", "--rotate", rotation.to_s
-          ]
-          raise "render failed for #{image.filename}" unless system(*command)
+          Embroidery::PreviewRenderer.new(
+            pes_path: pes_file.path,
+            output_path: output_path,
+            style: style,
+            rotation: rotation
+          ).call
 
           checksum = Base64.strict_encode64(Digest::MD5.file(output_path).digest)
           byte_size = File.size(output_path)
@@ -123,15 +160,6 @@ namespace :embroidery do
     end
   end
 
-  # ── embroidery:reimport ───────────────────────────────────────────────────────
-  desc "Force re-render and re-attach all product images"
-  task reimport: :environment do
-    ENV["FORCE"] = "1"
-    Rake::Task["embroidery:import"].invoke
-  end
-
-  # ── helpers ──────────────────────────────────────────────────────────────────
-
   def seed_categories(names)
     names.each { |name| Category.find_or_create_by!(name: name) }
     puts "Categories ready: #{names.join(', ')}\n\n"
@@ -142,6 +170,7 @@ namespace :embroidery do
     cat_name = data.fetch("category")
     pes_name = data.fetch("pes_file")
     pes_path = File.join(source_dir, pes_name)
+    preview_rotation = Float(data.fetch("preview_rotation_degrees", 0))
 
     unless File.exist?(pes_path)
       msg = "#{title}: PES file not found — #{pes_path}"
@@ -179,34 +208,51 @@ namespace :embroidery do
 
     # Render 3 preview images (dark, light, detail)
     if force || !product.images.attached?
-      slug = title.parameterize
-      renders = %w[dark light detail].filter_map do |style|
-        path = File.join(tmpdir, "#{slug}-#{style}.png")
-        render_args = [ "python3", RENDER_SCRIPT.to_s, pes_path, path, "--style", style ]
-        render_args << "--trim-guides" if trim_guides
-        ok   = system(*render_args)
-        ok && File.exist?(path) ? { style: style, path: path } : nil
-      end
-
-      if renders.any?
-        product.images.purge if force && product.images.attached?
-        attachables = renders.map do |r|
-          filename = "#{slug}-#{r[:style]}.png"
-          {
-            io: File.open(r[:path]),
-            filename: filename,
-            content_type: "image/png",
-            metadata: Product.image_metadata_for(filename: filename, render_style: r[:style])
-          }
+      begin
+        slug = title.parameterize
+        renders = PREVIEW_STYLES.map do |style|
+          path = File.join(tmpdir, "#{slug}-#{style}.png")
+          Embroidery::PreviewRenderer.new(
+            pes_path: pes_path,
+            output_path: path,
+            style: style,
+            rotation: preview_rotation,
+            trim_guides: trim_guides
+          ).call
+          { style: style, path: path }
         end
-        product.images.attach(attachables)
+
+        replacement_blobs = renders.map do |render|
+          filename = "#{slug}-#{render[:style]}.png"
+          metadata = Product.image_metadata_for(filename: filename, render_style: render[:style])
+          metadata["render_rotation_degrees"] = preview_rotation unless preview_rotation.zero?
+
+          File.open(render[:path], "rb") do |io|
+            ActiveStorage::Blob.create_and_upload!(
+              io: io,
+              filename: filename,
+              content_type: "image/png",
+              metadata: metadata
+            )
+          end
+        end
+
+        old_attachments = force ? product.images.attachments.to_a : []
+        product.with_lock do
+          product.images.attach(replacement_blobs)
+          old_attachments.each(&:destroy!)
+        end
+
         product.reload
         attached = product.images.count
         puts "  #{"CREATE" if created}#{"UPDATE" unless created}  #{title} (#{attached}/#{renders.size} images)"
-      else
-        msg = "#{title}: all renders failed"
-        puts "  ERROR  #{msg}"
-        results[:errors] << msg
+      rescue StandardError
+        replacement_blobs&.each do |blob|
+          blob.purge unless blob.attachments.exists?
+        rescue StandardError
+          nil
+        end
+        raise
       end
     else
       puts "  SKIP   #{title} (already has images — use FORCE=1 to re-render)"

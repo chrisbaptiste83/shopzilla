@@ -90,6 +90,7 @@ products:
   - title: "Mushroom Border"
     category: "Floral Designs"
     pes_file: "Mushroom Border Lg__2.pes"
+    preview_rotation_degrees: -3
     stitch_count: 26953
     price: "19.99"
     description: >
@@ -126,6 +127,7 @@ products:
   - title: "Easter Eeyore"
     category: "Holidays"
     pes_file: "Easter Eeyore Large.pes"
+    preview_rotation_degrees: -3
     stitch_count: 36792
     price: "19.99"
     description: >
@@ -137,6 +139,7 @@ products:
   - title: "Halloween Pumpkin Mouse"
     category: "Holidays"
     pes_file: "Pumpkin Mouse.pes"
+    preview_rotation_degrees: -3
     stitch_count: 15402
     price: "19.99"
     description: >
