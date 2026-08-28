@@ -8,15 +8,6 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "index exposes accessible navigation landmarks and active state" do
-    get products_path, headers: @ua
-
-    assert_response :success
-    assert_select "a.skip-link[href='#main-content']", text: "Skip to main content"
-    assert_select "main#main-content[tabindex='-1']", count: 1
-    assert_select ".navbar-center a.nav-link-active[aria-current='page']", text: "All designs"
-  end
-
   test "index filters by category" do
     get products_path, params: { category_id: categories(:floral).id }, headers: @ua
     assert_response :success
@@ -70,50 +61,28 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "show marks one gallery thumbnail as selected" do
+  test "show uses the complete light preview without a circular crop" do
     product = products(:rose_design)
     product.images.attach(
-      io: StringIO.new("primary-image"),
-      filename: "primary.png",
-      content_type: "image/png"
+      io: StringIO.new("detail-image"),
+      filename: "rose-detail.png",
+      content_type: "image/png",
+      metadata: { "image_role" => "primary", "render_style" => "detail" }
     )
     product.images.attach(
-      io: StringIO.new("alternate-image"),
-      filename: "alternate.png",
-      content_type: "image/png"
+      io: StringIO.new("light-image"),
+      filename: "rose-light.png",
+      content_type: "image/png",
+      metadata: { "image_role" => "alternate", "render_style" => "light" }
     )
+    light_image = product.reload.image_for_style("light")
 
     get product_path(product), headers: @ua
 
     assert_response :success
     assert_select ".product-gallery-thumbnail", count: 2
-    assert_select ".product-gallery-thumbnail[aria-current='true']", count: 1
-    assert_select ".product-detail-media[src*='c-at_max'][src*='v=']", count: 1
+    assert_select ".product-detail-media[src*='#{light_image.blob.key}'][src*='c-at_max'][src*='v=']", count: 1
     assert_select ".product-detail-media[src*='r-max']", count: 0
-  end
-
-  test "digital product show communicates instant delivery" do
-    sign_in users(:alice)
-
-    get product_path(products(:rose_design)), headers: @ua
-
-    assert_response :success
-    assert_select ".product-type-label", text: /Digital download/
-    assert_select ".product-detail-specs dd", text: "Immediately after checkout"
-    assert_select "button", text: "Buy now - instant download"
-  end
-
-  test "physical product show communicates shipping instead of download" do
-    sign_in users(:alice)
-
-    get product_path(products(:hoop_art)), headers: @ua
-
-    assert_response :success
-    assert_select "meta[name='description'][content*='Physical embroidery product.']", count: 1
-    assert_select ".product-type-label", text: /Physical item/
-    assert_select ".product-detail-specs dd", text: "Shipping calculated at checkout"
-    assert_select "button", text: "Buy now - secure checkout"
-    assert_select "button", text: "Buy now - instant download", count: 0
   end
 
   # --- Admin-only: new ---

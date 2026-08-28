@@ -3,7 +3,7 @@
     <% if product.images.attached? %>
       <% image_url = imagekit_url(product.storefront_image, width: 420, height: 420, crop: "at_max", format: "auto", quality: 72, sharpen: 20) %>
       <%= image_tag(image_url,
-            class: "product-preview-image group-hover:scale-[1.03]",
+            class: "product-preview-image",
             alt: "#{product.title} embroidery preview",
             loading: "lazy",
             decoding: "async") %>

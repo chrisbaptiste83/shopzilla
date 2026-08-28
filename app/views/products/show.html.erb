@@ -1,245 +1,242 @@
-<% digital_product = !@product.physical_product? %>
-<% delivery_summary = digital_product ? "Instant digital download." : "Physical embroidery product." %>
-<% product_summary = [
-     "#{@product.title} embroidery design",
-     ("#{number_with_delimiter(@product.stitch_count)} stitches" if @product.stitch_count.present?),
-     number_to_currency(@product.price),
-     delivery_summary
-   ].compact.join(" - ") %>
 <% storefront_image = @product.storefront_image if @product.images.attached? %>
 <% gallery_images = @product.images.to_a %>
 <% gallery_images = [storefront_image] + gallery_images.reject { |image| image.id == storefront_image.id } if storefront_image %>
 
 <% content_for :page_title, @product.title %>
-<% content_for :meta_description, product_summary %>
+<% content_for :meta_description, "#{@product.title} embroidery design — #{@product.stitch_count} stitches, #{number_to_currency(@product.price)}. Instant digital download." %>
 <% content_for :og_title, @product.title %>
-<% content_for :og_description, product_summary %>
+<% content_for :og_description, "#{@product.title} embroidery design — #{@product.stitch_count} stitches. #{number_to_currency(@product.price)} instant download." %>
 <% content_for :og_type, "product" %>
-<% content_for :og_image, imagekit_url(storefront_image, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85) if storefront_image %>
+<% if storefront_image %>
+  <% _og_img = imagekit_url(storefront_image, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85) %>
+  <% content_for :og_image, _og_img || url_for(storefront_image) %>
+<% end %>
 
-<nav class="product-breadcrumb breadcrumbs" aria-label="Breadcrumb">
+<!-- Breadcrumb -->
+<nav class="text-sm breadcrumbs mb-8 opacity-60" aria-label="Breadcrumb">
   <ul>
     <li><%= link_to "Home", root_path %></li>
-    <li><%= link_to "Designs", products_path %></li>
+    <li><%= link_to "Products", products_path %></li>
     <li><%= link_to @product.category.name, category_path(@product.category) %></li>
-    <li aria-current="page"><%= @product.title %></li>
+    <li class="font-medium opacity-100"><%= @product.title %></li>
   </ul>
 </nav>
 
-<div class="product-detail-layout">
-  <section class="product-gallery" aria-label="Product previews" data-controller="product-gallery">
-    <div class="product-detail-stage">
-      <% if storefront_image %>
-        <% main_image_url = imagekit_url(storefront_image, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85, sharpen: 30) %>
-        <%= image_tag main_image_url,
-              class: "product-detail-media product-preview-image",
-              alt: "#{@product.title} embroidery preview",
-              data: { product_gallery_target: "mainImage" } %>
-      <% else %>
-        <div class="product-detail-placeholder">
-          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-14 h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        </div>
-      <% end %>
-    </div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
+  <!-- Product Images -->
+  <div data-controller="product-gallery">
+    <% if storefront_image %>
+      <% _ik_main = imagekit_url(storefront_image, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85, sharpen: 30) %>
+      <%= image_tag(_ik_main || storefront_image.variant(resize_to_limit: [ 1200, 1200 ]),
+            class: "product-detail-media",
+            alt: "#{@product.title} embroidery preview",
+            data: { product_gallery_target: "mainImage" }) %>
+    <% else %>
+      <div class="product-detail-media flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+    <% end %>
 
+    <!-- Thumbnails -->
     <% if gallery_images.many? %>
-      <div class="product-gallery-thumbnails" aria-label="Choose a product preview">
-        <% gallery_images.each_with_index do |image, index| %>
-          <% thumbnail_url = imagekit_url(image, width: 200, height: 200, crop: "at_max", format: "auto", quality: 80) %>
-          <% full_image_url = imagekit_url(image, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85, sharpen: 30) %>
+      <div class="grid grid-cols-5 gap-2 mt-3">
+        <% gallery_images.each do |image| %>
+          <% _ik_thumb = imagekit_url(image, width: 200, height: 200, crop: "at_max", format: "auto", quality: 80) %>
+          <% _ik_full  = imagekit_url(image, width: 1200, height: 1200, crop: "at_max", format: "auto", quality: 85, sharpen: 30) ||
+                           url_for(image.variant(resize_to_limit: [1200, 1200])) %>
           <button type="button"
                   class="product-gallery-thumbnail"
-                  aria-label="View preview <%= index + 1 %> of <%= @product.title %>"
-                  aria-current="<%= "true" if index.zero? %>"
+                  aria-label="View another preview of <%= @product.title %>"
                   data-action="click->product-gallery#select"
-                  data-product-gallery-full-src="<%= full_image_url %>"
+                  data-product-gallery-full-src="<%= _ik_full %>"
                   data-product-gallery-target="thumbnail">
-            <%= image_tag thumbnail_url, class: "product-preview-image w-full h-full object-contain", alt: "" %>
+            <%= image_tag(_ik_thumb || image.variant(resize_to_limit: [ 200, 200 ]),
+                  class: "w-full h-full object-contain",
+                  alt: "") %>
           </button>
         <% end %>
       </div>
     <% end %>
-  </section>
+  </div>
 
-  <section class="product-detail-panel" aria-labelledby="product-title">
-    <header class="product-detail-header">
-      <%= link_to @product.category.name, category_path(@product.category), class: "product-detail-category" %>
-      <h1 id="product-title" class="product-detail-title"><%= @product.title %></h1>
-      <div class="product-detail-price-row">
-        <p class="product-detail-price"><%= number_to_currency(@product.price) %></p>
-        <span class="product-type-label">
-          <% if digital_product %>
-            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
-            </svg>
-            Digital download
-          <% else %>
-            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            Physical item
-          <% end %>
+  <!-- Product Details -->
+  <div class="flex flex-col gap-7">
+    <!-- Category + Title + Price -->
+    <div>
+      <% if @product.category.present? %>
+        <span class="text-xs uppercase text-base-content/50 font-medium">
+          <%= @product.category.name %>
         </span>
-      </div>
-    </header>
-
-    <div class="product-detail-description">
-      <%= @product.description.present? ? @product.description : "This embroidery design is crafted with attention to detail and tested for dependable stitching results." %>
+      <% end %>
+      <h1 class="text-3xl font-bold mt-2 mb-5"><%= @product.title %></h1>
+      <div class="text-3xl font-bold text-primary"><%= number_to_currency(@product.price) %></div>
     </div>
 
-    <dl class="product-detail-specs">
-      <% if @product.stitch_count.present? %>
-        <div>
-          <dt>Stitch count</dt>
-          <dd><%= number_with_delimiter(@product.stitch_count) %></dd>
+    <!-- Stitch Count — Primary Attribute -->
+    <% if @product.stitch_count.present? %>
+      <div class="flex items-center gap-4 p-4 rounded-lg bg-base-200/60 border border-base-300">
+        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
         </div>
-      <% end %>
+        <div>
+          <div class="text-xs text-base-content/50 uppercase mb-0.5">Stitch Count</div>
+          <div class="text-2xl font-bold"><%= number_with_delimiter(@product.stitch_count) %></div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Description -->
+    <p class="text-base-content/65 leading-relaxed">
+      <%= @product.description.present? ? @product.description.to_plain_text : "This embroidery design is crafted with attention to detail and tested on multiple machine types for optimal results." %>
+    </p>
+
+    <!-- Specs row -->
+    <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-base-content/55">
       <% if @product.dimensions.present? %>
-        <div>
-          <dt>Dimensions</dt>
-          <dd><%= @product.dimensions %></dd>
-        </div>
+        <span><span class="font-semibold text-base-content/80">Dimensions:</span> <%= @product.dimensions %></span>
       <% end %>
       <% if @product.file_format.present? %>
-        <div>
-          <dt>File formats</dt>
-          <dd><%= @product.file_format %></dd>
-        </div>
+        <span><span class="font-semibold text-base-content/80">Formats:</span> <%= @product.file_format %></span>
       <% end %>
-      <div>
-        <dt>Delivery</dt>
-        <dd><%= digital_product ? "Immediately after checkout" : "Shipping calculated at checkout" %></dd>
-      </div>
-    </dl>
+      <% if @product.embroidery_file.attached? %>
+        <span class="text-success font-medium">Instant download</span>
+      <% end %>
+    </div>
 
-    <div class="product-purchase-panel">
-      <div class="product-purchase-heading">
-        <p><%= digital_product ? "Ready to stitch" : "Ready to order" %></p>
-        <span><%= digital_product ? "Your files will be available from your account after payment." : "Enter your shipping address before secure payment." %></span>
-      </div>
-
-      <div class="product-purchase-actions">
-        <div class="product-secondary-actions">
-          <% if user_signed_in? %>
-            <% if in_wishlist?(@product) %>
-              <%= form_with url: wishlist_item_path(wishlist_item_for(@product)), method: :delete, local: true do %>
-                <button type="submit" class="btn btn-error btn-outline btn-square" aria-label="Remove <%= @product.title %> from wishlist" title="Remove from wishlist">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </button>
-              <% end %>
-            <% else %>
-              <%= form_with url: wishlist_items_path, method: :post, local: true do %>
-                <%= hidden_field_tag :product_id, @product.id %>
-                <button type="submit" class="btn btn-outline btn-square" aria-label="Add <%= @product.title %> to wishlist" title="Add to wishlist">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </button>
-              <% end %>
+    <!-- Actions -->
+    <div class="flex flex-col gap-3">
+      <div class="flex gap-3">
+        <!-- Wishlist -->
+        <% if user_signed_in? %>
+          <% if in_wishlist?(@product) %>
+            <%= form_with url: wishlist_item_path(wishlist_item_for(@product)), method: :delete, local: true do %>
+              <button type="submit" class="btn btn-error btn-outline btn-square" title="Remove from wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
+            <% end %>
+          <% else %>
+            <%= form_with url: wishlist_items_path, method: :post, local: true do %>
+              <%= hidden_field_tag :product_id, @product.id %>
+              <button type="submit" class="btn btn-outline btn-square" title="Add to wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
             <% end %>
           <% end %>
+        <% end %>
 
-          <%= form_with url: add_cart_path, method: :post, local: true, class: "product-add-cart" do %>
-            <%= hidden_field_tag :product_id, @product.id %>
-            <button type="submit" class="btn btn-outline w-full">Add to cart</button>
-          <% end %>
-        </div>
-
-        <% if user_signed_in? %>
-          <%= form_with url: checkout_path(product_id: @product.id), method: :post, data: { turbo: false } do %>
-            <button class="btn btn-primary w-full"><%= digital_product ? "Buy now - instant download" : "Buy now - secure checkout" %></button>
-          <% end %>
-        <% else %>
-          <%= link_to "Sign in to purchase", new_user_session_path, class: "btn btn-primary w-full" %>
+        <!-- Add to Cart -->
+        <%= form_with url: add_cart_path, method: :post, local: true, class: "flex-1" do %>
+          <%= hidden_field_tag :product_id, @product.id %>
+          <button type="submit" class="btn btn-outline w-full">Add to Cart</button>
         <% end %>
       </div>
+
+      <!-- Buy Now -->
+      <% if user_signed_in? %>
+        <%= form_with url: checkout_path(product_id: @product.id), method: :post, data: { turbo: false } do %>
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <button class="btn btn-primary w-full">Buy now - instant download</button>
+        <% end %>
+      <% else %>
+        <%= link_to "Sign in to Purchase", new_user_session_path, class: "btn btn-primary w-full" %>
+      <% end %>
     </div>
 
-    <div class="product-detail-links">
-      <%= link_to products_path do %>
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-        All designs
-      <% end %>
+    <!-- Admin / Back -->
+    <div class="flex gap-3 pt-2">
       <% if current_user&.admin? %>
-        <%= link_to "Edit product", edit_product_path(@product) %>
+        <%= link_to "Edit", edit_product_path(@product), class: "btn btn-ghost btn-sm" %>
       <% end %>
+      <%= link_to "← All Products", products_path, class: "btn btn-ghost btn-sm" %>
     </div>
-  </section>
+  </div>
 </div>
 
-<section class="product-reviews" aria-labelledby="reviews-heading">
-  <header class="product-section-header">
+<!-- Customer Reviews -->
+<section class="border-t border-base-300 pt-12 mb-16">
+  <div class="flex items-center justify-between mb-8">
     <div>
-      <p class="sz-section-label">From customers</p>
-      <h2 id="reviews-heading">Customer reviews</h2>
+      <h2 class="text-2xl font-bold">Customer Reviews</h2>
+      <div class="flex items-center gap-2 mt-1">
+        <span class="text-warning text-lg font-semibold">★ <%= @product.average_rating %></span>
+        <span class="text-base-content/60 text-sm">(<%= pluralize(@product.reviews.count, "review") %>)</span>
+      </div>
     </div>
-    <% if @product.reviews.any? %>
-      <p class="product-rating"><span aria-hidden="true">&#9733;</span> <%= @product.average_rating %> <small><%= pluralize(@product.reviews.count, "review") %></small></p>
-    <% else %>
-      <p class="product-rating-empty">No reviews yet</p>
-    <% end %>
-  </header>
+  </div>
 
   <% if user_signed_in? && !@product.reviews.exists?(user: current_user) %>
-    <div class="product-review-form">
-      <h3>Write a review</h3>
-      <%= form_with model: [@product, Review.new], local: true, class: "flex flex-col gap-4" do |f| %>
-        <div class="flex flex-wrap items-center gap-3">
-          <%= f.label :rating, class: "catalog-filter-label mb-0" %>
-          <%= f.select :rating, options_for_select((1..5).map { |rating| ["#{rating} stars", rating] }.reverse, 5), {}, class: "select select-bordered select-sm w-36" %>
+    <div class="bg-base-200/50 rounded-lg p-6 mb-8 border border-base-300">
+      <h3 class="font-semibold mb-4">Write a Review</h3>
+      <%= form_with model: [ @product, Review.new ], local: true, class: "flex flex-col gap-4" do |f| %>
+        <div class="flex items-center gap-4">
+          <label class="text-sm font-medium">Rating:</label>
+          <%= f.select :rating, options_for_select((1..5).map { |r| ["#{r} ★", r] }.reverse, 5), {}, class: "select select-bordered select-sm w-32" %>
         </div>
-        <%= f.text_area :content, rows: 3, placeholder: "Share your experience with this design", class: "textarea textarea-bordered w-full" %>
-        <div><%= f.submit "Submit review", class: "btn btn-primary btn-sm" %></div>
+        <%= f.text_area :content, rows: 3, placeholder: "Share your experience with this embroidery design...", class: "textarea textarea-bordered w-full" %>
+        <div>
+          <%= f.submit "Submit Review", class: "btn btn-primary btn-sm" %>
+        </div>
       <% end %>
     </div>
   <% end %>
 
-  <div class="product-review-list">
+  <div class="flex flex-col gap-4">
     <% if @product.reviews.any? %>
       <% @product.reviews.sort_by(&:created_at).reverse_each do |review| %>
-        <article class="product-review-card">
-          <header>
-            <div>
-              <strong><%= review.user.email.split("@").first %></strong>
-              <span class="product-review-rating"><span aria-hidden="true">&#9733;</span> <%= review.rating %></span>
+        <div class="p-5 rounded-lg bg-base-100 border border-base-200 shadow-sm flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-sm"><%= review.user.email.split('@').first %></span>
+              <span class="text-warning text-sm">★ <%= review.rating %></span>
             </div>
-            <div>
-              <time datetime="<%= review.created_at.iso8601 %>"><%= time_ago_in_words(review.created_at) %> ago</time>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-base-content/40"><%= time_ago_in_words(review.created_at) %> ago</span>
               <% if user_signed_in? && (review.user == current_user || current_user.admin?) %>
-                <%= button_to "Delete", product_review_path(@product, review), method: :delete, class: "product-review-delete" %>
+                <%= button_to "Delete", product_review_path(@product, review), method: :delete, class: "text-error text-xs hover:underline" %>
               <% end %>
             </div>
-          </header>
+          </div>
           <% if review.content.present? %>
-            <p><%= review.content %></p>
+            <p class="text-sm text-base-content/80 leading-relaxed"><%= review.content %></p>
           <% end %>
-        </article>
+        </div>
       <% end %>
     <% else %>
-      <div class="product-review-empty">
-        <p>Be the first to share how this design stitched out.</p>
-      </div>
+      <p class="text-base-content/50 text-sm">No reviews yet. Be the first to review this product!</p>
     <% end %>
   </div>
 </section>
 
-<% if @related_products.any? %>
-  <section class="product-related" aria-labelledby="related-products-heading">
-    <header class="product-section-header">
-      <div>
-        <p class="sz-section-label">Keep browsing</p>
-        <h2 id="related-products-heading">You might also like</h2>
-      </div>
-      <%= link_to "View category", category_path(@product.category), class: "product-section-link" %>
-    </header>
-    <div class="product-card-grid product-related-grid">
-      <%= render partial: "catalog_product", collection: @related_products, as: :product %>
+<!-- Related Products -->
+<% related_products = @related_products %>
+<% if related_products.any? %>
+  <section class="border-t border-base-300 pt-12">
+    <h2 class="text-lg font-semibold mb-6 text-base-content/60">You Might Also Like</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <% related_products.each do |related| %>
+        <%= link_to product_path(related), class: "group block" do %>
+          <% if related.images.attached? %>
+            <% _ik_rel = imagekit_url(related.storefront_image, width: 360, height: 360, crop: "at_max", format: "auto", quality: 72, sharpen: 20) %>
+            <%= image_tag(_ik_rel || related.storefront_image,
+                  class: "rounded-lg w-full h-36 object-contain bg-base-200 group-hover:opacity-80 transition-opacity mb-3",
+                  alt: "#{related.title} embroidery preview",
+                  loading: "lazy",
+                  decoding: "async") %>
+          <% else %>
+            <div class="rounded-lg w-full h-36 bg-base-200 mb-3"></div>
+          <% end %>
+          <div class="text-sm font-medium group-hover:text-primary transition-colors"><%= related.title %></div>
+          <div class="text-sm text-base-content/50 mt-0.5"><%= number_to_currency(related.price) %></div>
+        <% end %>
+      <% end %>
     </div>
   </section>
 <% end %>
