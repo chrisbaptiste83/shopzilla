@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+
+import re
+import sys
+from html.parser import HTMLParser
+from urllib.error import HTTPError, URLError
+from urllib.parse import urljoin, urlparse
+from urllib.request import Request, urlopen
+
+
+class AssetParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.assets = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        if tag == "link" and "stylesheet" in attributes.get("rel", "").split():
+            self.assets.append(("stylesheet", attributes.get("href")))
+        elif tag == "script" and attributes.get("src"):
+            self.assets.append(("script", attributes["src"]))
+        elif tag == "img" and attributes.get("src", "").startswith("/assets/"):
+            self.assets.append(("image", attributes["src"]))
+
+
+def fetch(url):
+    request = Request(url, headers={"User-Agent": "shopzilla-deploy-check/1.0"})
+    try:
+        with urlopen(request, timeout=20) as response:
+            return response.status, response.headers.get_content_type(), response.read()
+    except HTTPError as error:
+        return error.code, error.headers.get_content_type(), error.read()
+    except URLError as error:
+        raise SystemExit(f"could not fetch {url}: {error.reason}") from error
+
+
+def expected_content_type(kind, content_type):
+    return {
+        "stylesheet": content_type == "text/css",
+        "script": "javascript" in content_type,
+        "image": content_type.startswith("image/"),
+        "font": content_type.startswith("font/") or content_type in {
+            "application/font-sfnt",
+            "application/octet-stream",
+            "application/vnd.ms-opentype",
+        },
+    }[kind]
+
+
+def main():
+    if len(sys.argv) != 2:
+        raise SystemExit("usage: verify-production-assets BASE_URL")
+
+    base_url = sys.argv[1].rstrip("/") + "/"
+    status, content_type, body = fetch(base_url)
+    if status != 200 or content_type != "text/html":
+        raise SystemExit(f"homepage returned {status} {content_type}")
+
+    parser = AssetParser()
+    parser.feed(body.decode("utf-8"))
+
+    required = {"stylesheet", "script", "image"}
+    found = {kind for kind, path in parser.assets if path}
+    missing = required - found
+    if missing:
+        raise SystemExit(f"homepage is missing required assets: {sorted(missing)}")
+
+    checked = set()
+    stylesheets = []
+    for kind, path in parser.assets:
+        if not path:
+            continue
+        asset_url = urljoin(base_url, path)
+        if urlparse(asset_url).netloc != urlparse(base_url).netloc:
+            continue
+        if (kind, asset_url) in checked:
+            continue
+        checked.add((kind, asset_url))
+        asset_status, asset_type, asset_body = fetch(asset_url)
+        if asset_status != 200 or not expected_content_type(kind, asset_type):
+            raise SystemExit(f"{asset_url} returned {asset_status} {asset_type}")
+        if kind == "stylesheet":
+            stylesheets.append((asset_url, asset_body.decode("utf-8")))
+
+    for stylesheet_url, stylesheet in stylesheets:
+        for path in re.findall(r"url\([\"']?([^\"')]+)", stylesheet):
+            if path.startswith("data:"):
+                continue
+            asset_url = urljoin(stylesheet_url, path)
+            if urlparse(asset_url).netloc != urlparse(base_url).netloc:
+                continue
+            extension = urlparse(asset_url).path.rsplit(".", 1)[-1].lower()
+            asset_kind = "font" if extension in {"otf", "ttf", "woff", "woff2"} else "image"
+            asset_status, asset_type, _ = fetch(asset_url)
+            if asset_status != 200 or not expected_content_type(asset_kind, asset_type):
+                raise SystemExit(f"{asset_url} returned {asset_status} {asset_type}")
+
+    print(f"Verified {len(checked)} production assets.")
+
+
+if __name__ == "__main__":
+    main()

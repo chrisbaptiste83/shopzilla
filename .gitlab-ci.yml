@@ -191,6 +191,8 @@ deploy:
         --services $ECS_SERVICE \
         --region $AWS_REGION
 
+      python3 bin/verify-production-assets https://gloriasembroideryshop.com
+
       echo "Deploy complete."
   environment:
     name: production
@@ -200,4 +202,3 @@ deploy:
   when: manual
   needs:
     - build
-

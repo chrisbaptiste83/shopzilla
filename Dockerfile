@@ -57,8 +57,15 @@ COPY . .
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Build the application bundles explicitly, then let Propshaft digest them.
+# The assertions keep an image with missing storefront assets out of ECR.
+RUN yarn build && \
+    yarn build:css && \
+    SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && \
+    test -s app/assets/builds/application.css && \
+    test -s app/assets/builds/bundle.js && \
+    test -n "$(find public/assets -maxdepth 1 -type f -name 'application-*.css' -size +10000c -print -quit)" && \
+    test -n "$(find public/assets -maxdepth 1 -type f -name 'bundle-*.js' -size +10000c -print -quit)"
 
 
 RUN rm -rf node_modules

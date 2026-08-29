@@ -6,7 +6,7 @@
 
 @font-face {
   font-family: "Hello Honey";
-  src: url("/assets/HelloHoney.otf") format("opentype");
+  src: url("HelloHoney.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
