@@ -16,8 +16,9 @@ Rails.application.configure do
   # Turn on fragment caching in view templates.
   config.action_controller.perform_caching = true
 
-  # Thruster serves assets in production, so disable Rails asset server.
-  config.public_file_server.enabled = false
+  # ECS currently starts Puma directly, so honor the task definition's static
+  # file flag instead of assuming Thruster is always in front of Rails.
+  config.public_file_server.enabled = ENV["RAILS_SERVE_STATIC_FILES"].present?
 
   # Cache assets for far-future expiry since they are all digest stamped.
   config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
