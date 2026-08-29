@@ -1,6 +1,7 @@
 require "test_helper"
 require "base64"
 require "tmpdir"
+require "yaml"
 
 class Embroidery::PreviewRendererTest < ActiveSupport::TestCase
   PNG_BYTES = Base64.strict_decode64(
@@ -59,6 +60,17 @@ class Embroidery::PreviewRendererTest < ActiveSupport::TestCase
       ).call
     end
     assert_includes command, "--trim-guides"
+  end
+
+  test "catalog quarter-turns known sideways previews to the left" do
+    products = YAML.load_file(Rails.root.join("db/seeds/catalog.yml")).fetch("products")
+    rotations = products.to_h do |product|
+      [ product.fetch("title"), product.fetch("preview_rotation_degrees", 0) ]
+    end
+
+    %w[Mushroom\ Border Easter\ Eeyore Halloween\ Pumpkin\ Mouse].each do |title|
+      assert_equal(-90, rotations.fetch(title), "expected #{title} to rotate 90 degrees left")
+    end
   end
 
   test "rejects an empty renderer output" do
