@@ -18,6 +18,7 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
       curl \
       fonts-dejavu-core \
+      imagemagick \
       libjemalloc2 \
       libpq5 \
       libvips \
@@ -93,7 +94,8 @@ COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /rails /rails
 
 # Keep renderer dependencies from disappearing from the deployable stage.
-RUN python3 -c "import pyembroidery; from PIL import Image"
+RUN command -v identify >/dev/null && \
+    python3 -c "import pyembroidery; from PIL import Image"
 
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
