@@ -15,14 +15,28 @@ WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libpq5 libvips && \
+    apt-get install --no-install-recommends -y \
+      curl \
+      fonts-dejavu-core \
+      libjemalloc2 \
+      libpq5 \
+      libvips \
+      python3 \
+      python3-venv && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Product preview rerenders run inside the production container.
+RUN python3 -m venv /opt/embroidery-venv && \
+    /opt/embroidery-venv/bin/pip install --no-cache-dir \
+      pyembroidery==1.5.1 \
+      Pillow==12.1.1
 
 # Set production environment
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+    BUNDLE_WITHOUT="development" \
+    PATH="/opt/embroidery-venv/bin:${PATH}"
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
@@ -77,6 +91,9 @@ FROM base
 # Copy built artifacts: gems, application
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /rails /rails
+
+# Keep renderer dependencies from disappearing from the deployable stage.
+RUN python3 -c "import pyembroidery; from PIL import Image"
 
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \

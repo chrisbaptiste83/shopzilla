@@ -16,6 +16,15 @@ variables:
   PGHOST: postgres
   PGUSER: rails
   PGPASSWORD: password
+  BUNDLE_PATH: vendor/bundle
+
+cache:
+  key:
+    prefix: $CI_RUNNER_EXECUTABLE_ARCH
+    files:
+      - Gemfile.lock
+  paths:
+    - vendor/bundle
 
 stages:
   - test
@@ -26,8 +35,9 @@ stages:
 
 .ruby_setup: &ruby_setup
   before_script:
-    - apt-get update -qq && apt-get install -y libpq-dev libvips nodejs npm
+    - apt-get update -qq && apt-get install -y --no-install-recommends libpq-dev libvips
     - gem install bundler --no-document
+    - test ! -d vendor/bundle || chmod -R go-w vendor/bundle
     - bundle install --jobs 4 --retry 3
 
 brakeman:
@@ -56,6 +66,19 @@ rspec:
   variables:
     DATABASE_URL: postgres://rails:password@postgres/shopzilla_test
   <<: *ruby_setup
+  before_script:
+    - apt-get update -qq && apt-get install -y --no-install-recommends curl libpq-dev libvips xz-utils
+    - |
+      case "$(uname -m)" in
+        aarch64) NODE_ARCH=arm64 ;;
+        x86_64) NODE_ARCH=x64 ;;
+        *) echo "Unsupported Node architecture: $(uname -m)" >&2; exit 1 ;;
+      esac
+      curl -fsSL "https://nodejs.org/dist/v18.19.1/node-v18.19.1-linux-${NODE_ARCH}.tar.xz" \
+        | tar -xJ --strip-components=1 -C /usr/local
+    - gem install bundler --no-document
+    - test ! -d vendor/bundle || chmod -R go-w vendor/bundle
+    - bundle install --jobs 4 --retry 3
   script:
     - bash test/docker_entrypoint_test.sh
     - npm install -g yarn && yarn install
