@@ -98,15 +98,11 @@ rspec:
 build:
   stage: build
   image: ubuntu:22.04
-  services:
-    - name: docker:26.1.4-dind
-      alias: docker
+  tags:
+    - fornax
+    - amd64
   variables:
     DEBIAN_FRONTEND: noninteractive
-    # The shared runners deliberately do not mount the host Docker socket.
-    # Keep this job on the same isolated DIND path as the other applications.
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
   before_script:
     - apt-get update -qq && apt-get install -y --no-install-recommends curl unzip ca-certificates
     - |
@@ -135,10 +131,8 @@ build:
         aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
       fi
   script:
-    # The legacy builder resolves FROM against the host's (arm64) image cache
-    # even with --platform; a docker-container BuildKit builder does not.
-    - docker rm -f buildx_buildkit_ci-builder0 2>/dev/null || true
-    - docker buildx create --name ci-builder --driver docker-container --use
+    - export BUILDER_NAME="ci-builder-${CI_JOB_ID}"
+    - docker buildx create --name "$BUILDER_NAME" --driver docker-container --use
     - |
       if [ "$CI_COMMIT_BRANCH" = "main" ]; then
         docker buildx build \
@@ -158,7 +152,7 @@ build:
           --output type=cacheonly \
           .
       fi
-    - docker buildx rm ci-builder || true
+    - docker buildx rm "$BUILDER_NAME" || true
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
