@@ -14,7 +14,6 @@
         </svg>
       </div>
     <% end %>
-    <span class="catalog-product-category"><%= product.category.name %></span>
   <% end %>
 
   <% if user_signed_in? %>
@@ -41,6 +40,7 @@
   <% end %>
 
   <div class="catalog-product-copy">
+    <p class="catalog-product-category"><%= product.category.name %></p>
     <h2><%= link_to product.title, product_path(product) %></h2>
     <div class="catalog-product-meta">
       <span><%= number_to_currency(product.price) %></span>

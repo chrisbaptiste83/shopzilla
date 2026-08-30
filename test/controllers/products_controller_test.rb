@@ -54,6 +54,8 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
       minimum: 1
     assert_select ".catalog-product-media img[src*='r-max']", count: 0
     assert_select ".catalog-product-media img[src*='/rails/active_storage/representations/']", count: 0
+    assert_select ".catalog-product-media .catalog-product-category", count: 0
+    assert_select ".catalog-product-copy > .catalog-product-category", minimum: 1
   end
 
   test "show is publicly accessible" do
