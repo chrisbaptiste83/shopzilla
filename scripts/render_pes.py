@@ -26,13 +26,13 @@ STYLES = {
         "shadow_drop":  20,
     },
     "light": {
-        "bg":           (245, 240, 228),
+        "bg":           (250, 250, 248),
         "legend":       True,
         "zoom":         1.0,
-        "panel_fill":   (255, 255, 255, 215),
+        "panel_fill":   (255, 255, 255, 238),
         "panel_title":  (40, 40, 40),
         "panel_text":   (60, 60, 60),
-        "vignette_str": 40,
+        "vignette_str": 0,
         "shadow_drop":  15,
     },
     "detail": {
@@ -63,6 +63,29 @@ def get_font(size):
             except Exception:
                 pass
     return ImageFont.load_default()
+
+
+def text_width(font, text):
+    try:
+        return font.getlength(text)
+    except AttributeError:
+        return len(text) * max(7, getattr(font, "size", 14) * 0.55)
+
+
+def truncate_text(font, text, max_width):
+    """Fit a legend label without allowing it to widen beyond its panel."""
+    if text_width(font, text) <= max_width:
+        return text
+
+    suffix = "..."
+    low, high = 0, len(text)
+    while low < high:
+        mid = (low + high + 1) // 2
+        if text_width(font, text[:mid] + suffix) <= max_width:
+            low = mid
+        else:
+            high = mid - 1
+    return text[:low].rstrip() + suffix
 
 
 def thread_color(rgb, style_name):
@@ -251,16 +274,6 @@ def render(pes_path, out_path, size=1200, style_name="dark", trim_guides=False, 
         w = max_x - min_x or 1
         h = max_y - min_y or 1
 
-    pad = 80
-    inner = size - pad * 2
-    base_scale = min(inner / w, inner / h)
-    scale = base_scale * cfg["zoom"]
-
-    render_w = int(w * scale)
-    render_h = int(h * scale)
-    offset_x = (size - render_w) // 2
-    offset_y = (size - render_h) // 2
-
     img = Image.new("RGB", (size, size), cfg["bg"])
     draw = ImageDraw.Draw(img)
 
@@ -303,6 +316,74 @@ def render(pes_path, out_path, size=1200, style_name="dark", trim_guides=False, 
         elif cmd == pyembroidery.STITCH and stitch_i not in guide_idx and color_idx not in seen:
             seen.add(color_idx)
             used_colors.append(color_idx)
+
+    # Measure the legend before positioning the artwork. Most designs can stay
+    # centered at full size. When the top-right legend would cover stitches,
+    # reserve a separate art area to its left and fit the design there instead.
+    legend_layout = None
+    if cfg["legend"] and used_colors:
+        swatch = 20
+        margin = 14
+        title_row_h = 28
+        max_panel_h = size - 36
+        row_h = min(
+            28,
+            max(14, (max_panel_h - margin * 2 - title_row_h) // len(used_colors)),
+        )
+        font_title = get_font(22)
+        font_item = get_font(max(11, min(19, row_h - 7)))
+        title = "Thread Colors"
+
+        max_label_w = max(text_width(font_item, get_thread_name(i)) for i in used_colors)
+        panel_w = min(
+            int(max(max_label_w, text_width(font_title, title)) + swatch + margin * 3 + 32),
+            int(size * 0.38),
+        )
+        panel_h = margin + title_row_h + len(used_colors) * row_h + margin
+        legend_layout = {
+            "font_title": font_title,
+            "font_item": font_item,
+            "swatch": swatch,
+            "row_h": row_h,
+            "margin": margin,
+            "title": title,
+            "x": size - panel_w - 18,
+            "y": 18,
+            "width": panel_w,
+            "height": panel_h,
+        }
+
+    pad = 80
+    inner = size - pad * 2
+    base_scale = min(inner / w, inner / h)
+    scale = base_scale * cfg["zoom"]
+    render_w = int(w * scale)
+    render_h = int(h * scale)
+    offset_x = (size - render_w) // 2
+    offset_y = (size - render_h) // 2
+
+    if legend_layout:
+        gap = 28
+        legend_left = legend_layout["x"]
+        legend_top = legend_layout["y"]
+        legend_bottom = legend_top + legend_layout["height"]
+        overlaps_legend = any(
+            stitch[2] == pyembroidery.STITCH
+            and stitch_i not in guide_idx
+            and legend_left - gap <= int((stitch[0] - min_x) * scale) + offset_x
+            and int((stitch[1] - min_y) * scale) + offset_y <= legend_bottom + gap
+            and int((stitch[1] - min_y) * scale) + offset_y >= legend_top - gap
+            for stitch_i, stitch in enumerate(stitches)
+        )
+
+        if overlaps_legend:
+            art_width = max(1, legend_left - gap - pad)
+            base_scale = min(art_width / w, inner / h)
+            scale = base_scale * cfg["zoom"]
+            render_w = int(w * scale)
+            render_h = int(h * scale)
+            offset_x = pad + (art_width - render_w) // 2
+            offset_y = pad + (inner - render_h) // 2
 
     # Draw stitches
     color_idx = 0
@@ -372,58 +453,44 @@ def render(pes_path, out_path, size=1200, style_name="dark", trim_guides=False, 
     img = img.filter(ImageFilter.SHARPEN)
 
     # ── Vignette ──────────────────────────────────────────────────────────────
-    vstr = cfg["vignette_str"]
-    vignette = Image.new("L", (size, size), 0)
-    vd = ImageDraw.Draw(vignette)
-    cx, cy = size // 2, size // 2
-    steps = 60
-    for i in range(steps, 0, -1):
-        ratio = i / steps
-        alpha = int(vstr * (1 - ratio) ** 1.8)
-        r = int(size * 0.72 * ratio)
-        vd.ellipse([cx - r, cy - r, cx + r, cy + r], fill=alpha)
-    vignette = vignette.filter(ImageFilter.GaussianBlur(radius=size // 8))
-    vignette_rgba = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    vignette_rgba.putalpha(vignette)
     img = img.convert("RGBA")
-    img = Image.alpha_composite(img, vignette_rgba)
-
-    # ── Rounded corners ───────────────────────────────────────────────────────
-    corner_r = size // 14
-    mask = Image.new("L", (size, size), 0)
-    md = ImageDraw.Draw(mask)
-    md.rounded_rectangle([0, 0, size, size], radius=corner_r, fill=255)
-    img.putalpha(mask)
+    vstr = cfg["vignette_str"]
+    if vstr:
+        vignette = Image.new("L", (size, size), 0)
+        vd = ImageDraw.Draw(vignette)
+        cx, cy = size // 2, size // 2
+        steps = 60
+        for i in range(steps, 0, -1):
+            ratio = i / steps
+            alpha = int(vstr * (1 - ratio) ** 1.8)
+            r = int(size * 0.72 * ratio)
+            vd.ellipse([cx - r, cy - r, cx + r, cy + r], fill=alpha)
+        vignette = vignette.filter(ImageFilter.GaussianBlur(radius=size // 8))
+        vignette_rgba = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        vignette_rgba.putalpha(vignette)
+        img = Image.alpha_composite(img, vignette_rgba)
 
     # ── Thread legend (dark + light styles only) ──────────────────────────────
-    if cfg["legend"] and used_colors:
-        font_title = get_font(22)
-        font_item  = get_font(19)
-
-        swatch = 20
-        row_h  = 28
-        margin = 14
-        title  = "Thread Colors"
-
-        max_label = max((get_thread_name(i) for i in used_colors), key=len)
-        try:
-            label_w = font_item.getlength(max_label)
-            title_w = font_title.getlength(title)
-        except AttributeError:
-            label_w = len(max_label) * 11
-            title_w = len(title) * 13
-
-        panel_w = int(max(label_w, title_w) + swatch + margin * 3 + 8)
-        panel_h = margin + row_h + len(used_colors) * row_h + margin
-
+    if legend_layout:
+        font_title = legend_layout["font_title"]
+        font_item = legend_layout["font_item"]
+        swatch = legend_layout["swatch"]
+        row_h = legend_layout["row_h"]
+        margin = legend_layout["margin"]
+        title = legend_layout["title"]
+        panel_w = legend_layout["width"]
+        panel_h = legend_layout["height"]
         overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
         ov_draw = ImageDraw.Draw(overlay)
-        px_off = size - panel_w - 18
-        py_off = 18
+        px_off = legend_layout["x"]
+        py_off = legend_layout["y"]
+        panel_outline = (216, 222, 218, 255) if style_name == "light" else (255, 255, 255, 45)
         ov_draw.rounded_rectangle(
             [px_off, py_off, px_off + panel_w, py_off + panel_h],
             radius=10,
             fill=cfg["panel_fill"],
+            outline=panel_outline,
+            width=1,
         )
         img = Image.alpha_composite(img.convert("RGBA"), overlay)
         draw = ImageDraw.Draw(img)
@@ -437,7 +504,8 @@ def render(pes_path, out_path, size=1200, style_name="dark", trim_guides=False, 
 
         for row, cidx in enumerate(used_colors):
             color = get_color(cidx)
-            name  = get_thread_name(cidx)
+            label_width = panel_w - margin * 3 - swatch - 8
+            name = truncate_text(font_item, get_thread_name(cidx), label_width)
             ry = py_off + margin + row_h + row * row_h
             sx = px_off + margin
 
