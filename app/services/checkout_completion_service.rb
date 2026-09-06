@@ -9,7 +9,7 @@ class CheckoutCompletionService
 
       return if Order.exists?(stripe_session_id: session["id"])
 
-      ActiveRecord::Base.transaction do
+      order = ActiveRecord::Base.transaction do
         order = if metadata["order_id"].present?
           existing_order = Order.find(metadata["order_id"])
           existing_order.update!(
@@ -62,6 +62,13 @@ class CheckoutCompletionService
 
         order
       end
+
+      if order
+        OrderMailer.customer_receipt(order.id).deliver_later
+        OrderMailer.merchant_order_notification(order.id).deliver_later
+      end
+
+      order
     end
 
     def complete_from_payment_intent(intent)
@@ -72,7 +79,7 @@ class CheckoutCompletionService
       return unless user
       return if Payment.exists?(stripe_payment_id: intent["id"])
 
-      ActiveRecord::Base.transaction do
+      order = ActiveRecord::Base.transaction do
         order = Order.create!(
           user: user,
           total: intent["amount"].to_f / 100.0,
@@ -109,6 +116,13 @@ class CheckoutCompletionService
 
         order
       end
+
+      if order
+        OrderMailer.customer_receipt(order.id).deliver_later
+        OrderMailer.merchant_order_notification(order.id).deliver_later
+      end
+
+      order
     end
 
     private

@@ -19,4 +19,40 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "link[href*='cdn.jsdelivr.net']", count: 0
     assert_select "script[src*='js.stripe.com']", count: 0
   end
+
+  test "contact page renders successfully" do
+    get contact_url
+    assert_response :success
+    assert_select "form[action='/contact']"
+    assert_select "input[name='email']"
+  end
+
+  test "submitting contact form enqueues ContactMailer and redirects with notice" do
+    assert_enqueued_emails 1 do
+      post contact_url, params: {
+        name: "Gloria Fan",
+        email: "customer@example.com",
+        subject: "Question about PES files",
+        message: "Do your files work with Brother SE600?"
+      }
+    end
+
+    assert_redirected_to contact_path
+    follow_redirect!
+    assert_select ".alert-success", text: /received your message/
+  end
+
+  test "submitting contact form with missing fields renders unprocessable_entity" do
+    assert_no_emails do
+      post contact_url, params: {
+        name: "",
+        email: "",
+        subject: "",
+        message: ""
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".alert-error", text: /Please provide your name/
+  end
 end

@@ -1,0 +1,29 @@
+Thank You for Your Order!
+Order #<%= @order.id %> · <%= @order.created_at.strftime("%B %d, %Y") %>
+==================================================
+
+Hi <%= @user.email %>,
+
+Your order has been completed successfully.
+
+Order Summary:
+--------------------------------------------------
+<% @order_items.each do |item| %>
+* <%= item.product.title %> (Qty: <%= item.quantity %>) - <%= number_to_currency(item.unit_price) %>
+<% end %>
+
+Total Paid: <%= number_to_currency(@order.total) %>
+
+<% if @downloads.any? %>
+Your Digital Downloads (.PES):
+--------------------------------------------------
+<% @downloads.each do |download| %>
+* <%= download.product.title %>: <%= secure_download_url(download.access_token) %>
+<% end %>
+
+(Download links are valid for 30 days. You can also view them anytime in your Dashboard: <%= dashboard_downloads_url %>)
+<% end %>
+
+Questions or need help with machine formats? Contact us at <%= contact_url %>.
+
+Gloria's Embroidery · gloriasembroideryshop.com

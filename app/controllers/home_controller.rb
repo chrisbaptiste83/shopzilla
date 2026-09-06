@@ -11,5 +11,26 @@ class HomeController < ApplicationController
   end
 
   def contact
+    if request.post?
+      name = params[:name].to_s.strip
+      email = params[:email].to_s.strip
+      subject = params[:subject].to_s.strip
+      message = params[:message].to_s.strip
+
+      if name.blank? || email.blank? || message.blank?
+        flash.now[:alert] = "Please provide your name, email address, and a message."
+        render :contact, status: :unprocessable_entity
+        return
+      end
+
+      ContactMailer.message_notification(
+        name: name,
+        email: email,
+        subject: subject,
+        message: message
+      ).deliver_later
+
+      redirect_to contact_path, notice: "Thank you for reaching out! We received your message and will respond within 24–48 hours."
+    end
   end
 end

@@ -417,6 +417,163 @@ namespace :embroidery_catalog do
     puts "  Total products in DB: #{Product.count}"
   end
 
+  # ─────────────────────────────────────────────────────────────────────────
+  # Ingest a curated batch from the Tailscale exchange directory.
+  #
+  # Expected structure:
+  #   BATCH_DIR/
+  #     manifest.json
+  #     checksums.sha256
+  #     source/*.pes
+  #     previews/*_preview_light.png
+  #
+  # Usage:
+  #   BATCH_DIR="/Users/Shared/ShopzillaCatalog/10-exchange/ready/batch-01-florals" \
+  #   bin/rails embroidery_catalog:import_exchange_batch
+  # ─────────────────────────────────────────────────────────────────────────
+  desc "Import a curated batch from the exchange directory into Rails"
+  task import_exchange_batch: :environment do
+    require "digest"
+    require "json"
+
+    batch_dir_path = ENV["BATCH_DIR"]
+    if batch_dir_path.blank?
+      default_candidate = Pathname.new("/Users/Shared/ShopzillaCatalog/10-exchange/ready/batch-01-florals")
+      batch_dir_path = default_candidate.to_s if default_candidate.directory?
+    end
+
+    raise "BATCH_DIR is required or default not found" if batch_dir_path.blank?
+
+    batch_dir = Pathname.new(batch_dir_path).expand_path
+    raise "Batch directory does not exist: #{batch_dir}" unless batch_dir.directory?
+
+    manifest_file = batch_dir.join("manifest.json")
+    raise "manifest.json not found in #{batch_dir}" unless manifest_file.file?
+
+    manifest = JSON.parse(manifest_file.read)
+    items = manifest["items"] || []
+    price_cents = ENV.fetch("PRICE_CENTS", "500").to_i
+    require_approval = ActiveModel::Type::Boolean.new.cast(ENV.fetch("REQUIRE_APPROVAL", "false"))
+
+    puts "================================================================="
+    puts "Importing Exchange Batch: #{manifest['batch_id'] || batch_dir.basename}"
+    puts "Source Directory:         #{batch_dir}"
+    puts "Total Items:              #{items.size}"
+    puts "================================================================="
+
+    created = 0
+    updated = 0
+    skipped = 0
+    errors  = []
+
+    items.each_with_index do |item, idx|
+      title        = item["candidate_title"].to_s.strip
+      cat_name     = item["candidate_category"].to_s.strip
+      status       = item["curation_status"].to_s.downcase
+      staged_pes   = item["staged_filename"]
+      preview_rel  = item["preview_image"]
+      expected_sha = item["sha256"]
+
+      if require_approval && status != "approved"
+        puts "  [#{idx + 1}/#{items.size}] Skipping #{title} (status: #{status})"
+        skipped += 1
+        next
+      end
+
+      pes_path = batch_dir.join("source", staged_pes)
+      pes_path = batch_dir.join(staged_pes) unless pes_path.file?
+
+      unless pes_path.file?
+        errors << { title: title, error: "PES file not found: #{staged_pes}" }
+        warn "  [#{idx + 1}/#{items.size}] ERROR: PES file not found for #{title}"
+        next
+      end
+
+      if expected_sha.present?
+        actual_sha = Digest::SHA256.file(pes_path).hexdigest
+        if actual_sha != expected_sha
+          errors << { title: title, error: "SHA256 mismatch for #{staged_pes}" }
+          warn "  [#{idx + 1}/#{items.size}] CHECKSUM MISMATCH for #{staged_pes}"
+          next
+        end
+      end
+
+      preview_path = preview_rel.present? ? batch_dir.join(preview_rel) : nil
+
+      begin
+        category = Category.find_or_create_by!(name: cat_name)
+        product  = Product.find_or_initialize_by(title: title, category: category)
+        is_new   = product.new_record?
+
+        product.price            = price_cents if product.price.blank? || product.price.to_i <= 0
+        product.is_available     = true  if product.is_available.nil?
+        product.physical_product = false if product.physical_product.nil?
+        product.shippable        = false if product.shippable.nil?
+        product.file_format      = "PES" if product.file_format.blank?
+
+        if product.description.blank?
+          product.description = build_flat_description(title, cat_name, nil)
+        end
+
+        product.save!
+
+        if preview_path && preview_path.file? && (!product.images.attached? || is_new)
+          filename = preview_path.basename.to_s
+          product.images.attach(
+            io:           File.open(preview_path, "rb"),
+            filename:     filename,
+            content_type: "image/png",
+            metadata:     Product.image_metadata_for(
+              filename:     filename,
+              role:         "primary",
+              render_style: "light"
+            )
+          )
+        end
+
+        if !product.embroidery_file.attached? || is_new
+          product.embroidery_file.attach(
+            io:           File.open(pes_path, "rb"),
+            filename:     pes_path.basename.to_s,
+            content_type: "application/octet-stream"
+          )
+        end
+
+        is_new ? (created += 1) : (updated += 1)
+        puts "  [#{idx + 1}/#{items.size}] #{is_new ? '+' : '~'} #{title} [#{cat_name}]"
+      rescue => e
+        errors << { title: title, error: e.message }
+        warn "  [#{idx + 1}/#{items.size}] ERROR #{title}: #{e.message}"
+      end
+    end
+
+    receipt = {
+      imported_at: Time.current.iso8601,
+      batch_id: manifest["batch_id"],
+      summary: {
+        total: items.size,
+        created: created,
+        updated: updated,
+        skipped: skipped,
+        errors: errors.size
+      },
+      errors: errors
+    }
+
+    receipt_path = batch_dir.join("import_receipt.json")
+    File.write(receipt_path, JSON.pretty_generate(receipt))
+
+    puts "\n================================================================="
+    puts "Batch Import Completed"
+    puts "  Created:  #{created}"
+    puts "  Updated:  #{updated}"
+    puts "  Skipped:  #{skipped}"
+    puts "  Errors:   #{errors.size}"
+    puts "  Receipt:  #{receipt_path}"
+    puts "  Total Products in DB: #{Product.count}"
+    puts "================================================================="
+  end
+
   def build_flat_description(name, category_label, stitch_count)
     lines = ["#{name} embroidery design."]
     if stitch_count.present?

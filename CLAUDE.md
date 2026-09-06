@@ -23,5 +23,10 @@ bin/rails test
 bundle exec rubocop
 ```
 
+## Placement
+
+Shopzilla remains on AWS ECS. Its production DNS and release path must not be
+changed to the GCP Kamal VPS; verify the active AWS account before deployment.
+
 ## Conventions
 - Uses Minitest for testing
